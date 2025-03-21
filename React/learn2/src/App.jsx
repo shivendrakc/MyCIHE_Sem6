@@ -1,12 +1,14 @@
 // App.jsx
 import React from 'react';
-import Navbar from './pages/landing'; // Import the Navbar component
+import Navbar from './pages/Navbar'; // Import the Navbar component
+import Main from './pages/Main'
+import Prac from './pages/Prac'
 
 function App() {
   return (
     <div>
-      <Navbar /> {/* Use the Navbar component */}
-      <h1>Welcome to the App!</h1>
+     
+      <Prac />
     </div>
   );
 }
