@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register | Learn2Drive</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="register-page">
+    <main class="register__form-container">
+      <h1 class="register__form-title">
+        Sign Up to Enlighten Your Driving Journey
+      </h1>
+
+      <div class="register__social-login">
+        <button class="register__social-btn">
+          <img
+            src="google.png"
+            alt="Google Logo"
+            class="register__social-icon"
+          />
+          Sign up with Google
+        </button>
+
+        <button class="register__social-btn">
+          <img
+            src="facebook.png"
+            alt="Facebook Logo"
+            class="register__social-icon"
+          />
+          Sign up with Facebook
+        </button>
+
+        <button class="register__social-btn">
+          <img
+            src="twitter.png"
+            alt="Twitter Logo"
+            class="register__social-icon"
+          />
+          Sign up with Twitter
+        </button>
+      </div>
+
+      <div class="register__divider">
+        <hr class="auth__divider-line" />
+        <span class="auth__divider-text">OR</span>
+        <hr class="auth__divider-line" />
+      </div>
+
+      <form action="#" class="auth__form register__form">
+        <h3 class="subtitle">Sign Up with Your Email</h3>
+
+        <div class="register-form-item">
+          <label for="profile-name">Profile Name</label>
+          <input
+            type="text"
+            id="profile-name"
+            placeholder="Enter your profile name"
+          />
+        </div>
+
+        <div class="register-form-item">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" />
+        </div>
+
+        <div class="register-form-item">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+          />
+          <p class="auth__password-hint">
+            Use 8+ characters with letters, numbers & symbols
+          </p>
+        </div>
+
+        <div class="register-form-item">
+          <label>What's your gender? (Optional)</label>
+          <div class="auth__gender-options">
+            <label
+              ><input type="radio" name="gender" value="Female" /> Female</label
+            >
+            <label
+              ><input type="radio" name="gender" value="Male" /> Male</label
+            >
+            <label
+              ><input type="radio" name="gender" value="Non-binary" />
+              Non-binary</label
+            >
+          </div>
+        </div>
+
+        <div class="register-form-item">
+          <label>Date of Birth</label>
+          <div class="auth__dob">
+            <select id="dob-month" class="auth__dob-select">
+              <option>January</option>
+              <option>February</option>
+              <option>March</option>
+              <option>April</option>
+              <option>May</option>
+              <option>June</option>
+              <option>July</option>
+              <option>August</option>
+              <option>September</option>
+              <option>October</option>
+              <option>November</option>
+              <option>December</option>
+            </select>
+
+            <select id="dob-date" class="auth__dob-select">
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8</option>
+              <option>9</option>
+              <option>10</option>
+              <option>11</option>
+              <option>12</option>
+              <option>13</option>
+              <option>14</option>
+              <option>15</option>
+              <option>16</option>
+              <option>17</option>
+              <option>18</option>
+              <option>19</option>
+              <option>20</option>
+            </select>
+
+            <select id="dob-year" class="auth__dob-select">
+              <option>1980</option>
+              <option>1981</option>
+              <option>1982</option>
+              <option>1983</option>
+              <option>1984</option>
+              <option>1985</option>
+              <option>1986</option>
+              <option>1987</option>
+              <option>1988</option>
+              <option>1989</option>
+              <option>1990</option>
+              <option>1991</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="auth-register-checkbox">
+          <input type="checkbox" /> Share my registration data for marketing
+          purposes
+        </label>
+
+        <p class="terms">
+          By creating an account, you agree to the
+          <span class="link-text">Terms of Use</span> and
+          <span class="link-text">Privacy Policy</span>.
+        </p>
+
+        <button type="submit" class="auth__submit-btn">Sign Up</button>
+
+        <p class="auth_login">
+          Already have an account?
+          <a href="login.html" class="link-text">Log in</a>
+        </p>
+      </form>
+    </main>
+  </body>
+</html>

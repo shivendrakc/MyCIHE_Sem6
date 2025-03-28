@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In | Learn2Drive</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="login-page">
+    <main class="auth__login-container">
+      <section class="auth__image-container">
+        <img src="login.svg" alt="Login illustration" class="auth__image" />
+      </section>
+
+      <section class="auth__form-container">
+        <h1 class="auth__subtitle">Welcome to</h1>
+        <h1 class="auth__title">Learn2Drive</h1>
+
+        <div class="auth__social-login">
+          <button class="auth__social-btn">
+            <img src="google.png" alt="Google Logo" class="auth__social-icon" />
+            Login with Google
+          </button>
+
+          <button class="auth__social-btn">
+            <img
+              src="facebook.png"
+              alt="Facebook Logo"
+              class="auth__social-icon"
+            />
+            Login with Facebook
+          </button>
+        </div>
+
+        <div class="auth__divider">
+          <hr class="auth__divider-line" />
+          <span class="auth__divider-text">OR</span>
+          <hr class="auth__divider-line" />
+        </div>
+
+        <form action="#" class="auth__form">
+          <div class="auth__form-group">
+            <label for="email" class="auth__label">Email</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter your email"
+              class="auth__input"
+            />
+          </div>
+
+          <div class="auth__form-group">
+            <label for="password" class="auth__label">Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              class="auth__input"
+            />
+          </div>
+
+          <div class="auth__options">
+            <label class="auth__checkbox">
+              <input type="checkbox" /> Remember me
+            </label>
+            <a href="#" class="auth__forgot-password">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="auth__submit-btn">Login</button>
+
+          <p class="auth__register">
+            Don't have an account?
+            <a href="register.html" class="auth__register-link">Register</a>
+          </p>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
