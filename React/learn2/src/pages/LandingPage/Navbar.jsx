@@ -1,9 +1,11 @@
 // Navbar.jsx
 import '../../index.css';
 import {Link} from 'react-router-dom'; // Import Link from react-router-dom for navigation
+
+
 const Navbar = () => {
     return (
-      <header className="bg-(--background) py-5 border-b-2 border-sky-200">
+      <header className="bg-(--background) py-5 border-b-2 border-sky-200 fixed w-full">
         <div className="container mx-auto px-4">
           <nav className="flex justify-between items-center">
             <div className="text-2xl font-bold text-blue-600">LEARN 2 DRIVE</div>
