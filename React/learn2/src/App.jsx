@@ -9,6 +9,8 @@ import Footer from './pages/LandingPage/Footer'
 import Prac from './pages/Prac'
 import LoginPage from './pages/Login-Registration/login'; // Import the LoginPage component
 import { Routes, Route } from 'react-router-dom'; // Import Routes and Route for routing
+import RegisterPage from './pages/Login-Registration/register';
+
 
 
 function LandingPage() {
@@ -18,6 +20,7 @@ function LandingPage() {
       <About />
       <Services />
       <Stats />
+      <Footer />
     </div>
   );
 }
@@ -32,13 +35,14 @@ function App() {
         {/* When URL is "/practical", show Prac */}
         {/* When URL is "/login", show LoginPage */}
         <Route path="/Login-Registration/login.jsx" element={<LoginPage />} />
+        <Route path="/register.jsx" element={<RegisterPage />} /> 
+
 
         {/* Add other routes here if you have more pages */}
         {/* <Route path="/about" element={<AboutPage />} /> */}
       </Routes>
-      
-      <Footer />
-      
+
+    
     </div>
   );
 }
