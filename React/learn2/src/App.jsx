@@ -5,13 +5,10 @@ import Main from './pages/LandingPage/Main';
 import About from './pages/LandingPage/About';
 import Services from './pages/LandingPage/Services';
 import Stats from './pages/LandingPage/Stats';
-import Footer from './pages/LandingPage/Footer'
-import Prac from './pages/Prac'
-import LoginPage from './pages/Login-Registration/login'; // Import the LoginPage component
-import { Routes, Route } from 'react-router-dom'; // Import Routes and Route for routing
+import Footer from './pages/LandingPage/Footer';
+import Prac from './pages/Prac';
+import LoginPage from './pages/Login-Registration/login';
 import RegisterPage from './pages/Login-Registration/register';
-
-
 
 function LandingPage() {
   return (
@@ -24,26 +21,20 @@ function LandingPage() {
     </div>
   );
 }
+
 function App() {
   return (
-    <div>
+    <Router>
       <Navbar />
       <Routes>
         {/* When URL is "/", show LandingPage */}
         <Route path="/" element={<LandingPage />} />
 
-        {/* When URL is "/practical", show Prac */}
         {/* When URL is "/login", show LoginPage */}
         <Route path="/Login-Registration/login.jsx" element={<LoginPage />} />
-        <Route path="/register.jsx" element={<RegisterPage />} /> 
-
-
-        {/* Add other routes here if you have more pages */}
-        {/* <Route path="/about" element={<AboutPage />} /> */}
+        <Route path="/register.jsx" element={<RegisterPage />} />
       </Routes>
-
-    
-    </div>
+    </Router>
   );
 }
 
