@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import '@fortawesome/fontawesome-svg-core/styles.css';
 
-
 :root {
   --text: #050f04;
   --background: #CDF3FF;
