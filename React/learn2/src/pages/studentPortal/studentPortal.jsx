@@ -87,7 +87,7 @@ const StudentPortal = () => {
 
   const handleBookNow = (instructorId) => {
     console.log(`Booking instructor with ID: ${instructorId}`);
-    navigate(`/paymentForm/${instructorId}`);
+    navigate(`/datePicker/${instructorId}`);
   };
 
   const renderStars = (rating) => {

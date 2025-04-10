@@ -5,7 +5,9 @@ import Navbar from './pages/LandingPage/Navbar';
 import LoginPage from './pages/Login-Registration/login';
 import RegisterPage from './pages/Login-Registration/register';
 import InstructorPortal from './pages/InstructorPages/instructorPortal';
+import DatePicker from './pages/studentPortal/datePicker.jsx';
 import StudentPortal from './pages/studentPortal/StudentPortal.jsx';
+import PaymentForm from './pages/Payment/paymentForm.jsx';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/instructorPortal" element={<InstructorPortal />} />
         <Route path="/studentPortal" element={<StudentPortal />} />
+        <Route path="/datePicker/:instructorId" element={<DatePicker />}/>
+        <Route path="/paymentForm" element={<PaymentForm />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Routes>
