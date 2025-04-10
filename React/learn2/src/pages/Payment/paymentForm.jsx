@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const PaymentForm = () => {
-  const { instructorId } = useParams(); // Retrieve the instructor ID from the URL
-  const navigate = useNavigate(); // For navigation after payment
-  const [instructor, setInstructor] = useState(null); // State to store instructor details
+  const { instructorId } = useParams(); 
+  const navigate = useNavigate();
+  const [instructor, setInstructor] = useState(null);
   const [formData, setFormData] = useState({
     cardholderName: '',
     cardNumber: '',
@@ -16,9 +16,8 @@ const PaymentForm = () => {
   const [discount, setDiscount] = useState(0);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const taxRate = 0.2; // 20% tax
+  const taxRate = 0.2; 
 
-  // Mock data for instructors
   const mockInstructors = [
     {
       id: 1,
@@ -33,7 +32,6 @@ const PaymentForm = () => {
   ];
 
   useEffect(() => {
-    // Fetch instructor details based on the instructorId
     const selectedInstructor = mockInstructors.find(
       (instructor) => instructor.id === parseInt(instructorId)
     );
@@ -54,10 +52,10 @@ const PaymentForm = () => {
 
   const handleApplyDiscount = () => {
     if (formData.discountCode === 'CHIKAMSO-20-OFF') {
-      setDiscount(20); // Apply a $20 discount
+      setDiscount(20);
       setSuccessMessage('Discount applied successfully!');
     } else {
-      setDiscount(0); // No discount
+      setDiscount(0); 
       setSuccessMessage('');
       alert('Invalid discount code');
     }
@@ -80,7 +78,6 @@ const PaymentForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validate form fields
     if (
       !formData.cardholderName ||
       !formData.cardNumber ||
@@ -90,10 +87,8 @@ const PaymentForm = () => {
       alert('Please fill in all the fields.');
       return;
     }
-
-    // Simulate payment processing
     alert('Payment successful!');
-    navigate('/studentPortal'); // Redirect to the student portal after payment
+    navigate('/studentPortal');
   };
 
   if (error) {
@@ -126,7 +121,6 @@ const PaymentForm = () => {
           overflow: 'hidden',
         }}
       >
-        {/* Left Section */}
         <div style={{ flex: 1, padding: '40px', backgroundColor: '#f9fcff' }}>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}>
             Let’s Make Payment
