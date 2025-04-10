@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon learn2b/server.js",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "server": "nodemon learn2b/server.js",
+    "start": "node Learn2b/server.js"
   },
   "type": "module",
   "keywords": [],
@@ -18,17 +17,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongoose": "^8.13.0",
-    "@fortawesome/fontawesome-svg-core": "^6.7.2",
-    "@fortawesome/free-brands-svg-icons": "^6.7.2",
-    "@fortawesome/free-solid-svg-icons": "^6.7.2",
-    "@fortawesome/react-fontawesome": "^0.2.2",
-    "@tailwindcss/vite": "^4.0.14",
-    "axios": "^1.8.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.4.1",
-    "tailwindcss": "^4.0.14"
+    "express-async-handler": "^1.2.0",
+    "mongoose": "^8.13.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9",
