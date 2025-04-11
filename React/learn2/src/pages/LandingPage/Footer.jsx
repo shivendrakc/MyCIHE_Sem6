@@ -1,68 +1,117 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInstagram, faTwitter, faYoutube } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (!email.includes('@')) {
+      setMessage('Please enter a valid email.');
+      return;
+    }
+    setMessage('Thank you for subscribing!');
+    setEmail('');
+    setTimeout(() => setMessage(''), 3000); // Clear message after 3s
+  };
+
   return (
-    <footer className="bg-gray-800 text-white py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Company Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-400 mb-4">Company</h3>
-            <ul className="space-y-2">
-              <li><a href="#" className="hover:text-sky-400 text-gray-300">About us</a></li>
-              <li><a href="#" className="hover:text-sky-400 text-gray-300">Blog</a></li>
-              <li><a href="#" className="hover:text-sky-400 text-gray-300">Contact us</a></li>
-            </ul>
-          </div>
+    <div
+      id="footer"
+      style={{
+        backgroundColor: '#1f2937',
+        color: '#ffffff',
+        padding: '40px 20px',
+        width: '100%',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        {/* Logo and Tagline */}
+        <div style={{ marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '24px', fontWeight: '600', color: '#3b82f6' }}>Learn2Drive</h3>
+          <p style={{ fontSize: '14px', color: '#d1d5db' }}>
+            Connecting drivers with certified instructors.
+          </p>
+        </div>
 
-          {/* Support Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-400 mb-4">Support</h3>
-            <ul className="space-y-2">
-              <li><a href="#" className="hover:text-sky-400 text-gray-300">Help center</a></li>
-              <li><a href="#" className="hover:text-sky-400 text-gray-300">Terms of service</a></li>
-              <li><a href="#" className="hover:text-sky-400 text-gray-300">Legal</a></li>
-              <li><a href="#" className="hover:text-sky-400 text-gray-300">Privacy policy</a></li>
-              <li><a href="#" className="hover:text-sky-400 text-gray-300">Status</a></li>
-            </ul>
-          </div>
+        {/* Email Subscription */}
+        <div style={{ marginBottom: '20px' }}>
+          <h4 style={{ fontSize: '16px', fontWeight: '500', marginBottom: '12px' }}>
+            Stay Updated
+          </h4>
+          <form
+            onSubmit={handleSubscribe}
+            style={{ display: 'flex', justifyContent: 'center', gap: '10px', maxWidth: '400px', margin: '0 auto' }}
+          >
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Your email address"
+              style={{
+                padding: '10px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                backgroundColor: '#374151',
+                color: '#ffffff',
+                flex: 1,
+                fontSize: '14px',
+              }}
+            />
+            <button
+              type="submit"
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#3b82f6',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                transition: 'background 0.2s',
+              }}
+              onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
+              onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
+            >
+              <FontAwesomeIcon icon={faEnvelope} />
+            </button>
+          </form>
+          {message && (
+            <p style={{ fontSize: '12px', color: message.includes('Thank') ? '#10b981' : '#ef4444', marginTop: '8px' }}>
+              {message}
+            </p>
+          )}
+        </div>
 
-          {/* Stay Up to Date Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-400 mb-4">Stay up to date</h3>
-            <div className="flex items-center border-b border-gray-600 py-2">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="bg-transparent text-gray-300 focus:outline-none flex-1"
-              />
-              <button className="text-gray-400">
-                <FontAwesomeIcon icon={faEnvelope} />
-              </button>
-            </div>
-            <div className="flex space-x-4 mt-6">
-              <a href="#" className="hover:text-sky-400">
-                <FontAwesomeIcon icon={faInstagram} size="lg" />
-              </a>
-              <a href="#" className="hover:text-sky-400">
-                <FontAwesomeIcon icon={faTwitter} size="lg" />
-              </a>
-              <a href="#" className="hover:text-sky-400">
-                <FontAwesomeIcon icon={faYoutube} size="lg" />
-              </a>
-            </div>
-          </div>
+        {/* Social Links */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}>
+          {[
+            { icon: faInstagram, href: '#' },
+            { icon: faTwitter, href: '#' },
+            { icon: faYoutube, href: '#' },
+          ].map((social, index) => (
+            <a
+              key={index}
+              href={social.href}
+              style={{ color: '#d1d5db', fontSize: '20px', transition: 'color 0.2s' }}
+              onMouseOver={(e) => (e.target.style.color = '#3b82f6')}
+              onMouseOut={(e) => (e.target.style.color = '#d1d5db')}
+            >
+              <FontAwesomeIcon icon={social.icon} />
+            </a>
+          ))}
         </div>
 
         {/* Copyright */}
-        <div className="mt-12 pt-6 border-t border-gray-700 text-center text-gray-400">
-          Copyright © 2025 Learn2Drive. All rights reserved
-        </div>
+        <p style={{ fontSize: '12px', color: '#9ca3af' }}>
+          Copyright © {new Date().getFullYear()} Learn2Drive. All rights reserved.
+        </p>
       </div>
-    </footer>
+    </div>
   );
 };
 

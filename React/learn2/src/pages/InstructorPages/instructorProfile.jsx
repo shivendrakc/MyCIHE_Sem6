@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import InstructorMenu from './instructorMenu.jsx';
 
 const InstructorProfile = () => {
   const [email, setEmail] = useState('');
@@ -16,15 +15,12 @@ const InstructorProfile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setProfile((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
-    setEmail(value.endsWith('@gmail.com') ? value : `${value}@gmail.com`);
+    setEmail(value.includes('@') ? value : `${value}@gmail.com`);
   };
 
   const handleDocumentChange = (e) => {
@@ -32,231 +28,189 @@ const InstructorProfile = () => {
   };
 
   const handleUpdateProfile = () => {
+    if (!profile.fullName || !email.includes('@')) {
+      alert('Please provide a valid full name and email.');
+      return;
+    }
     setDisplayProfile({ ...profile, email });
     alert('Profile updated successfully!');
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#F9F9F9' }}>
-      {/* Sidebar */}
-      <InstructorMenu />
+    <div style={{ padding: '20px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: '600', color: '#1f2937' }}>
+          Welcome, {displayProfile.fullName}
+        </h1>
+        <p style={{ fontSize: '14px', color: '#6b7280' }}>Tue, 07 April 2025</p>
+      </div>
 
-      {/* Main Content */}
-      <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '20px',
-          }}
-        >
-          <h1 style={{ fontSize: '24px', fontWeight: '500', color: '#3E435D' }}>Welcome, {displayProfile.fullName}</h1>
-          <p style={{ fontSize: '16px', fontWeight: '300', color: '#ADA7A7' }}>Tue, 07 April 2025</p>
+      {/* Profile Section */}
+      <div
+        style={{
+          backgroundColor: '#ffffff',
+          padding: '20px',
+          borderRadius: '12px',
+          marginBottom: '20px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '20px',
+        }}
+      >
+        <img
+          src="https://placehold.co/100x100"
+          alt="Profile"
+          style={{ width: '100px', height: '100px', borderRadius: '50%' }}
+        />
+        <div>
+          {[
+            { label: 'Full Name', value: displayProfile.fullName },
+            { label: 'Nick Name', value: displayProfile.nickName || 'N/A' },
+            { label: 'Gender', value: displayProfile.gender },
+            { label: 'Country', value: displayProfile.country },
+            { label: 'Language', value: displayProfile.language },
+            { label: 'Email', value: displayProfile.email || 'N/A' },
+          ].map((item, index) => (
+            <div key={index} style={{ marginBottom: '12px' }}>
+              <p style={{ fontSize: '12px', color: '#6b7280' }}>{item.label}</p>
+              <p style={{ fontSize: '16px', color: '#1f2937' }}>{item.value}</p>
+            </div>
+          ))}
         </div>
+      </div>
 
-        {/* Profile Section */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            background: '#FFFFFF',
-            padding: '20px',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            flexWrap: 'wrap',
-          }}
-        >
-          <img
-            src="https://placehold.co/101x102"
-            alt="Profile"
-            style={{ width: '100px', height: '100px', borderRadius: '50%', marginRight: '20px' }}
-          />
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: '500', color: '#3E435D' }}>{displayProfile.fullName}</h2>
-            <p style={{ fontSize: '12px', fontWeight: '400', color: '#ADA7A7', marginBottom: '10px' }}>Full Name</p>
-
-            <p style={{ fontSize: '16px', fontWeight: '400', color: '#ADA7A7' }}>{displayProfile.nickName}</p>
-            <p style={{ fontSize: '12px', fontWeight: '400', color: '#ADA7A7', marginBottom: '10px' }}>Nick Name</p>
-
-            <p style={{ fontSize: '16px', fontWeight: '400', color: '#ADA7A7' }}>{displayProfile.gender}</p>
-            <p style={{ fontSize: '12px', fontWeight: '400', color: '#ADA7A7', marginBottom: '10px' }}>Gender</p>
-
-            <p style={{ fontSize: '16px', fontWeight: '400', color: '#ADA7A7' }}>{displayProfile.country}</p>
-            <p style={{ fontSize: '12px', fontWeight: '400', color: '#ADA7A7', marginBottom: '10px' }}>Country</p>
-
-            <p style={{ fontSize: '16px', fontWeight: '400', color: '#ADA7A7' }}>{displayProfile.language}</p>
-            <p style={{ fontSize: '12px', fontWeight: '400', color: '#ADA7A7', marginBottom: '10px' }}>Language</p>
-
-            <p style={{ fontSize: '16px', fontWeight: '400', color: '#ADA7A7' }}>{displayProfile.email}</p>
-            <p style={{ fontSize: '12px', fontWeight: '400', color: '#ADA7A7', marginBottom: '10px' }}>Email</p>
-          </div>
-        </div>
-
-        {/* Form Section */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '20px',
-            marginBottom: '20px',
-          }}
-        >
-          <div>
-            <label style={{ fontSize: '14px', color: '#3E435D', marginBottom: '5px', display: 'block' }}>
-              Full Name
+      {/* Form Section */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '20px',
+          marginBottom: '20px',
+        }}
+      >
+        {[
+          { label: 'Full Name', name: 'fullName', type: 'text', placeholder: 'Your Full Name' },
+          { label: 'Nick Name', name: 'nickName', type: 'text', placeholder: 'Your Nick Name' },
+          { label: 'Gender', name: 'gender', type: 'select', options: ['male', 'female', 'not-say'] },
+          { label: 'Country', name: 'country', type: 'text', placeholder: 'Type your country' },
+          { label: 'Language', name: 'language', type: 'text', placeholder: 'Type your language' },
+        ].map((field, index) => (
+          <div key={index}>
+            <label style={{ fontSize: '14px', color: '#1f2937', marginBottom: '8px', display: 'block' }}>
+              {field.label}
             </label>
-            <input
-              type="text"
-              name="fullName"
-              value={profile.fullName}
-              onChange={handleInputChange}
-              placeholder="Your Full Name"
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #E0E0E0',
-                borderRadius: '8px',
-                background: '#F9F9F9',
-              }}
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: '14px', color: '#3E435D', marginBottom: '5px', display: 'block' }}>
-              Nick Name
-            </label>
-            <input
-              type="text"
-              name="nickName"
-              value={profile.nickName}
-              onChange={handleInputChange}
-              placeholder="Your Nick Name"
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #E0E0E0',
-                borderRadius: '8px',
-                background: '#F9F9F9',
-              }}
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: '14px', color: '#3E435D', marginBottom: '5px', display: 'block' }}>
-              Gender
-            </label>
-            <select
-              name="gender"
-              value={profile.gender}
-              onChange={handleInputChange}
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #E0E0E0',
-                borderRadius: '8px',
-                background: '#F9F9F9',
-              }}
-            >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="not-say">Would rather not say</option>
-            </select>
-          </div>
-          <div>
-            <label style={{ fontSize: '14px', color: '#3E435D', marginBottom: '5px', display: 'block' }}>
-              Country
-            </label>
-            <input
-              type="text"
-              name="country"
-              value={profile.country}
-              onChange={handleInputChange}
-              placeholder="Type your country"
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #E0E0E0',
-                borderRadius: '8px',
-                background: '#F9F9F9',
-              }}
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: '14px', color: '#3E435D', marginBottom: '5px', display: 'block' }}>
-              Language
-            </label>
-            <input
-              type="text"
-              name="language"
-              value={profile.language}
-              onChange={handleInputChange}
-              placeholder="Type your language"
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #E0E0E0',
-                borderRadius: '8px',
-                background: '#F9F9F9',
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Email and Document Section */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '20px',
-          }}
-        >
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#3E435D', marginBottom: '10px' }}>
-              Update Profile
-            </h3>
-            <button
-              onClick={handleUpdateProfile}
-              style={{
-                padding: '10px 20px',
-                background: '#4182F9',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-              }}
-            >
-              Update Profile
-            </button>
-          </div>
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#3E435D', marginBottom: '10px' }}>
-              My Document
-            </h3>
-            <button
-              onClick={() => document.getElementById('fileInput').click()}
-              style={{
-                padding: '10px 20px',
-                background: '#4182F9',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-              }}
-            >
-              Choose Document
-            </button>
-            <input
-              id="fileInput"
-              type="file"
-              onChange={handleDocumentChange}
-              style={{ display: 'none' }}
-            />
-            {document && (
-              <p style={{ fontSize: '14px', color: '#ADA7A7', marginTop: '10px' }}>
-                Selected: {document.name}
-              </p>
+            {field.type === 'select' ? (
+              <select
+                name={field.name}
+                value={profile[field.name]}
+                onChange={handleInputChange}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  backgroundColor: '#f9fafb',
+                  fontSize: '14px',
+                }}
+              >
+                {field.options.map((option) => (
+                  <option key={option} value={option}>
+                    {option.charAt(0).toUpperCase() + option.slice(1).replace('-', ' ')}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type={field.type}
+                name={field.name}
+                value={profile[field.name]}
+                onChange={handleInputChange}
+                placeholder={field.placeholder}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  backgroundColor: '#f9fafb',
+                  fontSize: '14px',
+                }}
+              />
             )}
           </div>
+        ))}
+      </div>
+
+      {/* Email and Document Section */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+        <div>
+          <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937', marginBottom: '12px' }}>
+            Update Profile
+          </h3>
+          <input
+            type="email"
+            value={email}
+            onChange={handleEmailChange}
+            placeholder="Your email"
+            style={{
+              width: '100%',
+              padding: '10px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              backgroundColor: '#f9fafb',
+              fontSize: '14px',
+              marginBottom: '12px',
+            }}
+          />
+          <button
+            onClick={handleUpdateProfile}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#3b82f6',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              transition: 'background 0.2s',
+            }}
+            onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
+            onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
+          >
+            Update Profile
+          </button>
+        </div>
+        <div>
+          <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937', marginBottom: '12px' }}>
+            My Document
+          </h3>
+          <button
+            onClick={() => document.getElementById('fileInput').click()}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#3b82f6',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              transition: 'background 0.2s',
+            }}
+            onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
+            onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
+          >
+            Choose Document
+          </button>
+          <input
+            id="fileInput"
+            type="file"
+            onChange={handleDocumentChange}
+            style={{ display: 'none' }}
+          />
+          {document && (
+            <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '12px' }}>Selected: {document.name}</p>
+          )}
         </div>
       </div>
     </div>
