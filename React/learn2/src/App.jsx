@@ -31,6 +31,9 @@ function App() {
         <Route path="/paymentForm" element={<PaymentForm />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Login Route */}
+        <Route path="/login" element={<LoginPage/>}/>
       </Routes>
     </Router>
   );

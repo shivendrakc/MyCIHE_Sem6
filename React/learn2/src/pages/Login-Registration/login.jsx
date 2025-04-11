@@ -2,9 +2,36 @@ import React from "react";
 import loginSvg from '../../assets/login.svg'; 
 import googlePng from '../../assets/google.png'; 
 import { Link } from 'react-router-dom'; 
+import {  useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import API from "../../utils/axios";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function LoginPage() {
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState(""); 
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await API.post("/users/login", { email, password });
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      navigate("../LandingPage/landingPage.jsx");
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || 'Invalid';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    }
+  }
   return (
+    <div>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar newestOnTop closeOnClick pauseOnHover />
+
     <main className="flex justify-center items-center h-screen bg-[#c6efff]">
       <div className="flex flex-col md:flex-row items-center justify-center w-[90%] max-w-[1000px]">
         {/* Image Section */}
@@ -33,7 +60,7 @@ export default function LoginPage() {
           </div>
 
           {/* Form */}
-          <form className="flex flex-col">
+          <form className="flex flex-col" onSubmit={handleSubmit}>
             <div className="flex flex-col mb-4">
               <label htmlFor="email" className="mb-1 text-[#333] font-medium">Email</label>
               <input
@@ -41,6 +68,7 @@ export default function LoginPage() {
                 id="email"
                 placeholder="Enter your email"
                 className="p-2.5 border border-[#ccc] rounded-md text-base"
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
@@ -51,6 +79,7 @@ export default function LoginPage() {
                 id="password"
                 placeholder="Enter your password"
                 className="p-2.5 border border-[#ccc] rounded-md text-base"
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
@@ -73,5 +102,6 @@ export default function LoginPage() {
         </section>
       </div>
     </main>
+    </div>
   );
 }

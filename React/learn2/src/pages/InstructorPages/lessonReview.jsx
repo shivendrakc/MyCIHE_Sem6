@@ -1,5 +1,5 @@
 import React from 'react';
-import Navbar from '../../components/Navbar'; // Adjust the path as needed
+import Navbar from '../LandingPage/Navbar'; // Adjust the path as needed
 import InstructorMenu from './instructorMenu.jsx';
 
 const LessonReview = () => {
