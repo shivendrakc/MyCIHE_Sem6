@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const DatePicker = () => {
-  const [currentDate, setCurrentDate] = useState(new Date(2022, 11, 6)); 
+  const [currentDate, setCurrentDate] = useState(new Date(2022, 11, 6));
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState({ hour: 12, minute: 0, period: 'AM' });
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ const DatePicker = () => {
       alert('Please select a date before proceeding.');
     }
   };
+
   // Helper functions
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -66,7 +67,7 @@ const DatePicker = () => {
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDay = getFirstDayOfMonth(currentDate);
     const days = [];
-    
+
     // Previous month days
     const prevMonthDays = getDaysInMonth(
       new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
@@ -94,9 +95,9 @@ const DatePicker = () => {
     // Current month days
     for (let day = 1; day <= daysInMonth; day++) {
       const isToday = day === 6 && currentDate.getMonth() === 11 && currentDate.getFullYear() === 2022;
-      const isSelected = selectedDate && 
-        selectedDate.getDate() === day && 
-        selectedDate.getMonth() === currentDate.getMonth() && 
+      const isSelected = selectedDate &&
+        selectedDate.getDate() === day &&
+        selectedDate.getMonth() === currentDate.getMonth() &&
         selectedDate.getFullYear() === currentDate.getFullYear();
 
       days.push(
@@ -145,20 +146,57 @@ const DatePicker = () => {
     return days;
   };
 
+  // Format the selected date and time for display
+  const formatSelectedDateTime = () => {
+    if (!selectedDate) return '';
+    const dateStr = selectedDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    const timeStr = `${selectedTime.hour}:${selectedTime.minute.toString().padStart(2, '0')} ${selectedTime.period}`;
+    return `${dateStr} at ${timeStr}`;
+  };
+
   return (
     <div style={{ width: '1920px', height: '1080px', position: 'relative', background: '#CDF3FF', overflow: 'hidden' }}>
+      {/* Title */}
       <div style={{ left: '365px', top: '80px', position: 'absolute', color: '#454545', fontSize: '36px', fontFamily: 'Inter', fontWeight: 700 }}>
         Learn2Drive
       </div>
 
+      {/* Book a date section */}
       <div style={{ left: '365px', top: '184px', position: 'absolute', color: '#454545', fontSize: '24px', fontFamily: 'Inter', fontWeight: 700 }}>
         Book a date
       </div>
 
-      <div style={{ left: '365px', top: '243px', position: 'absolute', color: '#454545', fontSize: '16px', fontFamily: 'Inter', fontWeight: 400 }}>
+      {/* Instructions */}
+      <div style={{ left: '365px', top: '243px', position: 'absolute', color: '#454545', fontSize: '16px', fontFamily: 'Inter', fontWeight: 400, lineHeight: '24px' }}>
         Navigate through different months by clicking arrow selectors.
+        <br />
+        In this example click <span style={{ fontWeight: 700 }}></span> to navigate to January
+        <br />
+        and <span style={{ fontWeight: 700 }}></span> to navigate back to December
       </div>
 
+      {/* Calendar interaction indicators */}
+      <div style={{ left: '365px', top: '370px', position: 'absolute', color: '#454545', fontSize: '16px', fontFamily: 'Inter', fontWeight: 400, lineHeight: '24px' }}>
+        <span style={{ fontWeight: 700 }}>Calendar interactions:</span>
+        <br />
+        Today is represented by <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <span style={{ width: '16px', height: '16px', background: '#5598FF', borderRadius: '8px', margin: '0 4px' }}></span> 1
+        </span>
+        <br />
+        Day from actual month <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <span style={{ width: '16px', height: '16px', background: 'white', borderRadius: '8px', margin: '0 4px', border: '1px solid #C5C5C5' }}></span> and it’s hover instance <span style={{ width: '16px', height: '16px', background: '#ECECEC', borderRadius: '8px', margin: '0 4px' }}></span>
+        </span>
+        <br />
+        Day from previous and next month <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <span style={{ width: '16px', height: '16px', background: 'white', borderRadius: '8px', margin: '0 4px', border: '1px solid #C5C5C5' }}></span> and it’s hover instance <span style={{ width: '16px', height: '16px', background: '#ECECEC', borderRadius: '8px', margin: '0 4px' }}></span>
+        </span>
+      </div>
+
+      {/* Calendar */}
       <div
         style={{
           width: '340px',
@@ -199,10 +237,19 @@ const DatePicker = () => {
         </div>
       </div>
 
+      {/* Select a time slot section */}
       <div style={{ left: '365px', top: '676px', position: 'absolute', color: '#454545', fontSize: '24px', fontFamily: 'Inter', fontWeight: 700 }}>
         Select a time slot
       </div>
-          
+
+      {/* Time slot instructions */}
+      <div style={{ left: '365px', top: '735px', position: 'absolute', color: '#454545', fontSize: '16px', fontFamily: 'Inter', fontWeight: 400, lineHeight: '24px' }}>
+        Set time by clicking the following:
+        <br />
+        Click <span style={{ fontWeight: 700 }}></span> to decrease or change, and <span style={{ fontWeight: 700 }}></span> to increase or change
+      </div>
+
+      {/* Time picker */}
       <div
         style={{
           width: '254px',
@@ -273,6 +320,102 @@ const DatePicker = () => {
         </div>
       </div>
 
+      {/* Additional time picker (for visual match) */}
+      <div
+        style={{
+          width: '254px',
+          padding: '10px 24px',
+          left: '1326px',
+          top: '676px',
+          position: 'absolute',
+          background: 'white',
+          boxShadow: '0px 0px 20px 4px rgba(191.25, 191.25, 191.25, 0.25)',
+          borderRadius: '12px',
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+            <div
+              onClick={() => handleTimeChange('hour', 'up')}
+              style={{ width: '36px', height: '36px', background: 'white', borderRadius: '18px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
+            >
+              <div style={{ width: '24px', height: '24px', borderTop: '2px solid #454545', borderRight: '2px solid #454545', transform: 'rotate(-45deg)' }} />
+            </div>
+            <div style={{ color: '#454545', fontSize: '18px', fontFamily: 'Inter', fontWeight: 400 }}>
+              {selectedTime.hour.toString().padStart(2, '0')}
+            </div>
+            <div
+              onClick={() => handleTimeChange('hour', 'down')}
+              style={{ width: '36px', height: '36px', background: 'white', borderRadius: '18px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
+            >
+              <div style={{ width: '24px', height: '24px', borderBottom: '2px solid #454545', borderRight: '2px solid #454545', transform: 'rotate(45deg)' }} />
+            </div>
+          </div>
+          <div style={{ color: '#454545', fontSize: '18px', fontFamily: 'Inter', fontWeight: 400 }}>:</div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+            <div
+              onClick={() => handleTimeChange('minute', 'up')}
+              style={{ width: '36px', height: '36px', background: 'white', borderRadius: '18px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
+            >
+              <div style={{ width: '24px', height: '24px', borderTop: '2px solid #454545', borderRight: '2px solid #454545', transform: 'rotate(-45deg)' }} />
+            </div>
+            <div style={{ color: '#454545', fontSize: '18px', fontFamily: 'Inter', fontWeight: 400 }}>
+              {selectedTime.minute.toString().padStart(2, '0')}
+            </div>
+            <div
+              onClick={() => handleTimeChange('minute', 'down')}
+              style={{ width: '36px', height: '36px', background: 'white', borderRadius: '18px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
+            >
+              <div style={{ width: '24px', height: '24px', borderBottom: '2px solid #454545', borderRight: '2px solid #454545', transform: 'rotate(45deg)' }} />
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+          <div
+            onClick={() => handleTimeChange('period', 'toggle')}
+            style={{ width: '36px', height: '36px', background: 'white', borderRadius: '18px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
+          >
+            <div style={{ width: '24px', height: '24px', borderTop: '2px solid #454545', borderRight: '2px solid #454545', transform: 'rotate(-45deg)' }} />
+          </div>
+          <div style={{ color: '#454545', fontSize: '18px', fontFamily: 'Inter', fontWeight: 400 }}>
+            {selectedTime.period}
+          </div>
+          <div
+            onClick={() => handleTimeChange('period', 'toggle')}
+            style={{ width: '36px', height: '36px', background: 'white', borderRadius: '18px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
+          >
+            <div style={{ width: '24px', height: '24px', borderBottom: '2px solid #454545', borderRight: '2px solid #454545', transform: 'rotate(45deg)' }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Display selected date and time above the Book Now button */}
+      {selectedDate && (
+        <div
+          style={{
+            left: '365px',
+            top: '780px', // Positioned above the Book Now button (840px - 60px for spacing)
+            position: 'absolute',
+            background: '#E6F0FA', // Light blue background to match the theme
+            borderRadius: '16px', // Rounded corners for the "circled rectangle"
+            padding: '8px 16px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            color: '#454545',
+            fontSize: '14px',
+            fontFamily: 'Inter',
+            fontWeight: 500,
+            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+          }}
+        >
+          {formatSelectedDateTime()}
+        </div>
+      )}
+
+      {/* Book Now button */}
       <div
         style={{
           width: '140px',
@@ -290,7 +433,7 @@ const DatePicker = () => {
         }}
         onClick={handleBookNow}
       >
-        <div style={{ color: 'white', fontSize: '16px', fontFamily: 'Plus Jakarta Sans', fontWeight: 700, textDecoration: 'underline' }}>
+        <div style={{ color: 'white', fontSize: '16px', fontFamily: 'Plus Jakarta Sans', fontWeight: 700 }}>
           Book Now
         </div>
       </div>
