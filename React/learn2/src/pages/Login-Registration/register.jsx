@@ -1,8 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import googlePng from '../../assets/google.png';
-import facebookPng from '../../assets/facebook.png';
-import twitterPng from '../../assets/twitter.png';
 
 export default function RegisterPage() {
   const currentYear = new Date().getFullYear();
@@ -20,14 +18,6 @@ export default function RegisterPage() {
           <button className="bg-white flex items-center justify-center w-full p-[13px] border border-gray-400 rounded-full text-[18px] text-gray-800 font-medium hover:bg-[#bdeaff] hover:border-[#777]">
             <img src={googlePng} alt="Google Logo" className="w-[22px] h-[22px] mr-2.5" />
             Sign up with Google
-          </button>
-          <button className="bg-white flex items-center justify-center w-full p-[13px] border border-gray-400 rounded-full text-[18px] text-gray-800 font-medium hover:bg-[#bdeaff] hover:border-[#777]">
-            <img src={facebookPng} alt="Facebook Logo" className="w-[22px] h-[22px] mr-2.5" />
-            Sign up with Facebook
-          </button>
-          <button className="bg-white flex items-center justify-center w-full p-[13px] border border-gray-400 rounded-full text-[18px] text-gray-800 font-medium hover:bg-[#bdeaff] hover:border-[#777]">
-            <img src={twitterPng} alt="Twitter Logo" className="w-[22px] h-[22px] mr-2.5" />
-            Sign up with Twitter
           </button>
         </div>
 

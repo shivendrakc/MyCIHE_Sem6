@@ -1,19 +1,15 @@
 import React from "react";
-// --- Adjust your asset paths here --- 
 import loginSvg from '../../assets/login.svg'; 
-import googlePng from '../../assets/google.png'; // Example path 
-import facebookPng from '../../assets/facebook.png'; // Example path
-
-import { Link } from 'react-router-dom'; // Import Routes and Route for routing
+import googlePng from '../../assets/google.png'; 
+import { Link } from 'react-router-dom'; 
 
 export default function LoginPage() {
   return (
-    
     <main className="flex justify-center items-center h-screen bg-[#c6efff]">
       <div className="flex flex-col md:flex-row items-center justify-center w-[90%] max-w-[1000px]">
         {/* Image Section */}
         <section className="hidden md:block flex-1">
-          <img src={loginSvg}  alt="Login illustration" className="w-full h-auto" />
+          <img src={loginSvg} alt="Login illustration" className="w-full h-auto" />
         </section>
 
         {/* Form Section */}
@@ -26,11 +22,6 @@ export default function LoginPage() {
             <button className="bg-white flex items-center justify-center w-full py-2.5 rounded-md shadow-md border-none cursor-pointer text-base">
               <img src={googlePng} alt="Google Logo" className="w-5 h-5 mr-2.5" />
               Login with Google
-            </button>
-
-            <button className="bg-white flex items-center justify-center w-full py-2.5 rounded-md shadow-md border-none cursor-pointer text-base">
-              <img src={facebookPng} alt="Facebook Logo" className="w-5 h-5 mr-2.5" />
-              Login with Facebook
             </button>
           </div>
 
@@ -76,7 +67,7 @@ export default function LoginPage() {
 
             <p className="text-center text-sm mt-4">
               Don't have an account?
-              <Link to="/register.jsx" className="text-[#2e667d] no-underline ml-1">Register</Link>
+              <Link to="/register" className="text-[#2e667d] no-underline ml-1">Register</Link>
             </p>
           </form>
         </section>

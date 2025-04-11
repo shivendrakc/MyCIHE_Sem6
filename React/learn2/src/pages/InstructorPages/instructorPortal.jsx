@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import InstructorMenu from './instructorMenu.jsx'; // Import the instructorMenu component
+import InstructorMenu from './instructorMenu.jsx';
 
 const InstructorPortal = () => {
     const [students, setStudents] = useState([
