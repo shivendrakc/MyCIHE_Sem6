@@ -1,9 +1,10 @@
 import React from 'react'
+import carIcon from "../../assets/car.png"
 
 const Main = () => {
   return (
     <section className="py-20">
-        <div className="container mx-auto px-4 flex items-center justify-around flex-col md:flex-row">
+        <div className="container mx-auto px-4 flex items-center justify-around flex-col md:flex-row mt-60">
           <div className="max-w-lg text-center md:text-left">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
               Find your mate <br /> Learn2Drive with Ease
@@ -21,7 +22,7 @@ const Main = () => {
             </div>
           </div>
           <div className="max-w-md mt-8 md:mt-0">
-            <img src="https://via.placeholder.com/400x250?text=Audi+A4" alt="Audi A4" className="rounded-lg w-full" />
+            <img src={carIcon} alt="Audi A4" className="rounded-lg w-full" />
           </div>
         </div>
       </section>
