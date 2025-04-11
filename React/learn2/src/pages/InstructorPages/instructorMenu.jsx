@@ -50,7 +50,7 @@ const InstructorLayout = ({ children }) => {
           </div>
           <div
             className="menu-item px-3 py-2 text-gray-700 rounded-md cursor-pointer hover:bg-blue-100"
-            onClick={() => handleMenuClick('/lesson-review')}
+            onClick={() => handleMenuClick('/lessonReview')}
           >
             {isSidebarOpen ? 'Lesson Review' : '📝'}
           </div>
