@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Footer from './Footer'; // Assuming Footer is in the same directory; adjust path if needed
+import Footer from './Footer';
+import Car from '../../assets/car.png';
 
 const Learn2Drive = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [currentInstructor, setCurrentInstructor] = useState(0);
   const navigate = useNavigate();
 
-  // Featured instructors with Unsplash images
   const instructors = [
     { name: 'John Doe', rating: '4.9', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d' },
     { name: 'Jane Smith', rating: '4.8', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330' },
     { name: 'Mike Johnson', rating: '4.7', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7' },
   ];
 
-  const [currentInstructor, setCurrentInstructor] = useState(0);
-
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentInstructor((prev) => (prev + 1) % instructors.length);
-    }, 3000); // Rotate every 3 seconds
+    }, 3000);
     return () => clearInterval(interval);
   }, [instructors.length]);
 
@@ -55,460 +54,278 @@ const Learn2Drive = () => {
     }
   };
 
-  const styles = {
-    container: {
-      width: '100%',
-      backgroundColor: '#f3f4f6',
-      fontFamily: 'Inter, sans-serif',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      paddingTop: '80px', // Space for fixed navbar
-    },
-    banner: {
-      width: '100%',
-      backgroundColor: '#ffffff',
-      padding: '60px 100px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-      marginBottom: '60px',
-    },
-    bannerContent: {
-      maxWidth: '50%',
-    },
-    bannerTitle: {
-      color: '#1f2937',
-      fontWeight: 700,
-      fontSize: '40px',
-      lineHeight: '1.2',
-      marginBottom: '20px',
-    },
-    bannerSubtitle: {
-      color: '#6b7280',
-      fontWeight: 400,
-      fontSize: '16px',
-      marginBottom: '30px',
-    },
-    buttonGroup: {
-      display: 'flex',
-      gap: '20px',
-    },
-    button: {
-      padding: '12px 24px',
-      backgroundColor: '#3b82f6',
-      color: '#ffffff',
-      borderRadius: '6px',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '14px',
-      fontWeight: 500,
-      transition: 'background 0.2s',
-    },
-    bannerImage: {
-      maxWidth: '45%',
-      height: 'auto',
-      borderRadius: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    },
-    aboutSection: {
-      width: '100%',
-      padding: '60px 100px',
-      backgroundColor: '#ffffff',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '60px',
-    },
-    aboutImage: {
-      maxWidth: '40%',
-      height: 'auto',
-      borderRadius: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    },
-    aboutContent: {
-      maxWidth: '50%',
-    },
-    aboutTitle: {
-      color: '#3b82f6',
-      fontWeight: 600,
-      fontSize: '36px',
-      marginBottom: '20px',
-    },
-    aboutText: {
-      color: '#1f2937',
-      fontWeight: 400,
-      fontSize: '16px',
-      marginBottom: '30px',
-    },
-    exploreButton: {
-      padding: '12px 24px',
-      backgroundColor: '#10b981',
-      color: '#ffffff',
-      borderRadius: '6px',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '14px',
-      fontWeight: 500,
-      transition: 'background 0.2s',
-    },
-    offerSection: {
-      width: '100%',
-      padding: '60px 100px',
-      backgroundColor: '#f3f4f6',
-      marginBottom: '60px',
-    },
-    offerHeader: {
-      textAlign: 'center',
-      marginBottom: '40px',
-    },
-    offerTitle: {
-      color: '#1f2937',
-      fontWeight: 600,
-      fontSize: '32px',
-      marginBottom: '12px',
-    },
-    offerSubtitle: {
-      color: '#6b7280',
-      fontWeight: 400,
-      fontSize: '16px',
-    },
-    offerCards: {
-      display: 'flex',
-      justifyContent: 'center',
-      gap: '30px',
-      flexWrap: 'wrap',
-    },
-    card: {
-      width: '280px',
-      backgroundColor: '#ffffff',
-      borderRadius: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-      padding: '24px',
-      textAlign: 'center',
-      transition: 'transform 0.2s',
-    },
-    cardTitle: {
-      color: '#1f2937',
-      fontWeight: 600,
-      fontSize: '18px',
-      marginBottom: '20px',
-    },
-    cardLink: {
-      color: '#3b82f6',
-      fontWeight: 500,
-      fontSize: '14px',
-      cursor: 'pointer',
-      transition: 'color 0.2s',
-    },
-    instructorSection: {
-      width: '100%',
-      padding: '60px 100px',
-      backgroundColor: '#ffffff',
-      marginBottom: '60px',
-      textAlign: 'center',
-    },
-    instructorTitle: {
-      color: '#1f2937',
-      fontWeight: 600,
-      fontSize: '32px',
-      marginBottom: '40px',
-    },
-    instructorCard: {
-      width: '300px',
-      margin: '0 auto',
-      padding: '20px',
-      backgroundColor: '#f9fafb',
-      borderRadius: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-      animation: 'fadeIn 1s ease-in-out',
-    },
-    instructorImage: {
-      width: '100px',
-      height: '100px',
-      borderRadius: '50%',
-      margin: '0 auto 20px',
-      objectFit: 'cover',
-    },
-    statsSection: {
-      width: '100%',
-      padding: '60px 100px',
-      backgroundColor: '#f9fafb',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '60px',
-    },
-    statsContent: {
-      maxWidth: '50%',
-    },
-    statsTitle: {
-      color: '#1f2937',
-      fontWeight: 600,
-      fontSize: '28px',
-      marginBottom: '16px',
-    },
-    statsSubtitle: {
-      color: '#6b7280',
-      fontWeight: 400,
-      fontSize: '16px',
-    },
-    statsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-      gap: '20px',
-    },
-    statItem: {
-      textAlign: 'center',
-    },
-    statNumber: {
-      color: '#3b82f6',
-      fontWeight: 700,
-      fontSize: '28px',
-    },
-    statLabel: {
-      color: '#6b7280',
-      fontWeight: 400,
-      fontSize: '14px',
-    },
-    formSection: {
-      width: '100%',
-      maxWidth: '500px',
-      backgroundColor: '#ffffff',
-      padding: '40px',
-      borderRadius: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-      margin: '0 auto 60px',
-    },
-    form: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '20px',
-    },
-    inputGroup: {
-      display: 'flex',
-      flexDirection: 'column',
-    },
-    input: {
-      padding: '12px',
-      border: '1px solid #d1d5db',
-      borderRadius: '6px',
-      fontSize: '14px',
-      backgroundColor: '#f9fafb',
-    },
-    textarea: {
-      padding: '12px',
-      border: '1px solid #d1d5db',
-      borderRadius: '6px',
-      fontSize: '14px',
-      minHeight: '120px',
-      backgroundColor: '#f9fafb',
-    },
-    errorText: {
-      color: '#ef4444',
-      fontSize: '12px',
-      marginTop: '5px',
-    },
-    submitButton: {
-      padding: '12px',
-      backgroundColor: '#3b82f6',
-      color: '#ffffff',
-      border: 'none',
-      borderRadius: '6px',
-      cursor: 'pointer',
-      fontSize: '16px',
-      transition: 'background 0.2s',
-    },
-  };
-
   return (
-    <div style={styles.container}>
-      {/* Banner */}
-      <div style={styles.banner}>
-        <div style={styles.bannerContent}>
-          <h1 style={styles.bannerTitle}>Learn to Drive with Ease</h1>
-          <p style={styles.bannerSubtitle}>
-            Connect with certified instructors for a seamless learning experience.
-          </p>
-          <div style={styles.buttonGroup}>
-            <button
-              style={styles.button}
-              onClick={() => navigate('/studentPortal')}
-              onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
-              onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
-            >
-              For Learners
+    <div className="w-full">
+      {/* Hero Banner */}
+      <section className="w-full mt-40 mb-16 flex flex-col md:flex-row justify-between items-center bg-white/60 px-30 py-16 shadow">
+        <div className="mb-0 max-w-xl space-y-6">
+        <h1 className="text-4xl font-bold text-gray-800  mb-0">Find your mate</h1>
+          <h1 className="text-4xl font-bold text-gray-800  mt-0 mb-2"><span className='text-6xl text-[#28c1c6]'>Learn2Drive</span> with Ease</h1>
+          <p className="text-gray-600 mt-0 mb-10">Connecting Students with certified instructors for a seamless learning Experience.</p>
+          <div className="flex gap-4">
+            <button onClick={() => navigate('/studentPortal')} className="bg-[#28c1c6] hover:bg-blue-600 text-white px-6 py-3 rounded-md transition">
+              Available Instructors
             </button>
-            <button
-              style={styles.button}
-              onClick={() => navigate('/instructorPortal')}
-              onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
-              onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
-            >
-              For Instructors
+            <button onClick={() => navigate('/instructorPortal')} className="bg-[#28c1c6] hover:bg-blue-600 text-white px-6 py-3 rounded-md transition">
+              Become an Instructor
             </button>
           </div>
         </div>
         <img
-          src="https://images.unsplash.com/photo-1691371107034-e28ee43a669e?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          src={Car}
           alt="Car on Road"
-          style={styles.bannerImage}
+          className="max-w-md rounded-lg shadow mb-30"
         />
+      </section>
+
+      
+      <div className="relative w-full h-[250px] overflow-hidden bg-white mt-25">
+      {/* Dots/Indicators */}
+      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+        <span className="w-2 h-2 bg-teal-700 rounded-full"></span>
+        <span className="w-2 h- bg-teal-300 rounded-full opacity-70"></span>
+        <span className="w-2 h-2 bg-teal-200 rounded-full opacity-50"></span>
       </div>
 
-      {/* About */}
-      <div id="about" style={styles.aboutSection}>
-        <img
-          src="https://images.unsplash.com/photo-1587808326264-bb8e737b1f4d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D0"
-          alt="Driving Lesson"
-          style={styles.aboutImage}
+      {/* SVG Waves */}
+      <svg
+        className="absolute bottom-0 w-full h-full"
+        viewBox="0 0 1440 280"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+
+        <path
+          fill="#00cfff"
+          fillOpacity="0.3"
+          d="
+            M0,100 
+            C120,200 240,0 360,100 
+            C480,200 600,0 720,100 
+            C840,200 960,0 1080,100 
+            C1200,200 1320,0 1440,100 
+            L1440,260 
+            C1320,160 1200,320 1080,260 
+            C960,160 840,320 720,260 
+            C600,160 480,320 360,260 
+            C240,160 120,320 0,260 
+            Z"
         />
-        <div style={styles.aboutContent}>
-          <h2 style={styles.aboutTitle}>About Us</h2>
-          <p style={styles.aboutText}>
-            Learn2Drive connects aspiring drivers with certified instructors, offering personalized lessons, easy booking, and secure payments. Our platform ensures you gain the confidence and skills needed to hit the road safely.
+
+        {/* Layer 2 - darker */}
+        <path
+          fill="#0a5d72"
+          fillOpacity="0.6"
+          d="
+            M0,120 
+            C120,40 240,220 360,120 
+            C480,40 600,220 720,120 
+            C840,40 960,220 1080,120 
+            C1200,40 1320,220 1440,120 
+            L1440,240 
+            C1320,320 1200,140 1080,240 
+            C960,320 840,140 720,240 
+            C600,320 480,140 360,240 
+            C240,320 120,140 0,240 
+            Z"
+        />
+      </svg>
+    </div>
+
+    {/* About Section */}
+    <section id="about" className="bg-white py-16 px-6 md:px-20 relative">
+    <div className="relative w-full h-[300px] rounded-bl-xl shadow-lg mb-8 overflow-hidden">
+  {/* Image */}
+        <img
+          src="https://images.unsplash.com/photo-1587808326264-bb8e737b1f4d?q=80&w=2070"
+          alt="Office collaboration"
+          className="w-full h-full object-cover"
+          style={{ clipPath: 'polygon(0 0, 90% 0, 100% 10%, 100% 100%, 0% 100%)' }}
+        />
+
+        {/* White overlay on top */}
+        <div className="absolute inset-0 bg-white/80" />
+
+        {/* About Us Heading on Image */}
+        <h2 className="absolute inset-0 flex items-center justify-center text-6xl md:text-8xl font-extrabold text-[#28c1c6] leading-snug text-center z-10">
+          About Us
+        </h2>
+      </div>
+
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-12">
+        
+       
+       
+        
+
+        {/* Text Content */}
+        <div className="space-y-6">
+          <p className="text-gray-600 text-base leading-relaxed">
+            At Learn2Drive, we're passionate about making the journey to getting your license smooth, safe, and empowering. 
+            Whether you're starting from scratch or picking up where you left off, we connect you with certified instructors who care about your progress and confidence on the road.
           </p>
-          <button
-            style={styles.exploreButton}
-            onMouseOver={(e) => (e.target.style.backgroundColor = '#059669')}
-            onMouseOut={(e) => (e.target.style.backgroundColor = '#10b981')}
-          >
-            Explore More
+
+          <h3 className="text-2xl font-semibold text-gray-800">
+            How we work with our Learners.
+          </h3>
+          <p className="text-sm text-gray-600">
+            Personalized lesson plans. Real-time availability. Transparent pricing.
+            <br />
+            Our platform is built to make learning to drive flexible and stress-free. With just a few clicks, you can find the right instructor, book a session, and start building your driving skills with confidence.
+          </p>
+
+          <button className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition">
+            Contact Us →
           </button>
         </div>
+
       </div>
+    </section>
+
+
+      <div className="relative w-full h-[250px] overflow-hidden bg-white mt-25">
+      <svg
+        className="absolute bottom-0 w-full h-full"
+        viewBox="0 0 1440 280"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+
+        <path
+          fill="#00cfff"
+          fillOpacity="0.3"
+          d="
+            M0,100 
+            C120,200 240,0 360,100 
+            C480,200 600,0 720,100 
+            C840,200 960,0 1080,100 
+            C1200,200 1320,0 1440,100 
+            L1440,260 
+            C1320,160 1200,320 1080,260 
+            C960,160 840,320 720,260 
+            C600,160 480,320 360,260 
+            C240,160 120,320 0,260 
+            Z"
+        />
+
+        {/* Layer 2 - darker */}
+        <path
+          fill="#0a5d72"
+          fillOpacity="0.6"
+          d="
+            M0,120 
+            C120,40 240,220 360,120 
+            C480,40 600,220 720,120 
+            C840,40 960,220 1080,120 
+            C1200,40 1320,220 1440,120 
+            L1440,240 
+            C1320,320 1200,140 1080,240 
+            C960,320 840,140 720,240 
+            C600,320 480,140 360,240 
+            C240,320 120,140 0,240 
+            Z"
+        />
+      </svg>
+        </div>
 
       {/* What We Offer */}
-      <div style={styles.offerSection}>
-        <div style={styles.offerHeader}>
-          <h2 style={styles.offerTitle}>What We Offer</h2>
-          <p style={styles.offerSubtitle}>
-            Tailored driving lessons, seamless scheduling, and a student-focused experience.
-          </p>
+      <section className="px-8 md:px-24 py-16 bg-[#CDF3FF] mb-16">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl font-semibold text-gray-800">What We Offer</h2>
+          <p className="text-gray-600">Tailored driving lessons, seamless scheduling, and a student-focused experience.</p>
         </div>
-        <div style={styles.offerCards}>
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
           {[
             { title: 'Personalized Matching', path: '/instructor-match' },
             { title: 'Easy Scheduling', path: '/scheduling' },
             { title: 'Secure Payments', path: '/payments' },
           ].map((offer, index) => (
-            <div
-              key={index}
-              style={styles.card}
-              onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
-              onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
-            >
-              <h3 style={styles.cardTitle}>{offer.title}</h3>
-              <span
-                style={styles.cardLink}
-                onClick={() => navigate(offer.path)}
-                onMouseOver={(e) => (e.target.style.color = '#2563eb')}
-                onMouseOut={(e) => (e.target.style.color = '#3b82f6')}
-              >
+            <div key={index} className="bg-white rounded-lg shadow p-6 text-center transform hover:scale-105 transition">
+              <h3 className="text-lg font-medium text-gray-800 mb-2">{offer.title}</h3>
+              <span onClick={() => navigate(offer.path)} className="text-blue-500 hover:underline cursor-pointer text-sm">
                 Read More
               </span>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Featured Instructors */}
-      <div style={styles.instructorSection}>
-        <h2 style={styles.instructorTitle}>Meet Our Top Instructors</h2>
-        <div style={styles.instructorCard}>
+      {/* Instructors */}
+      <section className="text-center px-8 md:px-24 py-16 bg-white mb-16">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-8">Meet Our Top Instructors</h2>
+        <div className="max-w-sm mx-auto bg-gray-50 p-6 rounded-lg shadow animate-fadeIn">
           <img
             src={instructors[currentInstructor].img}
             alt={instructors[currentInstructor].name}
-            style={styles.instructorImage}
+            className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
           />
-          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-            {instructors[currentInstructor].name}
-          </h3>
-          <p style={{ fontSize: '14px', color: '#6b7280' }}>
-            Rating: {instructors[currentInstructor].rating} ★
-          </p>
+          <h3 className="text-lg font-semibold">{instructors[currentInstructor].name}</h3>
+          <p className="text-sm text-gray-500">Rating: {instructors[currentInstructor].rating} ★</p>
         </div>
-      </div>
+      </section>
 
       {/* Stats */}
-      <div style={styles.statsSection}>
-        <div style={styles.statsContent}>
-          <h2 style={styles.statsTitle}>Driving Success</h2>
-          <p style={styles.statsSubtitle}>Join over 2,000 satisfied learners.</p>
+      <section className="flex flex-col md:flex-row justify-between items-center px-8 md:px-24 py-16 bg-gray-50 mb-16">
+        <div className="max-w-md space-y-3 mb-8 md:mb-0">
+          <h2 className="text-xl font-semibold text-gray-800">Driving Success</h2>
+          <p className="text-gray-600">Join over 2,000 satisfied learners.</p>
         </div>
-        <div style={styles.statsGrid}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[
             { number: '200+', label: 'Certified Instructors' },
             { number: '2,334', label: 'Users' },
             { number: '828K', label: 'Lessons Conducted' },
             { number: '1,926', label: 'Payments Processed' },
           ].map((stat, index) => (
-            <div key={index} style={styles.statItem}>
-              <div style={styles.statNumber}>{stat.number}</div>
-              <div style={styles.statLabel}>{stat.label}</div>
+            <div key={index}>
+              <div className="text-blue-500 font-bold text-xl">{stat.number}</div>
+              <div className="text-gray-500 text-sm">{stat.label}</div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Contact Form */}
-      <div style={styles.formSection}>
-        <h3 style={{ textAlign: 'center', color: '#1f2937', fontSize: '24px', fontWeight: '600', marginBottom: '20px' }}>
-          Get in Touch
-        </h3>
-        <form style={styles.form} onSubmit={handleSubmit}>
-          {errors.submit && <span style={styles.errorText}>{errors.submit}</span>}
-          {[
-            { label: 'Name', name: 'name', type: 'text', placeholder: 'Your Name' },
-            { label: 'Email', name: 'email', type: 'email', placeholder: 'example@gmail.com' },
-            { label: 'Message', name: 'message', type: 'textarea', placeholder: 'Your message...' },
-          ].map((field, index) => (
-            <div key={index} style={styles.inputGroup}>
-              <label style={{ fontSize: '14px', color: '#1f2937', marginBottom: '8px' }}>{field.label}</label>
-              {field.type === 'textarea' ? (
+      <section className="max-w-xl mx-auto bg-white px-8 py-10 rounded-lg shadow mb-16">
+        <h3 className="text-xl font-semibold text-center mb-6 text-gray-800">Get in Touch</h3>
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          {errors.submit && <div className="text-red-500 text-sm">{errors.submit}</div>}
+          {['name', 'email', 'message'].map((field) => (
+            <div key={field}>
+              <label className="block text-sm font-medium text-gray-700 capitalize">{field}</label>
+              {field === 'message' ? (
                 <textarea
-                  name={field.name}
-                  value={formData[field.name]}
+                  name="message"
+                  value={formData.message}
                   onChange={handleChange}
-                  placeholder={field.placeholder}
-                  style={styles.textarea}
+                  className="w-full p-3 border border-gray-300 rounded bg-gray-50"
+                  placeholder="Your message..."
                 />
               ) : (
                 <input
-                  type={field.type}
-                  name={field.name}
-                  value={formData[field.name]}
+                  type={field === 'email' ? 'email' : 'text'}
+                  name={field}
+                  value={formData[field]}
                   onChange={handleChange}
-                  placeholder={field.placeholder}
-                  style={styles.input}
+                  className="w-full p-3 border border-gray-300 rounded bg-gray-50"
+                  placeholder={`Your ${field}`}
                 />
               )}
-              {errors[field.name] && <span style={styles.errorText}>{errors[field.name]}</span>}
+              {errors[field] && <div className="text-red-500 text-sm">{errors[field]}</div>}
             </div>
           ))}
           <button
             type="submit"
-            style={styles.submitButton}
             disabled={isLoading}
-            onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
-            onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded transition"
           >
             {isLoading ? 'Submitting...' : 'Submit'}
           </button>
         </form>
-      </div>
+      </section>
 
       {/* Footer */}
       <Footer />
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-        `}
-      </style>
     </div>
   );
 };

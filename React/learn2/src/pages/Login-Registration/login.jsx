@@ -29,10 +29,10 @@ export default function LoginPage() {
     }
   }
   return (
-    <div>
+    <div className="w-full h-screen overflow-hidden bg-[#c6efff]">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar newestOnTop closeOnClick pauseOnHover />
 
-    <main className="flex justify-center items-center h-screen bg-[#c6efff]">
+    <main className="flex justify-center items-center h-screen bg-[#CDF3FF]">
       <div className="flex flex-col md:flex-row items-center justify-center w-[90%] max-w-[1000px]">
         {/* Image Section */}
         <section className="hidden md:block flex-1">

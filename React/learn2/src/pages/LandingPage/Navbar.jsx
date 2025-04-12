@@ -17,6 +17,7 @@ const Navbar = () => {
       }
       setLastScrollY(currentScrollY);
     };
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
@@ -27,75 +28,62 @@ const Navbar = () => {
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) element.scrollIntoView({ behavior: 'smooth' });
-      }, 100); // Delay to ensure page loads
+      }, 300);
     } else {
       const element = document.getElementById(sectionId);
       if (element) element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
+  const handleHomeClick = () => {
+    if (location.pathname !== '/') {
+      navigate('/');
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        width: '100%',
-        backgroundColor: '#ffffff',
-        padding: '20px 40px',
-        borderBottom: '2px solid #dbeafe',
-        transition: 'transform 0.3s ease',
-        transform: isVisible ? 'translateY(0)' : 'translateY(-100%)',
-        zIndex: 1000,
-      }}
+      className={`fixed top-0 w-full z-[1000] transition-transform duration-300 ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}
+      style={{ backgroundColor: '#CDF3FF' }}
     >
-      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="max-w-[1200px] mx-auto flex justify-between items-center px-10 py-5">
+        {/* Logo */}
         <div
-          onClick={() => navigate('/')}
-          style={{ fontSize: '24px', fontWeight: '700', color: '#3b82f6', cursor: 'pointer' }}
+          onClick={handleHomeClick}
+          className="text-black text-2xl font-bold cursor-pointer"
         >
           LEARN2DRIVE
         </div>
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          {[
-            { label: 'Home', action: () => navigate('/') },
-            { label: 'About us', action: () => scrollToSection('about') },
-            { label: 'Contact', action: () => scrollToSection('footer') },
-          ].map((item, index) => (
-            <button
-              key={index}
-              onClick={item.action}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: 'transparent',
-                color: '#1f2937',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'background 0.2s',
-              }}
-              onMouseOver={(e) => (e.target.style.backgroundColor = '#dbeafe')}
-              onMouseOut={(e) => (e.target.style.backgroundColor = 'transparent')}
-            >
-              {item.label}
-            </button>
-          ))}
+
+        {/* Navigation Links */}
+        <div className="flex items-center gap-5">
+          <button
+            onClick={handleHomeClick}
+            className="text-black text-sm font-medium px-4 py-2 rounded-md hover:bg-[#28c1c6] hover:text-white transition"
+          >
+            Home
+          </button>
+          <button
+            onClick={() => scrollToSection('about')}
+            className="text-black text-sm font-medium px-4 py-2 rounded-md hover:bg-[#28c1c6] hover:text-white transition"
+          >
+            About us
+          </button>
+          <button
+            onClick={() => scrollToSection('footer')}
+            className="text-black text-sm font-medium px-4 py-2 rounded-md hover:bg-[#28c1c6] hover:text-white transition"
+          >
+            Contact
+          </button>
+
+          {/* Login Button */}
           <button
             onClick={() => navigate('/login')}
-            style={{
-              padding: '8px 20px',
-              backgroundColor: '#3b82f6',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: 500,
-              cursor: 'pointer',
-              transition: 'background 0.2s',
-            }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
-            onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
+            className="text-white bg-[#28c1c6] text-sm font-medium px-5 py-2 rounded-md hover:bg-blue-600 transition"
           >
             Login
           </button>
