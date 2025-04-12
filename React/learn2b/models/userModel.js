@@ -17,11 +17,8 @@ const userSchema = mongoose.Schema({
     role: {
         type: String,
         enum: ['student', 'instructor', 'admin'],
-<<<<<<< HEAD
         default: 'student',
-=======
-        default: 'student'
->>>>>>> prashant
+
       }
 },{
     timestamps: true //created_at and updated_at    
