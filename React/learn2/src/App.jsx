@@ -1,38 +1,40 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LandingPage from './pages/LandingPage/landingPage';
 import Navbar from './pages/LandingPage/Navbar';
-import Main from './pages/LandingPage/Main';
-import About from './pages/LandingPage/About';
-import Services from './pages/LandingPage/Services';
-import Stats from './pages/LandingPage/Stats';
-import Footer from './pages/LandingPage/Footer';
-import Prac from './pages/Prac';
 import LoginPage from './pages/Login-Registration/login';
-import RegisterPage from './pages/Login-Registration/register';
+import Register from './pages/Login-Registration/register';
+import InstructorPortal from './pages/InstructorPages/instructorPortal';
+import InstructorMenu from './pages/InstructorPages/instructorMenu';
+import InstructorProfile from './pages/InstructorPages/instructorProfile';
+import LessonReview from './pages/InstructorPages/lessonReview.jsx';
 
-function LandingPage() {
-  return (
-    <div>
-      <Main />
-      <About />
-      <Services />
-      <Stats />
-      <Footer />
-    </div>
-  );
-}
+import ManageStudents from './pages/InstructorPages/manageStudents';
+import DatePicker from './pages/studentPortal/datePicker.jsx';
+import StudentPortal from './pages/studentPortal/StudentPortal.jsx';
+import PaymentForm from './pages/Payment/paymentForm.jsx';
 
 function App() {
   return (
     <Router>
       <Navbar />
       <Routes>
-        {/* When URL is "/", show LandingPage */}
         <Route path="/" element={<LandingPage />} />
+        {/* instructor pages */}
+        <Route path="/instructorPortal" element={<InstructorPortal />} />
+        <Route path="/instructorMenu" element={<InstructorMenu />} />
+        <Route path="/instructorProfile" element={<InstructorProfile />} />
+        <Route path="/manageStudents" element={<ManageStudents />} />
+        <Route path="/lessonReview" element={<LessonReview />} />
+        <Route path="/studentPortal" element={<StudentPortal />} />
+        <Route path="/datePicker/:instructorId" element={<DatePicker />}/>
+        <Route path="/paymentForm" element={<PaymentForm />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<Register />} />
 
-        {/* When URL is "/login", show LoginPage */}
-        <Route path="/Login-Registration/login.jsx" element={<LoginPage />} />
-        <Route path="/register.jsx" element={<RegisterPage />} />
+        {/* Login Route */}
+        <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/landing" element={<LandingPage />} />
       </Routes>
     </Router>
   );

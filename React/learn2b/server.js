@@ -5,8 +5,14 @@ const port = process.env.PORT || 5000;
 import userRoutes from './routes/userRoutes.js';
 import { notFound, errorHandler } from './Middleware/errorMiddleware.js';
 import { connectDB } from './config/db.js'; 
+import cors from 'cors';
 
 const app = express();
+
+app.use(cors({
+    origin: 'http://localhost:5173', // Replace with your frontend URL
+    credentials: true,
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
