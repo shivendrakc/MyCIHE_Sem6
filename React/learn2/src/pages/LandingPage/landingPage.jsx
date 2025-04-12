@@ -1,51 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Footer from './Footer'; // Assuming Footer is in the same directory; adjust path if needed
 
 const Learn2Drive = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Handle form input changes
+  // Featured instructors with Unsplash images
+  const instructors = [
+    { name: 'John Doe', rating: '4.9', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d' },
+    { name: 'Jane Smith', rating: '4.8', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330' },
+    { name: 'Mike Johnson', rating: '4.7', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7' },
+  ];
+
+  const [currentInstructor, setCurrentInstructor] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentInstructor((prev) => (prev + 1) % instructors.length);
+    }, 3000); // Rotate every 3 seconds
+    return () => clearInterval(interval);
+  }, [instructors.length]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Validate form
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-    if (!formData.email.includes('@')) {
-      newErrors.email = 'Please enter a valid email';
-    }
-    if (!formData.message.trim()) {
-      newErrors.message = 'Message is required';
-    }
+    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.email.includes('@')) newErrors.email = 'Please enter a valid email';
+    if (!formData.message.trim()) newErrors.message = 'Message is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       setIsLoading(true);
       try {
-        // Simulate API call (Replace with actual API call if available)
         await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log('Inquiry submitted:', formData);
-        // Dependency: Assumes a '/thank-you' route exists in your router configuration (e.g., App.js)
         navigate('/thank-you');
       } catch (error) {
         console.error('Submission failed:', error);
@@ -56,237 +55,231 @@ const Learn2Drive = () => {
     }
   };
 
-  // Handle navigation to instructor page
-  const handleInstructorClick = () => {
-    // Dependency: Assumes an '/instructors' route exists in your router configuration (e.g., App.js)
-    navigate('/instructors');
-  };
-
   const styles = {
     container: {
       width: '100%',
-      minHeight: '100vh', // Allow scrolling by using minHeight
-      background: 'rgba(205,243,255,1)',
-      fontSize: '14px',
+      backgroundColor: '#f3f4f6',
       fontFamily: 'Inter, sans-serif',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      paddingTop: '80px', // Add padding to account for fixed navbar height
-      paddingBottom: '50px', // Add padding at the bottom to avoid overlap with footer
+      paddingTop: '80px', // Space for fixed navbar
     },
     banner: {
       width: '100%',
-      background: 'rgba(255,255,255,1)',
-      padding: '50px 100px',
+      backgroundColor: '#ffffff',
+      padding: '60px 100px',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-      marginBottom: '50px', // Add spacing
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      marginBottom: '60px',
     },
     bannerContent: {
       maxWidth: '50%',
     },
     bannerTitle: {
-      color: 'rgba(77,77,77,1)',
-      fontFamily: 'Inter',
-      fontWeight: 600,
-      fontSize: '36px',
-      textAlign: 'left',
+      color: '#1f2937',
+      fontWeight: 700,
+      fontSize: '40px',
+      lineHeight: '1.2',
       marginBottom: '20px',
     },
     bannerSubtitle: {
-      color: 'rgba(153,97,97,1)',
-      fontFamily: 'Inter',
+      color: '#6b7280',
       fontWeight: 400,
-      fontSize: '14px',
-      textAlign: 'left',
+      fontSize: '16px',
       marginBottom: '30px',
     },
     buttonGroup: {
       display: 'flex',
-      gap: '15px',
+      gap: '20px',
     },
-    learnerButton: {
-      color: 'rgba(255,255,255,1)',
-      fontFamily: 'Inter',
-      fontWeight: 500,
-      fontSize: '14px',
-      textAlign: 'center',
-      backgroundColor: '#007bff',
-      padding: '10px 20px',
-      borderRadius: '5px',
-      cursor: 'pointer',
+    button: {
+      padding: '12px 24px',
+      backgroundColor: '#3b82f6',
+      color: '#ffffff',
+      borderRadius: '6px',
       border: 'none',
-    },
-    instructorButton: {
-      color: 'rgba(255,255,255,1)',
-      fontFamily: 'Inter',
-      fontWeight: 500,
-      fontSize: '14px',
-      textAlign: 'center',
-      backgroundColor: '#007bff',
-      padding: '10px 20px',
-      borderRadius: '5px',
       cursor: 'pointer',
-      border: 'none',
+      fontSize: '14px',
+      fontWeight: 500,
+      transition: 'background 0.2s',
     },
     bannerImage: {
-      maxWidth: '40%',
+      maxWidth: '45%',
       height: 'auto',
+      borderRadius: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
     },
     aboutSection: {
       width: '100%',
-      padding: '50px 100px',
-      background: 'rgba(250,250,250,1)',
+      padding: '60px 100px',
+      backgroundColor: '#ffffff',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '50px', // Add spacing
+      marginBottom: '60px',
     },
     aboutImage: {
       maxWidth: '40%',
       height: 'auto',
+      borderRadius: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
     },
     aboutContent: {
       maxWidth: '50%',
     },
     aboutTitle: {
-      color: 'rgba(56,122,144,1)',
-      fontFamily: 'Roboto',
-      fontWeight: 300,
-      fontSize: '48px',
-      textAlign: 'left',
+      color: '#3b82f6',
+      fontWeight: 600,
+      fontSize: '36px',
       marginBottom: '20px',
     },
     aboutText: {
-      color: 'rgba(0,0,0,1)',
-      fontFamily: 'Roboto',
-      fontWeight: 300,
+      color: '#1f2937',
+      fontWeight: 400,
       fontSize: '16px',
-      textAlign: 'left',
       marginBottom: '30px',
     },
     exploreButton: {
-      color: 'rgba(255,255,255,1)',
-      fontFamily: 'Inter',
-      fontWeight: 500,
-      fontSize: '14px',
-      textAlign: 'center',
-      backgroundColor: '#007bff',
-      padding: '10px 20px',
-      borderRadius: '5px',
-      cursor: 'pointer',
+      padding: '12px 24px',
+      backgroundColor: '#10b981',
+      color: '#ffffff',
+      borderRadius: '6px',
       border: 'none',
+      cursor: 'pointer',
+      fontSize: '14px',
+      fontWeight: 500,
+      transition: 'background 0.2s',
     },
     offerSection: {
       width: '100%',
-      padding: '50px 100px',
-      background: 'rgba(205,243,255,1)',
-      marginBottom: '50px', // Add spacing
+      padding: '60px 100px',
+      backgroundColor: '#f3f4f6',
+      marginBottom: '60px',
     },
     offerHeader: {
       textAlign: 'center',
       marginBottom: '40px',
     },
     offerTitle: {
-      color: 'rgba(56,122,144,1)',
-      fontFamily: 'Inter',
+      color: '#1f2937',
       fontWeight: 600,
-      fontSize: '30px',
-      marginBottom: '10px',
+      fontSize: '32px',
+      marginBottom: '12px',
     },
     offerSubtitle: {
-      color: 'rgba(113,113,113,1)',
-      fontFamily: 'Inter',
+      color: '#6b7280',
       fontWeight: 400,
-      fontSize: '14px',
+      fontSize: '16px',
     },
     offerCards: {
       display: 'flex',
       justifyContent: 'center',
       gap: '30px',
+      flexWrap: 'wrap',
     },
     card: {
-      width: '256px',
-      background: 'rgba(245,247,249,1)',
-      borderRadius: '5px',
-      boxShadow: '0px 5.57px 11px rgba(0.67, 0.75, 0.82, 0.4)',
-      padding: '20px',
+      width: '280px',
+      backgroundColor: '#ffffff',
+      borderRadius: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      padding: '24px',
       textAlign: 'center',
+      transition: 'transform 0.2s',
     },
     cardTitle: {
-      color: 'rgba(113,113,113,1)',
-      fontFamily: 'Inter',
+      color: '#1f2937',
       fontWeight: 600,
-      fontSize: '16px',
+      fontSize: '18px',
       marginBottom: '20px',
     },
     cardLink: {
-      color: 'rgba(56,122,144,1)',
-      fontFamily: 'Inter',
-      fontWeight: 600,
+      color: '#3b82f6',
+      fontWeight: 500,
       fontSize: '14px',
       cursor: 'pointer',
+      transition: 'color 0.2s',
+    },
+    instructorSection: {
+      width: '100%',
+      padding: '60px 100px',
+      backgroundColor: '#ffffff',
+      marginBottom: '60px',
+      textAlign: 'center',
+    },
+    instructorTitle: {
+      color: '#1f2937',
+      fontWeight: 600,
+      fontSize: '32px',
+      marginBottom: '40px',
+    },
+    instructorCard: {
+      width: '300px',
+      margin: '0 auto',
+      padding: '20px',
+      backgroundColor: '#f9fafb',
+      borderRadius: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      animation: 'fadeIn 1s ease-in-out',
+    },
+    instructorImage: {
+      width: '100px',
+      height: '100px',
+      borderRadius: '50%',
+      margin: '0 auto 20px',
+      objectFit: 'cover',
     },
     statsSection: {
       width: '100%',
-      padding: '50px 100px',
-      background: 'rgba(245,247,249,1)',
+      padding: '60px 100px',
+      backgroundColor: '#f9fafb',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '50px', // Add spacing
+      marginBottom: '60px',
     },
     statsContent: {
       maxWidth: '50%',
     },
     statsTitle: {
-      color: 'rgba(77,77,77,1)',
-      fontFamily: 'Inter',
+      color: '#1f2937',
       fontWeight: 600,
-      fontSize: '25px',
-      textAlign: 'left',
-      marginBottom: '10px',
+      fontSize: '28px',
+      marginBottom: '16px',
     },
     statsSubtitle: {
-      color: 'rgba(24,25,31,1)',
-      fontFamily: 'Inter',
+      color: '#6b7280',
       fontWeight: 400,
-      fontSize: '14px',
-      textAlign: 'left',
+      fontSize: '16px',
     },
     statsGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
       gap: '20px',
     },
     statItem: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px',
+      textAlign: 'center',
     },
     statNumber: {
-      color: 'rgba(77,77,77,1)',
-      fontFamily: 'Inter',
+      color: '#3b82f6',
       fontWeight: 700,
-      fontSize: '24px',
+      fontSize: '28px',
     },
     statLabel: {
-      color: 'rgba(113,113,113,1)',
-      fontFamily: 'Inter',
+      color: '#6b7280',
       fontWeight: 400,
       fontSize: '14px',
     },
     formSection: {
       width: '100%',
       maxWidth: '500px',
-      background: '#fff',
-      padding: '30px',
-      borderRadius: '10px',
-      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-      margin: '0 auto 50px auto', // Add spacing
+      backgroundColor: '#ffffff',
+      padding: '40px',
+      borderRadius: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      margin: '0 auto 60px',
     },
     form: {
       display: 'flex',
@@ -299,30 +292,33 @@ const Learn2Drive = () => {
     },
     input: {
       padding: '12px',
-      border: '1px solid #ddd',
-      borderRadius: '5px',
+      border: '1px solid #d1d5db',
+      borderRadius: '6px',
       fontSize: '14px',
+      backgroundColor: '#f9fafb',
     },
     textarea: {
       padding: '12px',
-      border: '1px solid #ddd',
-      borderRadius: '5px',
+      border: '1px solid #d1d5db',
+      borderRadius: '6px',
       fontSize: '14px',
       minHeight: '120px',
+      backgroundColor: '#f9fafb',
     },
     errorText: {
-      color: 'red',
+      color: '#ef4444',
       fontSize: '12px',
       marginTop: '5px',
     },
     submitButton: {
       padding: '12px',
-      backgroundColor: '#007bff',
-      color: '#fff',
+      backgroundColor: '#3b82f6',
+      color: '#ffffff',
       border: 'none',
-      borderRadius: '5px',
+      borderRadius: '6px',
       cursor: 'pointer',
       fontSize: '16px',
+      transition: 'background 0.2s',
     },
   };
 
@@ -331,161 +327,188 @@ const Learn2Drive = () => {
       {/* Banner */}
       <div style={styles.banner}>
         <div style={styles.bannerContent}>
-          <div style={styles.bannerTitle}>Find your mate Learn2Drive with Ease</div>
-          <div style={styles.bannerSubtitle}>
-            Connecting Aspiring Drivers with Certified Instructors for a Seamless Learning Experience.
+          <h1 style={styles.bannerTitle}>Learn to Drive with Ease</h1>
+          <p style={styles.bannerSubtitle}>
+            Connect with certified instructors for a seamless learning experience.
+          </p>
+          <div style={styles.buttonGroup}>
+            <button
+              style={styles.button}
+              onClick={() => navigate('/studentPortal')}
+              onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
+              onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
+            >
+              For Learners
+            </button>
+            <button
+              style={styles.button}
+              onClick={() => navigate('/instructorPortal')}
+              onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
+              onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
+            >
+              For Instructors
+            </button>
           </div>
-            <div style={styles.buttonGroup}>
-              <button
-                style={styles.learnerButton}
-                onClick={() => navigate('/instructorPortal')}>
-                For Learners
-              </button>
-              <button
-                style={styles.instructorButton}
-                onClick={() => navigate('/studentPortal')}>
-                For Instructors
-              </button>
-            </div>
         </div>
-        {/* Placeholder for car image (you can replace with an actual image URL) */}
         <img
-          src="https://via.placeholder.com/400x200?text=Car+Image"
-          alt="Car"
+          src="https://images.unsplash.com/photo-1691371107034-e28ee43a669e?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Car on Road"
           style={styles.bannerImage}
         />
       </div>
 
       {/* About */}
-      <div style={styles.aboutSection}>
-        {/* Placeholder for about image (you can replace with an actual image URL) */}
+      <div id="about" style={styles.aboutSection}>
         <img
-          src="https://via.placeholder.com/400x300?text=About+Image"
-          alt="About"
+          src="https://images.unsplash.com/photo-1587808326264-bb8e737b1f4d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D0"
+          alt="Driving Lesson"
           style={styles.aboutImage}
         />
         <div style={styles.aboutContent}>
-          <span style={styles.aboutTitle}>About</span>
-          <span style={styles.aboutText}>
-            Learn2Drive is a dynamic platform dedicated to connecting aspiring drivers with certified instructors, providing personalized lessons tailored to individual needs. We simplify the learning experience through an easy-to-use booking system, secure payments, and real-time progress tracking, ensuring every learner gains confidence and skills for the road ahead.
-          </span>
-          <button style={styles.exploreButton}>Explore</button>
+          <h2 style={styles.aboutTitle}>About Us</h2>
+          <p style={styles.aboutText}>
+            Learn2Drive connects aspiring drivers with certified instructors, offering personalized lessons, easy booking, and secure payments. Our platform ensures you gain the confidence and skills needed to hit the road safely.
+          </p>
+          <button
+            style={styles.exploreButton}
+            onMouseOver={(e) => (e.target.style.backgroundColor = '#059669')}
+            onMouseOut={(e) => (e.target.style.backgroundColor = '#10b981')}
+          >
+            Explore More
+          </button>
         </div>
       </div>
 
       {/* What We Offer */}
       <div style={styles.offerSection}>
         <div style={styles.offerHeader}>
-          <span style={styles.offerTitle}>What We Offer?</span>
-          <span style={styles.offerSubtitle}>
-            Empowering learners to find the perfect driving instructor with personalized lessons, easy scheduling, and secure payments. Gain confidence on the road with our seamless, student-focused platform.
-          </span>
+          <h2 style={styles.offerTitle}>What We Offer</h2>
+          <p style={styles.offerSubtitle}>
+            Tailored driving lessons, seamless scheduling, and a student-focused experience.
+          </p>
         </div>
         <div style={styles.offerCards}>
-          <div style={styles.card}>
-            <span style={styles.cardTitle}>Personalized Instructor Matching</span>
-            {/* Dependency: Assumes an '/instructor-match' route exists in your router configuration (e.g., App.js) */}
-            <span style={styles.cardLink} onClick={() => navigate('/instructor-match')}>
-              Read more
-            </span>
-          </div>
-          <div style={styles.card}>
-            <span style={styles.cardTitle}>Easy Lesson Scheduling</span>
-            {/* Dependency: Assumes a '/scheduling' route exists in your router configuration (e.g., App.js) */}
-            <span style={styles.cardLink} onClick={() => navigate('/scheduling')}>
-              Read more
-            </span>
-          </div>
-          <div style={styles.card}>
-            <span style={styles.cardTitle}>Secure Payments and Progress Tracking</span>
-            {/* Dependency: Assumes a '/payments' route exists in your router configuration (e.g., App.js) */}
-            <span style={styles.cardLink} onClick={() => navigate('/payments')}>
-              Read more
-            </span>
-          </div>
+          {[
+            { title: 'Personalized Matching', path: '/instructor-match' },
+            { title: 'Easy Scheduling', path: '/scheduling' },
+            { title: 'Secure Payments', path: '/payments' },
+          ].map((offer, index) => (
+            <div
+              key={index}
+              style={styles.card}
+              onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
+              onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
+            >
+              <h3 style={styles.cardTitle}>{offer.title}</h3>
+              <span
+                style={styles.cardLink}
+                onClick={() => navigate(offer.path)}
+                onMouseOver={(e) => (e.target.style.color = '#2563eb')}
+                onMouseOut={(e) => (e.target.style.color = '#3b82f6')}
+              >
+                Read More
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Featured Instructors */}
+      <div style={styles.instructorSection}>
+        <h2 style={styles.instructorTitle}>Meet Our Top Instructors</h2>
+        <div style={styles.instructorCard}>
+          <img
+            src={instructors[currentInstructor].img}
+            alt={instructors[currentInstructor].name}
+            style={styles.instructorImage}
+          />
+          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+            {instructors[currentInstructor].name}
+          </h3>
+          <p style={{ fontSize: '14px', color: '#6b7280' }}>
+            Rating: {instructors[currentInstructor].rating} ★
+          </p>
         </div>
       </div>
 
       {/* Stats */}
       <div style={styles.statsSection}>
         <div style={styles.statsContent}>
-          <span style={styles.statsTitle}>Helping a local Youths to Drive with Ease</span>
-          <span style={styles.statsSubtitle}>Over 2000 Satisfied Members</span>
+          <h2 style={styles.statsTitle}>Driving Success</h2>
+          <p style={styles.statsSubtitle}>Join over 2,000 satisfied learners.</p>
         </div>
         <div style={styles.statsGrid}>
-          <div style={styles.statItem}>
-            <span style={styles.statNumber}>2,00</span>
-            <span style={styles.statLabel}>Certified Instructors</span>
-          </div>
-          <div style={styles.statItem}>
-            <span style={styles.statNumber}>2,334</span>
-            <span style={styles.statLabel}>Users</span>
-          </div>
-          <div style={styles.statItem}>
-            <span style={styles.statNumber}>828,867</span>
-            <span style={styles.statLabel}>Lessons Conducted</span>
-          </div>
-          <div style={styles.statItem}>
-            <span style={styles.statNumber}>1,926</span>
-            <span style={styles.statLabel}>Payments</span>
-          </div>
+          {[
+            { number: '200+', label: 'Certified Instructors' },
+            { number: '2,334', label: 'Users' },
+            { number: '828K', label: 'Lessons Conducted' },
+            { number: '1,926', label: 'Payments Processed' },
+          ].map((stat, index) => (
+            <div key={index} style={styles.statItem}>
+              <div style={styles.statNumber}>{stat.number}</div>
+              <div style={styles.statLabel}>{stat.label}</div>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Contact Form */}
       <div style={styles.formSection}>
-        <h3 style={{ textAlign: 'center', color: '#333', marginBottom: '20px' }}>
-          Contact Us
+        <h3 style={{ textAlign: 'center', color: '#1f2937', fontSize: '24px', fontWeight: '600', marginBottom: '20px' }}>
+          Get in Touch
         </h3>
         <form style={styles.form} onSubmit={handleSubmit}>
           {errors.submit && <span style={styles.errorText}>{errors.submit}</span>}
-
-          <div style={styles.inputGroup}>
-            <label htmlFor="name">Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Your Name"
-              style={styles.input}
-            />
-            {errors.name && <span style={styles.errorText}>{errors.name}</span>}
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="example@gmail.com"
-              style={styles.input}
-            />
-            {errors.email && <span style={styles.errorText}>{errors.email}</span>}
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label htmlFor="message">Message</label>
-            <textarea
-              id="message"
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              placeholder="Your message here..."
-              style={styles.textarea}
-            />
-            {errors.message && <span style={styles.errorText}>{errors.message}</span>}
-          </div>
-
-          <button type="submit" style={styles.submitButton} disabled={isLoading}>
+          {[
+            { label: 'Name', name: 'name', type: 'text', placeholder: 'Your Name' },
+            { label: 'Email', name: 'email', type: 'email', placeholder: 'example@gmail.com' },
+            { label: 'Message', name: 'message', type: 'textarea', placeholder: 'Your message...' },
+          ].map((field, index) => (
+            <div key={index} style={styles.inputGroup}>
+              <label style={{ fontSize: '14px', color: '#1f2937', marginBottom: '8px' }}>{field.label}</label>
+              {field.type === 'textarea' ? (
+                <textarea
+                  name={field.name}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  placeholder={field.placeholder}
+                  style={styles.textarea}
+                />
+              ) : (
+                <input
+                  type={field.type}
+                  name={field.name}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  placeholder={field.placeholder}
+                  style={styles.input}
+                />
+              )}
+              {errors[field.name] && <span style={styles.errorText}>{errors[field.name]}</span>}
+            </div>
+          ))}
+          <button
+            type="submit"
+            style={styles.submitButton}
+            disabled={isLoading}
+            onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
+            onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
+          >
             {isLoading ? 'Submitting...' : 'Submit'}
           </button>
         </form>
       </div>
+
+      {/* Footer */}
+      <Footer />
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}
+      </style>
     </div>
   );
 };

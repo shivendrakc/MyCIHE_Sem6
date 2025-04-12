@@ -1,262 +1,256 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import InstructorMenu from './instructorMenu.jsx';
 
 const InstructorPortal = () => {
-    const [students, setStudents] = useState([
-        { name: 'Aasta Katwal', score: 78 },
-        { name: 'Shivendra K C', score: 20 },
-        { name: 'Prashant Joshi', score: 33 },
-        { name: 'Sandesh Ghimire', score: 72 },
-    ]);
+  const [students, setStudents] = useState([
+    { name: 'Aasta Katwal', score: 78 },
+    { name: 'Shivendra K C', score: 20 },
+    { name: 'Prashant Joshi', score: 33 },
+    { name: 'Sandesh Ghimire', score: 72 },
+  ]);
 
-    const [stats, setStats] = useState({
-        fullProgress: 85,
-        theoryProgress: 92,
-        activeBookings: 27,
-        questionsAnswered: 3298,
-        sessionLength: '2hr 20min',
-        totalRevenue: 6400,
-        currentEngagement: 88,
-        revenueGain: 34,
-    });
+  const [stats, setStats] = useState({
+    fullProgress: 85,
+    theoryProgress: 92,
+    activeBookings: 27,
+    questionsAnswered: 3298,
+    sessionLength: '2hr 20min',
+    totalRevenue: 6400,
+    currentEngagement: 88,
+    revenueGain: 34,
+  });
 
-    const [searchQuery, setSearchQuery] = useState(''); // For search functionality
-    const [selectedStudent, setSelectedStudent] = useState(students[1]); // Default to Shivendra K C
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true); // For responsive sidebar
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStudent, setSelectedStudent] = useState(students[1]);
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        // Simulate fetching data from API
-        const fetchData = async () => {
-            try {
-                // Replace with actual API calls
-                // const studentsResponse = await fetch('/api/students');
-                // const studentsData = await studentsResponse.json();
-                // setStudents(studentsData);
-
-                // const statsResponse = await fetch('/api/stats');
-                // const statsData = await statsResponse.json();
-                // setStats(statsData);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-        fetchData();
-
-        // Update progress circles dynamically
-        const updateProgressCircle = (id, value) => {
-            const circle = document.getElementById(id);
-            const valueElement = document.getElementById(`${id}Value`);
-            if (circle && valueElement) {
-                const radius = 74;
-                const circumference = 2 * Math.PI * radius;
-                const offset = circumference - (value / 100) * circumference;
-                circle.style.strokeDasharray = circumference;
-                circle.style.strokeDashoffset = offset;
-                valueElement.textContent = `${value}%`;
-            }
-        };
-
-        updateProgressCircle('fullProgress', stats.fullProgress);
-        updateProgressCircle('theoryProgress', stats.theoryProgress);
-    }, [stats]);
-
-    // Handle sidebar menu navigation
-    const handleMenuClick = (path) => {
-        // Dependency: Assumes these routes exist in your router configuration (e.g., App.js)
-        navigate(path);
+  useEffect(() => {
+    const updateProgressCircle = (id, value) => {
+      const circle = document.getElementById(id);
+      const valueElement = document.getElementById(`${id}Value`);
+      if (circle && valueElement) {
+        const radius = 74;
+        const circumference = 2 * Math.PI * radius;
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = circumference - (value / 100) * circumference;
+        valueElement.textContent = `${value}%`;
+      }
     };
 
-    // Filter students based on search query
-    const filteredStudents = students.filter((student) =>
-        student.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    updateProgressCircle('fullProgress', stats.fullProgress);
+    updateProgressCircle('theoryProgress', stats.theoryProgress);
+  }, [stats]);
 
-    return (
-        <div className="flex min-h-[calc(100vh-80px)] pt-[80px] pb-[50px] bg-gray-100">
-            {/* Sidebar */}
-            <InstructorMenu
-                isSidebarOpen={isSidebarOpen}
-                setIsSidebarOpen={setIsSidebarOpen}
-                handleMenuClick={handleMenuClick}
-            />
+  const filteredStudents = students.filter((student) =>
+    student.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-            {/* Main Content */}
-            <div
-                className={`flex-1 p-6 overflow-y-auto transition-all duration-300 ${
-                    isSidebarOpen ? 'ml-64' : 'ml-16'
-                }`}
-            >
-                {/* Header */}
-                <div className="flex justify-between items-center mb-6">
-                    <div className="w-2/3">
-                        <input
-                            type="text"
-                            placeholder="Search students..."
-                            className="w-full p-2 bg-blue-50 border border-blue-200 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-400 rounded-full"></div>
-                        <span className="text-sm font-medium text-gray-800">Reza Rafah</span>
-                    </div>
-                </div>
-
-                {/* Task Section */}
-                <div className="text-center my-10">
-                    <h2 className="text-2xl font-semibold text-gray-800">Today’s Task</h2>
-                    <p className="text-sm text-gray-600 mt-2">
-                        Check your daily tasks and schedules
-                    </p>
-                    <button className="mt-4 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition">
-                        Today's Schedule
-                    </button>
-                </div>
-
-                {/* Analysis Section */}
-                <div className="my-6">
-                    <h3 className="text-lg font-semibold text-gray-800">Individual Analysis</h3>
-                    <span className="text-sm text-gray-600">{selectedStudent.name}</span>
-                    <div className="flex gap-6 mt-4">
-                        <div className="relative w-40 h-40">
-                            <div className="absolute inset-0 bg-orange-400 opacity-90 rounded-full flex items-center justify-center">
-                                <svg width="160" height="160" className="absolute">
-                                    <circle
-                                        className="fill-none stroke-white stroke-[10px] opacity-30"
-                                        cx="80"
-                                        cy="80"
-                                        r="74"
-                                    ></circle>
-                                    <circle
-                                        className="fill-none stroke-white stroke-[10px] stroke-linecap-round transition-all duration-500"
-                                        id="fullProgress"
-                                        cx="80"
-                                        cy="80"
-                                        r="74"
-                                        transform="rotate(-90 80 80)"
-                                    ></circle>
-                                </svg>
-                                <div id="fullProgressValue" className="text-3xl text-white font-semibold">
-                                    0%
-                                </div>
-                                <div className="absolute bottom-4 text-sm text-white">
-                                    Full Progress
-                                </div>
-                            </div>
-                        </div>
-                        <div className="relative w-40 h-40">
-                            <div className="absolute inset-0 bg-blue-400 opacity-90 rounded-full flex items-center justify-center">
-                                <svg width="160" height="160" className="absolute">
-                                    <circle
-                                        className="fill-none stroke-white stroke-[10px] opacity-30"
-                                        cx="80"
-                                        cy="80"
-                                        r="74"
-                                    ></circle>
-                                    <circle
-                                        className="fill-none stroke-white stroke-[10px] stroke-linecap-round transition-all duration-500"
-                                        id="theoryProgress"
-                                        cx="80"
-                                        cy="80"
-                                        r="74"
-                                        transform="rotate(-90 80 80)"
-                                    ></circle>
-                                </svg>
-                                <div id="theoryProgressValue" className="text-3xl text-white font-semibold">
-                                    0%
-                                </div>
-                                <div className="absolute bottom-4 text-sm text-white">
-                                    Theory Progress
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Student Section */}
-                <div className="my-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Manage Students</h3>
-                    <div className="w-72">
-                        {filteredStudents.map((student, index) => (
-                            <div
-                                key={index}
-                                className={`flex items-center p-3 mb-2 rounded-md cursor-pointer transition ${
-                                    selectedStudent.name === student.name
-                                        ? 'bg-blue-100'
-                                        : 'bg-white hover:bg-gray-50'
-                                } shadow-sm`}
-                                onClick={() => setSelectedStudent(student)}
-                            >
-                                <div className="w-7 h-7 bg-gray-300 rounded-full mr-3"></div>
-                                <div className="flex-1 text-sm text-gray-800">{student.name}</div>
-                                <div className="text-sm text-gray-600 opacity-70">{student.score}%</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Stats Section */}
-                <div className="flex gap-6 my-6">
-                    <div className="w-36 h-40 bg-white border border-gray-200 rounded-xl p-4 text-center shadow-md hover:shadow-lg transition">
-                        <div className="text-2xl font-bold text-gray-800 mt-4">{stats.activeBookings}</div>
-                        <div className="text-sm text-gray-600 mt-2">Active Bookings</div>
-                    </div>
-                    <div className="w-36 h-40 bg-white border border-gray-200 rounded-xl p-4 text-center shadow-md hover:shadow-lg transition">
-                        <div className="text-2xl font-bold text-gray-800 mt-4">{stats.questionsAnswered.toLocaleString()}</div>
-                        <div className="text-sm text-gray-600 mt-2">Questions Answered</div>
-                    </div>
-                    <div className="w-36 h-40 bg-white border border-gray-200 rounded-xl p-4 text-center shadow-md hover:shadow-lg transition">
-                        <div className="text-2xl font-bold text-gray-800 mt-4">{stats.sessionLength}</div>
-                        <div className="text-sm text-gray-600 mt-2">Av. Session Length</div>
-                    </div>
-                </div>
-
-                {/* Revenue Section */}
-                <div className="flex gap-6 my-6">
-                    <div className="flex-1 bg-white border border-gray-200 rounded-xl p-4 text-center shadow-md hover:shadow-lg transition relative">
-                        <div className="text-2xl font-bold text-gray-800 mt-4">${stats.totalRevenue.toLocaleString()}</div>
-                        <div className="text-sm text-gray-600 mt-2">Total Revenue</div>
-                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                            <svg width="100" height="40">
-                                <polyline
-                                    points="0,40 20,30 40,35 60,20 80,25 100,15"
-                                    className="fill-none stroke-blue-500 stroke-2"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-                    <div className="flex-1 bg-white border border-gray-200 rounded-xl p-4 text-center shadow-md hover:shadow-lg transition relative">
-                        <div className="text-2xl font-bold text-gray-800 mt-4">{stats.currentEngagement}%</div>
-                        <div className="text-sm text-gray-600 mt-2">Current Engagement</div>
-                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                            <svg width="100" height="40">
-                                <polyline
-                                    points="0,40 20,35 40,30 60,25 80,20 100,15"
-                                    className="fill-none stroke-blue-500 stroke-2"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-                    <div className="flex-1 bg-white border border-gray-200 rounded-xl p-4 text-center shadow-md hover:shadow-lg transition relative">
-                        <div className="text-2xl font-bold text-gray-800 mt-4">+{stats.revenueGain}%</div>
-                        <div className="text-sm text-gray-600 mt-2">Revenue Gain</div>
-                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                            <svg width="100" height="40">
-                                <polyline
-                                    points="0,40 20,35 40,30 60,25 80,20 100,15"
-                                    className="fill-none stroke-blue-500 stroke-2"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div style={{ padding: '20px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <input
+          type="text"
+          placeholder="Search students..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            width: '60%',
+            padding: '10px',
+            border: '1px solid #d1d5db',
+            borderRadius: '6px',
+            fontSize: '14px',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+          }}
+        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '32px', height: '32px', backgroundColor: '#3b82f6', borderRadius: '50%' }}></div>
+          <span style={{ fontSize: '14px', fontWeight: '500', color: '#1f2937' }}>Reza Rafah</span>
         </div>
-    );
+      </div>
+
+      {/* Task Section */}
+      <div style={{ textAlign: 'center', margin: '40px 0' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#1f2937' }}>Today’s Task</h2>
+        <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
+          Check your daily tasks and schedules
+        </p>
+        <button
+          style={{
+            marginTop: '16px',
+            padding: '10px 24px',
+            backgroundColor: '#3b82f6',
+            color: '#ffffff',
+            borderRadius: '6px',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '14px',
+            transition: 'background 0.2s',
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')}
+          onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')}
+        >
+          Today's Schedule
+        </button>
+      </div>
+
+      {/* Analysis Section */}
+      <div style={{ marginBottom: '40px' }}>
+        <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>Individual Analysis</h3>
+        <span style={{ fontSize: '14px', color: '#6b7280' }}>{selectedStudent.name}</span>
+        <div style={{ display: 'flex', gap: '24px', marginTop: '16px' }}>
+          {[
+            { id: 'fullProgress', value: stats.fullProgress, label: 'Full Progress', color: '#f97316' },
+            { id: 'theoryProgress', value: stats.theoryProgress, label: 'Theory Progress', color: '#3b82f6' },
+          ].map((prog) => (
+            <div key={prog.id} style={{ position: 'relative', width: '160px', height: '160px' }}>
+              <svg width="160" height="160" style={{ position: 'absolute' }}>
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="74"
+                  stroke="#e5e7eb"
+                  strokeWidth="10"
+                  fill="none"
+                />
+                <circle
+                  id={prog.id}
+                  cx="80"
+                  cy="80"
+                  r="74"
+                  stroke={prog.color}
+                  strokeWidth="10"
+                  fill="none"
+                  strokeLinecap="round"
+                  transform="rotate(-90 80 80)"
+                />
+              </svg>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ffffff',
+                  backgroundColor: `${prog.color}cc`,
+                  borderRadius: '50%',
+                }}
+              >
+                <div id={`${prog.id}Value`} style={{ fontSize: '24px', fontWeight: '600' }}>
+                  0%
+                </div>
+                <div style={{ fontSize: '12px', marginTop: '4px' }}>{prog.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Student Section */}
+      <div style={{ marginBottom: '40px' }}>
+        <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', marginBottom: '16px' }}>
+          Manage Students
+        </h3>
+        <div style={{ width: '300px' }}>
+          {filteredStudents.map((student, index) => (
+            <div
+              key={index}
+              onClick={() => setSelectedStudent(student)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '12px',
+                marginBottom: '8px',
+                backgroundColor: selectedStudent.name === student.name ? '#dbeafe' : '#ffffff',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                transition: 'background 0.2s',
+              }}
+            >
+              <div style={{ width: '28px', height: '28px', backgroundColor: '#d1d5db', borderRadius: '50%', marginRight: '12px' }}></div>
+              <div style={{ flex: 1, fontSize: '14px', color: '#1f2937' }}>{student.name}</div>
+              <div style={{ fontSize: '14px', color: '#6b7280' }}>{student.score}%</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Stats Section */}
+      <div style={{ display: 'flex', gap: '24px', marginBottom: '40px' }}>
+        {[
+          { value: stats.activeBookings, label: 'Active Bookings' },
+          { value: stats.questionsAnswered.toLocaleString(), label: 'Questions Answered' },
+          { value: stats.sessionLength, label: 'Av. Session Length' },
+        ].map((stat, index) => (
+          <div
+            key={index}
+            style={{
+              width: '160px',
+              height: '160px',
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              padding: '16px',
+              textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              transition: 'transform 0.2s',
+            }}
+            onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
+            onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
+          >
+            <div style={{ fontSize: '24px', fontWeight: '600', color: '#1f2937', marginTop: '24px' }}>
+              {stat.value}
+            </div>
+            <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Revenue Section */}
+      <div style={{ display: 'flex', gap: '24px' }}>
+        {[
+          { value: `$${stats.totalRevenue.toLocaleString()}`, label: 'Total Revenue' },
+          { value: `${stats.currentEngagement}%`, label: 'Current Engagement' },
+          { value: `+${stats.revenueGain}%`, label: 'Revenue Gain' },
+        ].map((stat, index) => (
+          <div
+            key={index}
+            style={{
+              flex: 1,
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              padding: '16px',
+              textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              position: 'relative',
+              transition: 'transform 0.2s',
+            }}
+            onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
+            onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
+          >
+            <div style={{ fontSize: '24px', fontWeight: '600', color: '#1f2937', marginTop: '24px' }}>
+              {stat.value}
+            </div>
+            <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>{stat.label}</div>
+            <div style={{ position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)' }}>
+              <svg width="100" height="40">
+                <polyline
+                  points="0,40 20,30 40,35 60,20 80,25 100,15"
+                  style={{ fill: 'none', stroke: '#3b82f6', strokeWidth: '2' }}
+                />
+              </svg>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default InstructorPortal;
