@@ -19,7 +19,11 @@ const userSchema = mongoose.Schema({
         enum: ['student', 'instructor', 'admin'],
         default: 'student',
 
-      }
+      },
+    isApproved: {
+        type: Boolean, // will be used to approve or disapprove the instructor
+        default: false
+    },
 },{
     timestamps: true //created_at and updated_at    
 });

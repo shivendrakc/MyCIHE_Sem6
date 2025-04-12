@@ -12,6 +12,8 @@ import ManageStudents from './pages/InstructorPages/manageStudents';
 import DatePicker from './pages/studentPortal/datePicker';
 import StudentPortal from './pages/studentPortal/StudentPortal';
 import PaymentForm from './pages/Payment/paymentForm';
+import './index.css';
+
 
 const App = () => {
   return (
@@ -23,7 +25,7 @@ const App = () => {
           element={
             <>
               <Navbar />
-              <div style={{ padding: '20px' }}>
+              <div style={{ padding: '0px' }}>
                 <LandingPage />
               </div>
             </>

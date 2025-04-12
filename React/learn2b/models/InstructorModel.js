@@ -1,28 +1,52 @@
 import mongoose from "mongoose";
 
-const userSchema = mongoose.Schema({
-  name: {
+const instructorProfileSchema = mongoose.Schema({
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: true
   },
   bio: {
     type: String,
-    required : true,
+    required: true
   },
   car: {
-    model : {
+    model: {
       type: String,
-      required: true,
+      required: true
     },
-    year : {
+    year: {
       type: Number,
-      required: True,
+      required: true
     }
   },
-  availability: {
+  method: {
+    type: String, // Manual or Auto
+    required: true
+  },
+  experience: {
+    type: Number,
+    required: true
+  },
+  nationality: {
     type: String,
-    reuqired: True,
+    required: true
+  },
+  hourlyRate: {
+    type: Number,
+    required: true
+  },
+  availability: [{
+    date: {
+      type: String,
+      required: true
+    },
+    timeSlots: [String]
+  }],
+  profileImage: {
+    type: String
   }
+}, { timestamps: true });
 
-})
+const InstructorProfile = mongoose.model("InstructorProfile", instructorProfileSchema);
+export default InstructorProfile;
