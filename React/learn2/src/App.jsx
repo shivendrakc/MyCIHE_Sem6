@@ -34,6 +34,7 @@ function App() {
 
         {/* Login Route */}
         <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/landing" element={<LandingPage />} />
       </Routes>
     </Router>
   );

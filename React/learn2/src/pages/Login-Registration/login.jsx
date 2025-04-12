@@ -20,10 +20,10 @@ export default function LoginPage() {
     try {
       const response = await API.post("/users/login", { email, password });
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      navigate("../LandingPage/landingPage.jsx");
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      navigate("../landing");
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Invalid';
+      const errorMsg = err.response?.data?.message || 'Invalid Credentials';
       setError(errorMsg);
       toast.error(errorMsg);
     }
