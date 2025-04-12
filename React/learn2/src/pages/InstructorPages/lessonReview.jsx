@@ -1,11 +1,10 @@
-<<<<<<< HEAD
+
 import React from 'react';
 import Navbar from '../LandingPage/Navbar'; // Adjust the path as needed
 import InstructorMenu from './instructorMenu.jsx';
-=======
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
->>>>>>> e3acdc11b04970b94d3ef65e1a66559121d34c9d
+
+
+
 
 const LessonReview = () => {
   const navigate = useNavigate();
