@@ -6,8 +6,9 @@ const userSchema = mongoose.Schema({
         required: true
     },
     email: {
-        type: Number,
-        required: true
+        type: String,
+        required: true,
+        unique: true
     },
     password: {
         type: String,
@@ -16,7 +17,11 @@ const userSchema = mongoose.Schema({
     role: {
         type: String,
         enum: ['student', 'instructor', 'admin'],
+<<<<<<< HEAD
         default: 'student',
+=======
+        default: 'student'
+>>>>>>> prashant
       }
 },{
     timestamps: true //created_at and updated_at    
