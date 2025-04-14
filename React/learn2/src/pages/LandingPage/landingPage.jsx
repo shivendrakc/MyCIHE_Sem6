@@ -2,26 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from './Footer';
 import Car from '../../assets/car.png';
+import "../../assets/flipcar.css"
+import { ArrowLeftIcon } from '@heroicons/react/24/solid';
+import {
+  UserIcon,
+  UsersIcon,
+  CalendarDaysIcon,
+  CreditCardIcon,
+} from '@heroicons/react/24/outline';
 
 const Learn2Drive = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [currentInstructor, setCurrentInstructor] = useState(0);
   const navigate = useNavigate();
 
-  const instructors = [
-    { name: 'John Doe', rating: '4.9', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d' },
-    { name: 'Jane Smith', rating: '4.8', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330' },
-    { name: 'Mike Johnson', rating: '4.7', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7' },
-  ];
+  
+  const [flipped, setFlipped] = useState(false);
+  const [flipped2, setFlipped2] = useState(false);
+  const [flipped3, setFlipped3] = useState(false);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentInstructor((prev) => (prev + 1) % instructors.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [instructors.length]);
+
+
+
+
+ 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,7 +93,7 @@ const Learn2Drive = () => {
       </div>
 
       {/* SVG Waves */}
-      <svg
+      <svg id="about"
         className="absolute bottom-0 w-full h-full"
         viewBox="0 0 1440 280"
         preserveAspectRatio="none"
@@ -133,196 +138,331 @@ const Learn2Drive = () => {
     </div>
 
     {/* About Section */}
-    <section id="about" className="bg-white py-16 px-6 md:px-20 relative">
-    <div className="relative w-full h-[300px] rounded-bl-xl shadow-lg mb-8 overflow-hidden">
-  {/* Image */}
-        <img
-          src="https://images.unsplash.com/photo-1587808326264-bb8e737b1f4d?q=80&w=2070"
-          alt="Office collaboration"
-          className="w-full h-full object-cover"
-          style={{ clipPath: 'polygon(0 0, 90% 0, 100% 10%, 100% 100%, 0% 100%)' }}
-        />
+    <section  className="bg-white py-16 px-6 md:px-20">
 
-        {/* White overlay on top */}
-        <div className="absolute inset-0 bg-white/80" />
-
-        {/* About Us Heading on Image */}
-        <h2 className="absolute inset-0 flex items-center justify-center text-6xl md:text-8xl font-extrabold text-[#28c1c6] leading-snug text-center z-10">
+        {/* Heading OUTSIDE the grid */}
+        <h2 className="text-4xl md:text-6xl font-bold text-[#28c1c6] text-center leading-snug font-sans-serif mb-12">
           About Us
         </h2>
-      </div>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-12">
+        {/* Grid Content */}
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+          
+          {/* Column 1: Image + First Paragraph */}
+          <div className="flex flex-col gap-8">
+            {/* Image with overlay */}
+            <div className="relative w-full h-[300px] rounded-bl-xl shadow-lg overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1587808326264-bb8e737b1f4d?q=80&w=2070"
+                alt="Office collaboration"
+                className="w-full h-full object-cover"
+                style={{ clipPath: 'polygon(0 0, 90% 0, 100% 10%, 100% 100%, 0% 100%)' }}
+              />
+             
+            </div>
+
+            <p className="text-lg text-gray-600 leading-relaxed">
+              At Learn2Drive, we're passionate about making the journey to getting your license smooth, safe, and empowering. 
+              Whether you're starting from scratch or picking up where you left off, we connect you with certified instructors who care about your progress and confidence on the road.
+            </p>
+          </div>
+
+          {/* Column 2: Content */}
+          <div className="space-y-6">
+            <h3 className="text-5xl font-semibold text-gray-800">
+              How we work with our Learners?
+            </h3>
+            <p className="text-xl text-gray-600">
+              Personalized lesson plans. Real-time availability. Transparent pricing.
+              <br />
+              Our platform is built to make learning to drive flexible and stress-free. With just a few clicks, you can find the right instructor, book a session, and start building your driving skills with confidence.
+            </p>
+            <button className="mt-4 bg-[#28c1c6] text-white px-6 py-3 rounded-md hover:bg-blue-700 transition">
+              Explore →
+            </button>
+          </div>
+
+        </div>
         
-       
-       
+      </section>
+
+
+
+
+      
+
+      {/* Services*/}
+      <section id="services" className="py-16 px-6 md:px-20 bg-[#CDF3FF]">
+  <h2 className="text-3xl md:text-6xl font-bold text-center text-[#0f3643] mb-25">Our Promise ?</h2>
+
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-7xl mx-auto">
+    {/* CARD 1 */}
+      <div className="w-full max-w-sm mx-auto perspective">
+      <div className={`relative w-full h-[525px] transition-transform duration-700 transform-style preserve-3d ${flipped ? 'rotate-y-180' : ''}`}>
         
-
-        {/* Text Content */}
-        <div className="space-y-6">
-          <p className="text-gray-600 text-base leading-relaxed">
-            At Learn2Drive, we're passionate about making the journey to getting your license smooth, safe, and empowering. 
-            Whether you're starting from scratch or picking up where you left off, we connect you with certified instructors who care about your progress and confidence on the road.
-          </p>
-
-          <h3 className="text-2xl font-semibold text-gray-800">
-            How we work with our Learners.
-          </h3>
-          <p className="text-sm text-gray-600">
-            Personalized lesson plans. Real-time availability. Transparent pricing.
-            <br />
-            Our platform is built to make learning to drive flexible and stress-free. With just a few clicks, you can find the right instructor, book a session, and start building your driving skills with confidence.
-          </p>
-
-          <button className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition">
-            Contact Us →
+        {/* FRONT SIDE */}
+        <div className="absolute w-full h-full backface-hidden bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center text-center">
+          <img
+            src="https://images.unsplash.com/photo-1630406144797-821be1f35d75?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Personalized Matching"
+            className="rounded-2xl mb-6"
+          />
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Personalized Instructor Matching</h3>
+          <ul className="text-sm text-gray-700 space-y-2 mb-6">
+            <li className="flex items-center justify-center gap-2">
+              <i className="uil uil-check text-blue-500"></i> Matched by location & style
+            </li>
+            <li className="flex items-center justify-center gap-2">
+              <i className="uil uil-check text-blue-500"></i> 1-on-1 support
+            </li>
+            <li className="flex items-center justify-center gap-2">
+              <i className="uil uil-check text-blue-500"></i> Certified instructors only
+            </li>
+            <li className="flex items-center justify-center gap-2">
+              <i className="uil uil-check text-blue-500"></i> Transparent matching process
+            </li>
+          </ul>
+          <button
+            onClick={() => setFlipped(true)}
+            className="mt-auto w-3/4 bg-blue-500 text-white py-2 rounded-md hover:bg-[#CDF3FF] hover:text-black transition"
+          >
+            Learn More
           </button>
         </div>
 
+        {/* BACK SIDE */}
+        <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-center items-center text-center">
+          <h3 className="text-xl font-bold text-black mb-4">Why Personalized Matching?</h3>
+          <p className="text-gray-700 text-lg mb-6">
+          Personalized matching ensures you're paired with the right driving instructor who fits your schedule, learning style, and location. Whether you're a beginner or brushing up on skills, this tailored approach makes your driving journey smoother, more effective, and truly enjoyable.
+          </p>
+          <button
+            onClick={() => setFlipped(false)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-[#CDF3FF] hover:text-black transition"
+          >
+                   <ArrowLeftIcon className="w-5 h-5" />
+
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+
+    {/* CARD 2 */}
+    <div className="w-full max-w-sm mx-auto perspective">
+  <div className={`relative w-full h-[525px] transition-transform duration-700 transform-style preserve-3d ${flipped2 ? 'rotate-y-180' : ''}`}>
+    
+    {/* FRONT SIDE */}
+    <div className="absolute w-full h-full backface-hidden bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center text-center">
+      <img
+        src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=2668&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        alt="Easy Lesson Scheduling"
+        className="rounded-2xl mb-6"
+      />
+
+      <h3 className="text-xl font-bold text-gray-800 mb-4">Easy Lesson Scheduling</h3>
+      <ul className="text-sm text-gray-700 space-y-2 mb-6">
+        <li className="flex items-center justify-center gap-2">
+          <i className="uil uil-check text-blue-500"></i> Real-Time Booking
+        </li>
+        <li className="flex items-center justify-center gap-2">
+          <i className="uil uil-check text-blue-500"></i> Flexible Time Slots
+        </li>
+        <li className="flex items-center justify-center gap-2">
+          <i className="uil uil-check text-blue-500"></i> Instant Notifications
+        </li>
+        <li className="flex items-center justify-center gap-2">
+          <i className="uil uil-check text-blue-500"></i> Calendar Integration
+        </li>
+      </ul>
+
+      <button
+        onClick={() => setFlipped2(true)}
+        className="mt-auto w-3/4 bg-blue-500 text-white py-2 rounded-md hover:bg-[#CDF3FF] hover:text-black transition"
+      >
+        Learn More
+      </button>
+    </div>
+
+    {/* BACK SIDE */}
+    <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-center items-center text-center">
+      <h3 className="text-xl font-bold text-black mb-4">Why Easy Scheduling?</h3>
+      <p className="text-gray-700 text-lg mb-6">
+        Our intuitive scheduling system allows students to book lessons in real time based on instructor availability.
+        You’ll get instant confirmations, flexible rescheduling options, and calendar reminders—all designed to make your driving journey stress-free and organized.
+      </p>
+      <button
+        onClick={() => setFlipped2(false)}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-[#CDF3FF] hover:text-black transition"
+      >
+        <ArrowLeftIcon className="w-5 h-5" />
+      </button>
+    </div>
+
+  </div>
+</div>
+
+    {/* CARD 3 */}
+    <div className="w-full max-w-sm mx-auto perspective">
+  <div className={`relative w-full h-[525px] transition-transform duration-700 transform-style preserve-3d ${flipped3 ? 'rotate-y-180' : ''}`}>
+    
+    {/* FRONT SIDE */}
+    <div className="absolute w-full h-full backface-hidden bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center text-center">
+      <img
+        src="https://plus.unsplash.com/premium_photo-1682309553075-c84ea8d9d49a?q=80&w=2712&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        alt="Progress Tracking"
+        className="rounded-2xl mb-6"
+      />
+
+      <h3 className="text-xl font-bold text-gray-800 mb-4">Progress Tracking</h3>
+      <ul className="text-sm text-gray-700 space-y-2 mb-6">
+        <li className="flex items-center justify-center gap-2">
+          <i className="uil uil-check text-blue-500"></i> Lesson Completion Status
+        </li>
+        <li className="flex items-center justify-center gap-2">
+          <i className="uil uil-check text-blue-500"></i> Skill Level Updates
+        </li>
+        <li className="flex items-center justify-center gap-2">
+          <i className="uil uil-check text-blue-500"></i> Session Recap Logs
+        </li>
+        <li className="flex items-center justify-center gap-2">
+          <i className="uil uil-check text-blue-500"></i> Goal Milestone Alerts
+        </li>
+      </ul>
+
+      <button
+        onClick={() => setFlipped3(true)}
+        className="mt-auto w-3/4 bg-blue-500 text-white py-2 rounded-md hover:bg-[#CDF3FF] hover:text-black transition"
+      >
+        Learn More
+      </button>
+    </div>
+
+    {/* BACK SIDE */}
+    <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-center items-center text-center">
+      <h3 className="text-xl font-bold text-black mb-4">Why Progress Tracking?</h3>
+      <p className="text-gray-700 text-lg mb-6">
+        Stay on top of your learning journey with real-time progress tracking. Know exactly where you stand after every lesson, monitor improvements, and get timely reminders to help you achieve key driving milestones with confidence.
+      </p>
+      <button
+        onClick={() => setFlipped3(false)}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-[#CDF3FF] hover:text-black transition"
+      >
+                <ArrowLeftIcon className="w-5 h-5" />
+
+      </button>
+    </div>
+
+  </div>
+</div>
+</div>
+</section>
+
+
+      
+
+      {/* Stats */}
+      
+    <section className="flex flex-col md:flex-row justify-between items-center px-8 md:px-50 py-35 bg-gray-50 mb-16">
+      <div className="max-w-md space-y-3 mb-8 md:mb-0">
+        <h2 className="text-4xl font-semibold text-gray-800">
+          Helping local <br />
+          <span className="text-6xl font-bold text-teal-600">
+            Youths to Drive with Ease
+          </span>
+        </h2>
+        <p className="text-lg text-gray-600">Over 2,000 Satisfied Members</p>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-15 text-left">
+        <div className="flex items-center gap-5">
+          <UserIcon className="h-15 w-15 text-teal-600" />
+          <div>
+            <div className="text-2xl font-semibold text-gray-800">200</div>
+            <div className="text-sm text-gray-500">Certified Instructors</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <UsersIcon className="h-15 w-15 text-teal-600" />
+          <div>
+            <div className="text-2xl font-semibold text-gray-800">2,334</div>
+            <div className="text-sm text-gray-500">Users</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <CalendarDaysIcon className="h-15 w-15 text-teal-600" />
+          <div>
+            <div className="text-2xl font-semibold text-gray-800">828,867</div>
+            <div className="text-sm text-gray-500">Lessons Conducted</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <CreditCardIcon className="h-15 w-15 text-teal-600" />
+          <div>
+            <div className="text-2xl font-semibold text-gray-800">1,926</div>
+            <div className="text-sm text-gray-500">Payments</div>
+          </div>
+        </div>
       </div>
     </section>
 
-
-      <div className="relative w-full h-[250px] overflow-hidden bg-white mt-25">
-      <svg
-        className="absolute bottom-0 w-full h-full"
-        viewBox="0 0 1440 280"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-
-        <path
-          fill="#00cfff"
-          fillOpacity="0.3"
-          d="
-            M0,100 
-            C120,200 240,0 360,100 
-            C480,200 600,0 720,100 
-            C840,200 960,0 1080,100 
-            C1200,200 1320,0 1440,100 
-            L1440,260 
-            C1320,160 1200,320 1080,260 
-            C960,160 840,320 720,260 
-            C600,160 480,320 360,260 
-            C240,160 120,320 0,260 
-            Z"
-        />
-
-        {/* Layer 2 - darker */}
-        <path
-          fill="#0a5d72"
-          fillOpacity="0.6"
-          d="
-            M0,120 
-            C120,40 240,220 360,120 
-            C480,40 600,220 720,120 
-            C840,40 960,220 1080,120 
-            C1200,40 1320,220 1440,120 
-            L1440,240 
-            C1320,320 1200,140 1080,240 
-            C960,320 840,140 720,240 
-            C600,320 480,140 360,240 
-            C240,320 120,140 0,240 
-            Z"
-        />
-      </svg>
-        </div>
-
-      {/* What We Offer */}
-      <section className="px-8 md:px-24 py-16 bg-[#CDF3FF] mb-16">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl font-semibold text-gray-800">What We Offer</h2>
-          <p className="text-gray-600">Tailored driving lessons, seamless scheduling, and a student-focused experience.</p>
-        </div>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {[
-            { title: 'Personalized Matching', path: '/instructor-match' },
-            { title: 'Easy Scheduling', path: '/scheduling' },
-            { title: 'Secure Payments', path: '/payments' },
-          ].map((offer, index) => (
-            <div key={index} className="bg-white rounded-lg shadow p-6 text-center transform hover:scale-105 transition">
-              <h3 className="text-lg font-medium text-gray-800 mb-2">{offer.title}</h3>
-              <span onClick={() => navigate(offer.path)} className="text-blue-500 hover:underline cursor-pointer text-sm">
-                Read More
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Instructors */}
-      <section className="text-center px-8 md:px-24 py-16 bg-white mb-16">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-8">Meet Our Top Instructors</h2>
-        <div className="max-w-sm mx-auto bg-gray-50 p-6 rounded-lg shadow animate-fadeIn">
-          <img
-            src={instructors[currentInstructor].img}
-            alt={instructors[currentInstructor].name}
-            className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
-          />
-          <h3 className="text-lg font-semibold">{instructors[currentInstructor].name}</h3>
-          <p className="text-sm text-gray-500">Rating: {instructors[currentInstructor].rating} ★</p>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="flex flex-col md:flex-row justify-between items-center px-8 md:px-24 py-16 bg-gray-50 mb-16">
-        <div className="max-w-md space-y-3 mb-8 md:mb-0">
-          <h2 className="text-xl font-semibold text-gray-800">Driving Success</h2>
-          <p className="text-gray-600">Join over 2,000 satisfied learners.</p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {[
-            { number: '200+', label: 'Certified Instructors' },
-            { number: '2,334', label: 'Users' },
-            { number: '828K', label: 'Lessons Conducted' },
-            { number: '1,926', label: 'Payments Processed' },
-          ].map((stat, index) => (
-            <div key={index}>
-              <div className="text-blue-500 font-bold text-xl">{stat.number}</div>
-              <div className="text-gray-500 text-sm">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Contact Form */}
-      <section className="max-w-xl mx-auto bg-white px-8 py-10 rounded-lg shadow mb-16">
-        <h3 className="text-xl font-semibold text-center mb-6 text-gray-800">Get in Touch</h3>
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          {errors.submit && <div className="text-red-500 text-sm">{errors.submit}</div>}
-          {['name', 'email', 'message'].map((field) => (
-            <div key={field}>
-              <label className="block text-sm font-medium text-gray-700 capitalize">{field}</label>
-              {field === 'message' ? (
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded bg-gray-50"
-                  placeholder="Your message..."
-                />
-              ) : (
-                <input
-                  type={field === 'email' ? 'email' : 'text'}
-                  name={field}
-                  value={formData[field]}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded bg-gray-50"
-                  placeholder={`Your ${field}`}
-                />
-              )}
-              {errors[field] && <div className="text-red-500 text-sm">{errors[field]}</div>}
-            </div>
-          ))}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded transition"
-          >
-            {isLoading ? 'Submitting...' : 'Submit'}
-          </button>
-        </form>
-      </section>
+     <section className="bg-[#CDF3FF] py-16 px-6 md:px-10 lg:px-24">
+  <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-2">
+    
+    {/* LEFT COLUMN - Heading */}
+    <div className="bg-[#28c1c6] text-white flex flex-col justify-center items-center p-10">
+      <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-4">
+        Have a Query?
+      </h2>
+      <p className="text-lg md:text-xl text-center max-w-xs">
+        Shoot us an email and our admin team get back to you as soon as they can!
+      </p>
+    </div>
+
+    {/* RIGHT COLUMN - Contact Form */}
+    <div className="p-8">
+      <h3 className="text-xl font-semibold text-center mb-6 text-gray-800">Get in Touch</h3>
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        {errors.submit && <div className="text-red-500 text-sm">{errors.submit}</div>}
+        {['name', 'email', 'message'].map((field) => (
+          <div key={field}>
+            <label className="block text-sm font-medium text-gray-700 capitalize">{field}</label>
+            {field === 'message' ? (
+              <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded bg-gray-50"
+                placeholder="Your message..."
+              />
+            ) : (
+              <input
+                type={field === 'email' ? 'email' : 'text'}
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded bg-gray-50"
+                placeholder={`Your ${field}`}
+              />
+            )}
+            {errors[field] && <div className="text-red-500 text-sm">{errors[field]}</div>}
+          </div>
+        ))}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full bg-[#28c1c6] hover:bg-[#CDF3FF] hover:text-black text-white py-3 rounded transition"
+        >
+          {isLoading ? 'Submitting...' : 'Submit'}
+        </button>
+      </form>
+    </div>
+
+  </div>
+</section>
+
 
       {/* Footer */}
       <Footer />

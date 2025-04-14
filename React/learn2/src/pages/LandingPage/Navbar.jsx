@@ -74,6 +74,12 @@ const Navbar = () => {
             About us
           </button>
           <button
+            onClick={() => scrollToSection('services')}
+            className="text-black text-sm font-medium px-4 py-2 rounded-md hover:bg-[#28c1c6] hover:text-white transition"
+          >
+            Services
+          </button>
+          <button
             onClick={() => scrollToSection('footer')}
             className="text-black text-sm font-medium px-4 py-2 rounded-md hover:bg-[#28c1c6] hover:text-white transition"
           >
