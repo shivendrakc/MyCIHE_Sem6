@@ -20,8 +20,8 @@ export default function LoginPage() {
     try {
       const response = await API.post("/users/login", { email, password });
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate("../landing");
+      localStorage.setItem('userInfo', JSON.stringify(response.data.user));
+      navigate("/dashboard");
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Invalid Credentials';
       setError(errorMsg);

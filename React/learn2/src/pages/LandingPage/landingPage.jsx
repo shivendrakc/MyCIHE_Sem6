@@ -4,6 +4,7 @@ import Footer from './Footer';
 import Car from '../../assets/car.png';
 import "../../assets/flipcar.css"
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
+
 import {
   UserIcon,
   UsersIcon,
@@ -62,16 +63,25 @@ const Learn2Drive = () => {
   return (
     <div className="w-full">
       {/* Hero Banner */}
-      <section className="w-full mt-40 mb-16 flex flex-col md:flex-row justify-between items-center bg-white/60 px-30 py-16 shadow">
-        <div className="mb-0 max-w-xl space-y-6">
-        <h1 className="text-4xl font-bold text-gray-800  mb-0">Find your mate</h1>
-          <h1 className="text-4xl font-bold text-gray-800  mt-0 mb-2"><span className='text-6xl text-[#28c1c6]'>Learn2Drive</span> with Ease</h1>
-          <p className="text-gray-600 mt-0 mb-10">Connecting Students with certified instructors for a seamless learning Experience.</p>
-          <div className="flex gap-4">
-            <button onClick={() => navigate('/studentPortal')} className="bg-[#28c1c6] hover:bg-blue-600 text-white px-6 py-3 rounded-md transition">
+      <section className="w-full mt-20 md:mt-40 mb-16 flex flex-col md:flex-row justify-between items-center bg-white/60 px-4 md:px-30 py-16 shadow-lg">
+        <div className="mb-8 md:mb-0 max-w-xl space-y-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+            Find your mate <span className="text-4xl md:text-6xl text-[#28c1c6]">Learn2Drive</span> with Ease
+          </h1>
+          <p className="text-lg text-gray-600">
+            Connecting Students with certified instructors for a seamless learning Experience.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button 
+              onClick={() => navigate('/studentPortal')} 
+              className="bg-[#28c1c6] hover:bg-[#1b9aa0] text-white px-6 py-3 rounded-md transition-all duration-300 transform hover:scale-105"
+            >
               Available Instructors
             </button>
-            <button onClick={() => navigate('/instructorPortal')} className="bg-[#28c1c6] hover:bg-blue-600 text-white px-6 py-3 rounded-md transition">
+            <button 
+              onClick={() => navigate('/ApplicationForm')} 
+              className="bg-[#28c1c6] hover:bg-[#1b9aa0] text-white px-6 py-3 rounded-md transition-all duration-300 transform hover:scale-105"
+            >
               Become an Instructor
             </button>
           </div>
@@ -79,7 +89,7 @@ const Learn2Drive = () => {
         <img
           src={Car}
           alt="Car on Road"
-          className="max-w-md rounded-lg shadow mb-30"
+          className="max-w-md w-full rounded-lg shadow-lg transform transition-all duration-500 hover:scale-105"
         />
       </section>
 
@@ -290,7 +300,7 @@ const Learn2Drive = () => {
       <h3 className="text-xl font-bold text-black mb-4">Why Easy Scheduling?</h3>
       <p className="text-gray-700 text-lg mb-6">
         Our intuitive scheduling system allows students to book lessons in real time based on instructor availability.
-        You’ll get instant confirmations, flexible rescheduling options, and calendar reminders—all designed to make your driving journey stress-free and organized.
+        You'll get instant confirmations, flexible rescheduling options, and calendar reminders—all designed to make your driving journey stress-free and organized.
       </p>
       <button
         onClick={() => setFlipped2(false)}
