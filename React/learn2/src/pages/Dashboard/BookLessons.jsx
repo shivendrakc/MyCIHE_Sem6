@@ -66,12 +66,21 @@ const BookLessons = () => {
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <FormControl fullWidth>
-                <InputLabel>Select Instructor</InputLabel>
                 <Select
                   value={selectedInstructor}
                   onChange={(e) => setSelectedInstructor(e.target.value)}
-                  label="Select Instructor"
+                  displayEmpty
+                  renderValue={selected => {
+                    if (!selected) {
+                      return <em>Select Instructor</em>;
+                    }
+                    const instructor = instructors.find(i => i.id === selected);
+                    return instructor ? `${instructor.name} - ${instructor.price}` : '';
+                  }}
                 >
+                  <MenuItem>
+                    <em>Select Instructor</em>
+                  </MenuItem>
                   {instructors.map((instructor) => (
                     <MenuItem key={instructor.id} value={instructor.id}>
                       {instructor.name} - {instructor.price}
@@ -97,12 +106,20 @@ const BookLessons = () => {
             </Grid>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <InputLabel>Select Time</InputLabel>
                 <Select
                   value={selectedTime}
                   onChange={(e) => setSelectedTime(e.target.value)}
-                  label="Select Time"
+                  displayEmpty
+                  renderValue={selected => {
+                    if (!selected) {
+                      return <em>Select Time</em>;
+                    }
+                    return selected;
+                  }}
                 >
+                  <MenuItem>
+                    <em>Select Time</em>
+                  </MenuItem>
                   {timeSlots.map((time) => (
                     <MenuItem key={time} value={time}>
                       {time}
@@ -113,12 +130,18 @@ const BookLessons = () => {
             </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth>
-                <InputLabel>Duration (hours)</InputLabel>
                 <Select
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
-                  label="Duration (hours)"
+                  displayEmpty
+                  renderValue={selected => {
+                    if (!selected) {
+                      return <em>Select Duration</em>;
+                    }
+                    return `${selected} hour${selected > 1 ? 's' : ''}`;
+                  }}
                 >
+                  
                   <MenuItem value="1">1 hour</MenuItem>
                   <MenuItem value="2">2 hours</MenuItem>
                   <MenuItem value="3">3 hours</MenuItem>

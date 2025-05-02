@@ -1,31 +1,49 @@
 import express from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
-dotenv.config();
-const port = process.env.PORT || 5000;
+import mongoose from 'mongoose';
+import path from 'path';
+import fs from 'fs';
 import userRoutes from './routes/userRoutes.js';
+import instructorApplicationRoutes from './routes/instructorApplicationRoutes.js';
 import { notFound, errorHandler } from './Middleware/errorMiddleware.js';
 import { connectDB } from './config/db.js'; 
-import cors from 'cors';
+
+dotenv.config();
+
+// Connect to MongoDB
+connectDB();
 
 const app = express();
 
+// Create uploads directory if it doesn't exist
+const uploadsDir = 'uploads';
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Middleware
 app.use(cors({
-    origin: 'http://localhost:5173', // Replace with your frontend URL
+    origin: 'http://localhost:5173',
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads'));
 
+// Routes
 app.use('/api/users', userRoutes);
+app.use('/api/instructor-application', instructorApplicationRoutes);
 
-
-app.use(notFound)
+app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port, () => {
-    connectDB();
-    console.log(`Server is running on ${port} http://localhost:${port}`);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
 
 //

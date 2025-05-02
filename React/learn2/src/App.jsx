@@ -19,6 +19,7 @@ import Instructors from './pages/Dashboard/Instructors';
 import BookLessons from './pages/Dashboard/BookLessons';
 import Bookings from './pages/Dashboard/Bookings';
 import Profile from './pages/Dashboard/Profile';
+import BecomeInstructor from './pages/Login-Registration/ApplicationForm';
 import './index.css';
 
 // Protected Route Component
@@ -34,7 +35,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Routes with Navbar */}
+        {/* Public Routes with Navbar */}
         <Route
           path="/"
           element={
@@ -68,40 +69,6 @@ const App = () => {
             </>
           }
         />
-        <Route
-          path="/studentPortal"
-          element={
-            <>
-              <Navbar />
-              <div style={{ padding: '20px' }}>
-                <StudentPortal />
-              </div>
-            </>
-          }
-        />
-        <Route
-          path="/datePicker/:instructorId"
-          element={
-            <>
-              <Navbar />
-              <div style={{ padding: '20px' }}>
-                <DatePicker />
-              </div>
-            </>
-          }
-        />
-        <Route
-          path="/paymentForm"
-          element={
-            <>
-              <Navbar />
-              <div style={{ padding: '20px' }}>
-                <PaymentForm />
-              </div>
-            </>
-          }
-        /> 
-
         <Route
           path="/ApplicationForm"
           element={
@@ -161,6 +128,16 @@ const App = () => {
             <ProtectedRoute>
               <DashboardLayout>
                 <Profile />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/become-instructor"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Applicatoinform />
               </DashboardLayout>
             </ProtectedRoute>
           }

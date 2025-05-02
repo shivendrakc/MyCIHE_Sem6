@@ -1,7 +1,7 @@
 import User from '../models/userModel.js';
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import authMiddleware from '../Middleware/authMiddleware.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 
 
@@ -88,14 +88,18 @@ const loginUser = (async (req, res) => {
 // @desc Get user profile
 //route GET /api/users/profile
 // @access Private
-const getUserProfile = (authMiddleware, (async (req, res) => {
-    const user = await User.findById(req.user.id).select('-password');
-    if (!user) {
-        res.status(404);
-        throw new Error('User not found');
+const getUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        console.error('Profile fetch error:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-    res.json(user);
-}))
+};
 
 // @desc Update user profile
 //route PUT /api/users/profile
