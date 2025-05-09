@@ -483,7 +483,7 @@ const ApplicationForm = () => {
         }
       });
 
-      setApplicationStatus('pending');
+      setApplicationStatus('pending');  
       localStorage.removeItem('instructorFormData');
       toast.success('Application submitted successfully!');
     } catch (error) {
@@ -624,109 +624,120 @@ const ApplicationForm = () => {
   }
 
   // Add Review Section Component
-  const ReviewSection = () => (
-    <div className="bg-gray-50 p-6 rounded-lg space-y-6">
-      <h3 className="text-xl font-semibold text-gray-900">Review Your Application</h3>
-      
-      <div className="space-y-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <h4 className="font-medium text-gray-900 mb-2">Personal Details</h4>
-          <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <div>
-              <dt className="text-sm text-gray-500">Full Name</dt>
-              <dd className="text-sm text-gray-900">{reviewData.personalDetails.fullName}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Email</dt>
-              <dd className="text-sm text-gray-900">{reviewData.personalDetails.email}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Phone</dt>
-              <dd className="text-sm text-gray-900">{reviewData.personalDetails.phone}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Date of Birth</dt>
-              <dd className="text-sm text-gray-900">{reviewData.personalDetails.dateOfBirth}</dd>
-            </div>
-          </dl>
+  const ReviewSection = () => {
+    if (!reviewData) {
+      return (
+        <div className="bg-gray-50 p-6 rounded-lg space-y-6">
+          <h3 className="text-xl font-semibold text-gray-900">Review Your Application</h3>
+          <p className="text-gray-600">Loading review data...</p>
         </div>
+      );
+    }
 
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <h4 className="font-medium text-gray-900 mb-2">Identity Verification</h4>
-          <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <div>
-              <dt className="text-sm text-gray-500">ID Type</dt>
-              <dd className="text-sm text-gray-900">{reviewData.identityVerification.idType}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">ID Number</dt>
-              <dd className="text-sm text-gray-900">{reviewData.identityVerification.idNumber}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">ID Front</dt>
-              <dd className="text-sm text-gray-900">{reviewData.identityVerification.idFront}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">ID Back</dt>
-              <dd className="text-sm text-gray-900">{reviewData.identityVerification.idBack}</dd>
-            </div>
-          </dl>
-        </div>
+    return (
+      <div className="bg-gray-50 p-6 rounded-lg space-y-6">
+        <h3 className="text-xl font-semibold text-gray-900">Review Your Application</h3>
+        
+        <div className="space-y-4">
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <h4 className="font-medium text-gray-900 mb-2">Personal Details</h4>
+            <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div>
+                <dt className="text-sm text-gray-500">Full Name</dt>
+                <dd className="text-sm text-gray-900">{reviewData.personalDetails?.fullName || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Email</dt>
+                <dd className="text-sm text-gray-900">{reviewData.personalDetails?.email || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Phone</dt>
+                <dd className="text-sm text-gray-900">{reviewData.personalDetails?.phone || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Date of Birth</dt>
+                <dd className="text-sm text-gray-900">{reviewData.personalDetails?.dateOfBirth || 'Not provided'}</dd>
+              </div>
+            </dl>
+          </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <h4 className="font-medium text-gray-900 mb-2">Vehicle Information</h4>
-          <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <div>
-              <dt className="text-sm text-gray-500">Make</dt>
-              <dd className="text-sm text-gray-900">{reviewData.vehicleInfo.make}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Model</dt>
-              <dd className="text-sm text-gray-900">{reviewData.vehicleInfo.model}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Year</dt>
-              <dd className="text-sm text-gray-900">{reviewData.vehicleInfo.year}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">License Plate</dt>
-              <dd className="text-sm text-gray-900">{reviewData.vehicleInfo.licensePlate}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Insurance Document</dt>
-              <dd className="text-sm text-gray-900">{reviewData.vehicleInfo.insuranceDocument}</dd>
-            </div>
-          </dl>
-        </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <h4 className="font-medium text-gray-900 mb-2">Identity Verification</h4>
+            <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div>
+                <dt className="text-sm text-gray-500">ID Type</dt>
+                <dd className="text-sm text-gray-900">{reviewData.identityVerification?.idType || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">ID Number</dt>
+                <dd className="text-sm text-gray-900">{reviewData.identityVerification?.idNumber || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">ID Front</dt>
+                <dd className="text-sm text-gray-900">{reviewData.identityVerification?.idFront || 'Not uploaded'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">ID Back</dt>
+                <dd className="text-sm text-gray-900">{reviewData.identityVerification?.idBack || 'Not uploaded'}</dd>
+              </div>
+            </dl>
+          </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <h4 className="font-medium text-gray-900 mb-2">Experience & Background</h4>
-          <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <div>
-              <dt className="text-sm text-gray-500">Years of Experience</dt>
-              <dd className="text-sm text-gray-900">{reviewData.experience.yearsOfExperience}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Previous Employer</dt>
-              <dd className="text-sm text-gray-900">{reviewData.experience.previousEmployer}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Teaching Experience</dt>
-              <dd className="text-sm text-gray-900">{reviewData.experience.teachingExperience}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500">Certifications</dt>
-              <dd className="text-sm text-gray-900">
-                {reviewData.experience.certifications.length > 0 
-                  ? reviewData.experience.certifications.join(', ')
-                  : 'No certifications uploaded'}
-              </dd>
-            </div>
-          </dl>
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <h4 className="font-medium text-gray-900 mb-2">Vehicle Information</h4>
+            <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div>
+                <dt className="text-sm text-gray-500">Make</dt>
+                <dd className="text-sm text-gray-900">{reviewData.vehicleInfo?.make || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Model</dt>
+                <dd className="text-sm text-gray-900">{reviewData.vehicleInfo?.model || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Year</dt>
+                <dd className="text-sm text-gray-900">{reviewData.vehicleInfo?.year || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">License Plate</dt>
+                <dd className="text-sm text-gray-900">{reviewData.vehicleInfo?.licensePlate || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Insurance Document</dt>
+                <dd className="text-sm text-gray-900">{reviewData.vehicleInfo?.insuranceDocument || 'Not uploaded'}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <h4 className="font-medium text-gray-900 mb-2">Experience & Background</h4>
+            <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div>
+                <dt className="text-sm text-gray-500">Years of Experience</dt>
+                <dd className="text-sm text-gray-900">{reviewData.experience?.yearsOfExperience || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Previous Employer</dt>
+                <dd className="text-sm text-gray-900">{reviewData.experience?.previousEmployer || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Teaching Experience</dt>
+                <dd className="text-sm text-gray-900">{reviewData.experience?.teachingExperience || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Certifications</dt>
+                <dd className="text-sm text-gray-900">
+                  {reviewData.experience?.certifications?.length > 0 
+                    ? reviewData.experience.certifications.join(', ')
+                    : 'No certifications uploaded'}
+                </dd>
+              </div>
+            </dl>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

@@ -24,7 +24,9 @@
     "jsonwebtoken": "^9.0.2",
     "jst": "^0.0.13",
     "mongoose": "^8.14.0",
-    "multer": "^1.4.5-lts.2"
+    "multer": "^1.4.5-lts.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

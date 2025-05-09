@@ -7,34 +7,106 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function RegisterPage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
-      setIsLoading(false);
+    
+    if (!validateForm()) {
       return;
     }
 
+    setIsLoading(true);
     try {
-      const res = await API.post('/users/register', { name, email, password, confirmPassword });
+      const res = await API.post('/users/register', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
+      });
+      
       toast.success('Registration successful!');
+      
+      // Store the token and user info
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('userInfo', JSON.stringify(res.data.user));
       
       // Wait for 2 seconds before redirecting to show the success message
       setTimeout(() => {
-        navigate('/login');
+        navigate('/dashboard');
       }, 2000);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+      const errorMsg = err.response?.data?.message || 'Registration failed';
+      toast.error(errorMsg);
+      
+      // Set specific field errors if provided by the backend
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+      }
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = () => {
+    setIsLoading(true);
+    try {
+      // Redirect to backend Google OAuth endpoint
+      window.location.href = `${API.defaults.baseURL}/auth/google`;
+    } catch (err) {
+      toast.error('Failed to initiate Google signup');
       setIsLoading(false);
     }
   };
@@ -56,9 +128,13 @@ export default function RegisterPage() {
 
             {/* Social Login */}
             <div className="flex flex-col gap-3 mb-3">
-              <button className="bg-white flex items-center justify-center w-full py-2 rounded-md shadow-md border-none cursor-pointer text-sm">
+              <button 
+                onClick={handleGoogleSignup}
+                disabled={isLoading}
+                className="bg-white flex items-center justify-center w-full py-2 rounded-md shadow-md border-none cursor-pointer text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <img src={googlePng} alt="Google Logo" className="w-4 h-4 mr-2" />
-                Sign up with Google
+                {isLoading ? 'Connecting...' : 'Sign up with Google'}
               </button>
             </div>
 
@@ -76,12 +152,15 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   id="name"
+                  name="name"
                   placeholder="Enter your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="p-2 border border-[#ccc] rounded-md text-sm"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={`p-2 border ${errors.name ? 'border-red-500' : 'border-[#ccc]'} rounded-md text-sm`}
+                  disabled={isLoading}
                   required
                 />
+                {errors.name && <span className="text-red-500 text-xs mt-1">{errors.name}</span>}
               </div>
 
               <div className="flex flex-col mb-2">
@@ -89,12 +168,15 @@ export default function RegisterPage() {
                 <input
                   type="email"
                   id="email"
+                  name="email"
                   placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="p-2 border border-[#ccc] rounded-md text-sm"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`p-2 border ${errors.email ? 'border-red-500' : 'border-[#ccc]'} rounded-md text-sm`}
+                  disabled={isLoading}
                   required
                 />
+                {errors.email && <span className="text-red-500 text-xs mt-1">{errors.email}</span>}
               </div>
 
               <div className="flex flex-col mb-2">
@@ -102,12 +184,15 @@ export default function RegisterPage() {
                 <input
                   type="password"
                   id="password"
+                  name="password"
                   placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="p-2 border border-[#ccc] rounded-md text-sm"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`p-2 border ${errors.password ? 'border-red-500' : 'border-[#ccc]'} rounded-md text-sm`}
+                  disabled={isLoading}
                   required
                 />
+                {errors.password && <span className="text-red-500 text-xs mt-1">{errors.password}</span>}
               </div>
 
               <div className="flex flex-col mb-2">
@@ -115,12 +200,15 @@ export default function RegisterPage() {
                 <input
                   type="password"
                   id="confirmPassword"
+                  name="confirmPassword"
                   placeholder="Re-enter your password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="p-2 border border-[#ccc] rounded-md text-sm"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`p-2 border ${errors.confirmPassword ? 'border-red-500' : 'border-[#ccc]'} rounded-md text-sm`}
+                  disabled={isLoading}
                   required
                 />
+                {errors.confirmPassword && <span className="text-red-500 text-xs mt-1">{errors.confirmPassword}</span>}
               </div>
 
               <p className="text-xs text-center text-gray-700 leading-snug mb-2">
@@ -131,7 +219,7 @@ export default function RegisterPage() {
 
               <button 
                 type="submit" 
-                className="py-2 bg-[#2e667d] text-white text-sm font-bold rounded-md cursor-pointer text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                className="py-2 bg-[#2e667d] text-white text-sm font-bold rounded-md cursor-pointer text-center hover:bg-[#245566] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing up...' : 'Sign up'}
