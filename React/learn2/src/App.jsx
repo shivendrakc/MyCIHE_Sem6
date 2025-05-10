@@ -20,6 +20,7 @@ import BookLessons from './pages/Dashboard/BookLessons';
 import Bookings from './pages/Dashboard/Bookings';
 import Profile from './pages/Dashboard/Profile';
 import BecomeInstructor from './pages/Login-Registration/ApplicationForm';
+import Payment from './pages/Dashboard/Payment';
 import './index.css';
 
 // Protected Route Component
@@ -184,9 +185,19 @@ const App = () => {
           }
         />
         <Route
+          path="/dashboard/instructors"
+          element={
+            <RoleBasedRoute allowedRoles={['admin', 'student']}>
+              <DashboardLayout>
+                <Instructors />
+              </DashboardLayout>
+            </RoleBasedRoute>
+          }
+        />
+        <Route
           path="/dashboard/book-lessons"
           element={
-            <RoleBasedRoute allowedRoles={['student']}>
+            <RoleBasedRoute allowedRoles={['admin', 'student']}>
               <DashboardLayout>
                 <BookLessons />
               </DashboardLayout>
@@ -196,7 +207,7 @@ const App = () => {
         <Route
           path="/dashboard/bookings"
           element={
-            <RoleBasedRoute allowedRoles={['student']}>
+            <RoleBasedRoute allowedRoles={['admin', 'student']}>
               <DashboardLayout>
                 <Bookings />
               </DashboardLayout>
@@ -206,7 +217,7 @@ const App = () => {
         <Route
           path="/dashboard/profile"
           element={
-            <RoleBasedRoute allowedRoles={['student']}>
+            <RoleBasedRoute allowedRoles={['admin', 'student']}>
               <DashboardLayout>
                 <Profile />
               </DashboardLayout>
@@ -216,9 +227,19 @@ const App = () => {
         <Route
           path="/dashboard/become-instructor"
           element={
-            <RoleBasedRoute allowedRoles={['student']}>
+            <RoleBasedRoute allowedRoles={['admin', 'student']}>
               <DashboardLayout>
                 <Applicatoinform />
+              </DashboardLayout>
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/payment"
+          element={
+            <RoleBasedRoute allowedRoles={['admin', 'student']}>
+              <DashboardLayout>
+                <Payment />
               </DashboardLayout>
             </RoleBasedRoute>
           }
@@ -262,18 +283,6 @@ const App = () => {
               <InstructorLayout>
                 <ManageStudents />
               </InstructorLayout>
-            </RoleBasedRoute>
-          }
-        />
-
-        {/* Admin Routes */}
-        <Route
-          path="/dashboard/instructors"
-          element={
-            <RoleBasedRoute allowedRoles={['admin']}>
-              <DashboardLayout>
-                <Instructors />
-              </DashboardLayout>
             </RoleBasedRoute>
           }
         />

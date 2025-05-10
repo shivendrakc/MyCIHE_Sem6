@@ -8,6 +8,7 @@ import passport from 'passport';
 import userRoutes from './routes/userRoutes.js';
 import instructorApplicationRoutes from './routes/instructorApplicationRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import instructorRoutes from './routes/instructorRoutes.js';
 import { notFound, errorHandler } from './Middleware/errorMiddleware.js';
 import { connectDB } from './config/db.js'; 
 import "./config/passport.js"; // loads strategy
@@ -45,6 +46,7 @@ app.use(passport.initialize());
 app.use('/api/users', userRoutes);
 app.use('/api/instructor-application', instructorApplicationRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/instructors', instructorRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
