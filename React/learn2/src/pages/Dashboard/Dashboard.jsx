@@ -47,13 +47,14 @@ import {
   Check as CheckIcon
 } from '@mui/icons-material';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
   const userName = userInfo?.name || 'User';
   const userRole = userInfo?.role || 'student';
   const navigate = useNavigate();
+  const isInstructor = userInfo?.role === 'instructor';
 
   // Debug log to check role
   console.log('Current user role:', userRole);
@@ -98,13 +99,6 @@ const StudentDashboard = () => {
       icon: <PeopleIcon sx={{ fontSize: 40 }} />, 
       color: '#1b9aa0',
       bgColor: 'rgba(27, 154, 160, 0.1)'
-    },
-    { 
-      title: 'Progress', 
-      value: '65%', 
-      icon: <SchoolIcon sx={{ fontSize: 40 }} />, 
-      color: '#0f3643',
-      bgColor: 'rgba(15, 54, 67, 0.1)'
     },
   ];
 
@@ -270,63 +264,7 @@ const StudentDashboard = () => {
 
       {/* Main Content Grid */}
       <Grid container spacing={3}>
-        {/* Browse Instructors Section */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px'
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#0f3643' }}>
-                Browse Instructors
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
-                Find the perfect instructor for you
-              </Typography>
-              <Grid container spacing={2} sx={{ mb: 3 }}>
-                {[1, 2, 3, 4].map((item) => (
-                  <Grid item xs={6} sm={3} key={item}>
-                    <Box sx={{ 
-                      p: 2, 
-                      textAlign: 'center',
-                      borderRadius: '12px',
-                      backgroundColor: '#f1f5f9',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                      }
-                    }}>
-                      <Avatar sx={{ 
-                        width: 56, 
-                        height: 56, 
-                        mx: 'auto',
-                        mb: 1,
-                        bgcolor: '#28c1c6'
-                      }}>
-                        <PeopleIcon />
-                      </Avatar>
-                      <Typography variant="body2">Instructor</Typography>
-                    </Box>
-                  </Grid>
-                ))}
-              </Grid>
-              <Button 
-                variant="contained" 
-                endIcon={<ArrowForwardIcon />}
-                sx={{
-                  background: 'linear-gradient(135deg, #28c1c6 0%, #1b9aa0 100%)',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #1b9aa0 0%, #0f3643 100%)',
-                  }
-                }}
-              >
-                View All Instructors
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
+       
 
         {/* Upcoming Lessons Section */}
         <Grid item xs={12} md={6}>
@@ -578,21 +516,50 @@ const InstructorDashboard = () => {
         }}>
           Manage your driving lessons and students
         </Typography>
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center',
-          gap: 1
-        }}>
-          <TrendingUpIcon sx={{ color: '#10b981' }} />
-          <Typography variant="body2" sx={{ color: '#10b981' }}>
-            Your performance is improving steadily
-          </Typography>
-        </Box>
       </Paper>
 
       {/* Stats Grid */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={4}>
+        {/* Profile Management Card */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ 
+            height: '100%',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            borderRadius: '16px',
+            '&:hover': {
+              transform: 'translateY(-4px)',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            }
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#0f3643' }}>
+                Profile Management
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
+                Update your profile information, teaching details, and vehicle information to attract more students.
+              </Typography>
+              <Button
+                variant="contained"
+                component={Link}
+                to="/dashboard/instructor-profile"
+                sx={{
+                  background: 'linear-gradient(135deg, #28c1c6 0%, #1b9aa0 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #1b9aa0 0%, #0f3643 100%)',
+                  },
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                  fontWeight: 'bold'
+                }}
+              >
+                Manage Profile
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Existing Stats Cards */}
+        <Grid item xs={12} md={6}>
           <Card sx={{ 
             height: '100%',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
@@ -608,7 +575,7 @@ const InstructorDashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <Card sx={{ 
             height: '100%',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
@@ -624,7 +591,7 @@ const InstructorDashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <Card sx={{ 
             height: '100%',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',

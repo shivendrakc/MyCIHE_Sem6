@@ -84,14 +84,21 @@ const DashboardLayout = ({ children }) => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
   const isAdmin = userInfo?.role === 'admin';
   const isStudent = userInfo?.role === 'student';
+  const isInstructor = userInfo?.role === 'instructor';
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', badge: 0 },
     { text: 'Find Instructors', icon: <PeopleIcon />, path: '/dashboard/instructors', badge: 2 },
+    ...(isAdmin ? [
+      { text: 'Instructor Applications', icon: <AssignmentIcon />, path: '/dashboard/instructor-applications', badge: 0 },
+    ] : []),
     ...(isStudent ? [
       { text: 'My Bookings', icon: <EventIcon />, path: '/dashboard/bookings', badge: 1 },
     ] : []),
     { text: 'My Profile', icon: <PersonIcon />, path: '/dashboard/profile', badge: 0 },
+    ...(isInstructor ? [
+      { text: 'Manage Profile', icon: <SettingsIcon />, path: '/dashboard/instructor-profile', badge: 0 },
+    ] : []),
     ...(isStudent ? [
       { text: 'Become an Instructor', icon: <SchoolIcon />, path: '/dashboard/become-instructor', badge: 0 },
     ] : []),

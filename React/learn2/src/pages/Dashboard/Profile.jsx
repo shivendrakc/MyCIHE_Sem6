@@ -11,6 +11,7 @@ import {
   Collapse
 } from '@mui/material';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const [user, setUser] = useState({
@@ -24,15 +25,22 @@ const Profile = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Load user data from API
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
         const response = await axios.get('http://localhost:5000/api/users/profile', {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
         setUser(prev => ({
@@ -42,12 +50,18 @@ const Profile = () => {
         }));
       } catch (err) {
         console.error('Error fetching profile:', err);
-        setError('Failed to load profile data');
+        if (err.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userInfo');
+          navigate('/login');
+        } else {
+          setError('Failed to load profile data');
+        }
       }
     };
 
     fetchUserProfile();
-  }, []);
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

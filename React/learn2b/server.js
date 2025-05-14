@@ -22,7 +22,7 @@ connectDB();
 const app = express();
 
 // Create uploads directory if it doesn't exist
-const uploadsDir = 'uploads';
+const uploadsDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -37,7 +37,9 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static('uploads'));
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(uploadsDir));
 
 // Initialize Passport
 app.use(passport.initialize());
@@ -54,6 +56,7 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Uploads directory: ${uploadsDir}`);
 });
 
 //

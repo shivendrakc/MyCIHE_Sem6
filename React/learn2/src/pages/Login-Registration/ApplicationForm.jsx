@@ -47,7 +47,7 @@ const deepCopyWithFiles = (obj) => {
 
 const ApplicationForm = () => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-  const userId = userInfo?._id;
+  const userId = userInfo?._id || userInfo?.id;
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     personalDetails: {
@@ -91,7 +91,7 @@ const ApplicationForm = () => {
   const [reviewData, setReviewData] = useState(null);
   const navigate = useNavigate();
 
-  // Check application status on mount
+  // Check application status and fetch existing data on mount
   useEffect(() => {
     const checkApplicationStatus = async () => {
       try {
@@ -108,6 +108,53 @@ const ApplicationForm = () => {
           setApplicationStatus(response.data.status);
           if (response.data.status === 'rejected') {
             setRejectionReason(response.data.rejectionReason || '');
+          }
+          
+          // If there's an existing application, fetch its data
+          if (response.data.status === 'pending' || response.data.status === 'rejected') {
+            try {
+              const applicationResponse = await API.get(`/instructor-application/${userId}`, {
+                withCredentials: true
+              });
+              
+              if (applicationResponse.data) {
+                // Pre-populate form with existing data
+                setFormData({
+                  personalDetails: {
+                    fullName: applicationResponse.data.personalDetails.fullName || '',
+                    email: applicationResponse.data.personalDetails.email || '',
+                    phone: applicationResponse.data.personalDetails.phone || '',
+                    address: applicationResponse.data.personalDetails.address || '',
+                    dateOfBirth: applicationResponse.data.personalDetails.dateOfBirth || ''
+                  },
+                  identityVerification: {
+                    idType: applicationResponse.data.identityVerification.idType || '',
+                    idNumber: applicationResponse.data.identityVerification.idNumber || '',
+                    idFront: applicationResponse.data.identityVerification.idFront || null,
+                    idBack: applicationResponse.data.identityVerification.idBack || null
+                  },
+                  vehicleInfo: {
+                    make: applicationResponse.data.vehicleInfo.make || '',
+                    model: applicationResponse.data.vehicleInfo.model || '',
+                    year: applicationResponse.data.vehicleInfo.year || '',
+                    licensePlate: applicationResponse.data.vehicleInfo.licensePlate || '',
+                    insuranceDocument: applicationResponse.data.vehicleInfo.insuranceDocument || null
+                  },
+                  experience: {
+                    yearsOfExperience: applicationResponse.data.experience.yearsOfExperience || '',
+                    previousEmployer: applicationResponse.data.experience.previousEmployer || '',
+                    certifications: applicationResponse.data.experience.certifications || [],
+                    teachingExperience: applicationResponse.data.experience.teachingExperience || '',
+                    noConviction: applicationResponse.data.experience.noConviction || false,
+                    agreeInfo: applicationResponse.data.experience.agreeInfo || false,
+                    agreePolicy: applicationResponse.data.experience.agreePolicy || false,
+                    digitalSign: applicationResponse.data.experience.digitalSign || ''
+                  }
+                });
+              }
+            } catch (error) {
+              console.error('Error fetching existing application data:', error);
+            }
           }
         }
       } catch (error) {
@@ -501,38 +548,8 @@ const ApplicationForm = () => {
     setApplicationStatus(null);
     setCurrentStep(0);
     // Initialize form data with proper structure
-    setFormData({
-      personalDetails: {
-        fullName: '',
-        email: '',
-        phone: '',
-        address: '',
-        dateOfBirth: ''
-      },
-      identityVerification: {
-        idType: '',
-        idNumber: '',
-        idFront: null,
-        idBack: null
-      },
-      vehicleInfo: {
-        make: '',
-        model: '',
-        year: '',
-        licensePlate: '',
-        insuranceDocument: null
-      },
-      experience: {
-        yearsOfExperience: '',
-        previousEmployer: '',
-        certifications: [],
-        teachingExperience: '',
-        noConviction: false,
-        agreeInfo: false,
-        agreePolicy: false,
-        digitalSign: ''
-      }
-    });
+
+    
   };
 
   // Show loading state

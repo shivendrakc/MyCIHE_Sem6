@@ -4,11 +4,6 @@ import LandingPage from './pages/LandingPage/landingPage';
 import Navbar from './pages/LandingPage/Navbar';
 import LoginPage from './pages/Login-Registration/login';
 import Register from './pages/Login-Registration/register';
-import InstructorLayout from './pages/InstructorPages/instructorLayout';
-import InstructorPortal from './pages/InstructorPages/instructorPortal';
-import InstructorProfile from './pages/InstructorPages/instructorProfile';
-import LessonReview from './pages/InstructorPages/lessonReview';
-import ManageStudents from './pages/InstructorPages/manageStudents';
 import DatePicker from './pages/studentPortal/datePicker';
 import StudentPortal from './pages/studentPortal/StudentPortal';
 import PaymentForm from './pages/Payment/paymentForm';
@@ -21,6 +16,8 @@ import Bookings from './pages/Dashboard/Bookings';
 import Profile from './pages/Dashboard/Profile';
 import BecomeInstructor from './pages/Login-Registration/ApplicationForm';
 import Payment from './pages/Dashboard/Payment';
+import InstructorApplications from './pages/Dashboard/InstructorApplications';
+import InstructorProfile from './pages/Dashboard/InstructorProfile';
 import './index.css';
 
 // Protected Route Component
@@ -32,32 +29,7 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Role Based Route Component
-const RoleBasedRoute = ({ children, allowedRoles }) => {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-  
-  if (!userInfo) {
-    return <Navigate to="/login" />;
-  }
-
-  if (!allowedRoles.includes(userInfo.role)) {
-    // Redirect based on role
-    switch (userInfo.role) {
-      case 'admin':
-        return <Navigate to="/dashboard" />;
-      case 'instructor':
-        return <Navigate to="/instructorPortal" />;
-      case 'student':
-        return <Navigate to="/dashboard" />;
-      default:
-        return <Navigate to="/login" />;
-    }
-  }
-
-  return children;
-};
-
-// Auth Success Component
+// Auth Success Component Entry Point for Google Auth
 const AuthSuccess = () => {
   
   const navigate = useNavigate();
@@ -83,9 +55,6 @@ const AuthSuccess = () => {
             switch (decodedUserInfo.role) {
               case 'admin':
                 navigate('/dashboard');
-                break;
-              case 'instructor':
-                navigate('/instructorPortal');
                 break;
               case 'student':
                 navigate('/dashboard');
@@ -117,6 +86,29 @@ const AuthSuccess = () => {
       </div>
     </div>
   );
+};
+
+// Role Based Route Component
+const RoleBasedRoute = ({ children, allowedRoles }) => {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  
+  if (!userInfo) {
+    return <Navigate to="/login" />;
+  }
+
+  if (!allowedRoles.includes(userInfo.role)) {
+    // Redirect based on role
+    switch (userInfo.role) {
+      case 'admin':
+        return <Navigate to="/dashboard" />;
+      case 'student':
+        return <Navigate to="/dashboard" />;
+      default:
+        return <Navigate to="/login" />;
+    }
+  }
+
+  return children;
 };
 
 const App = () => {
@@ -185,9 +177,19 @@ const App = () => {
           }
         />
         <Route
+          path="/dashboard/instructor-applications"
+          element={
+            <RoleBasedRoute allowedRoles={['admin']}>
+              <DashboardLayout>
+                <InstructorApplications />
+              </DashboardLayout>
+            </RoleBasedRoute>
+          }
+        />
+        <Route
           path="/dashboard/instructors"
           element={
-            <RoleBasedRoute allowedRoles={['admin', 'student']}>
+            <RoleBasedRoute allowedRoles={['admin', 'student', 'instructor']}>
               <DashboardLayout>
                 <Instructors />
               </DashboardLayout>
@@ -217,9 +219,19 @@ const App = () => {
         <Route
           path="/dashboard/profile"
           element={
-            <RoleBasedRoute allowedRoles={['admin', 'student']}>
+            <RoleBasedRoute allowedRoles={['admin', 'student', 'instructor']}>
               <DashboardLayout>
                 <Profile />
+              </DashboardLayout>
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/instructor-profile"
+          element={
+            <RoleBasedRoute allowedRoles={['instructor']}>
+              <DashboardLayout>
+                <InstructorProfile />
               </DashboardLayout>
             </RoleBasedRoute>
           }
@@ -241,48 +253,6 @@ const App = () => {
               <DashboardLayout>
                 <Payment />
               </DashboardLayout>
-            </RoleBasedRoute>
-          }
-        />
-
-        {/* Instructor Routes */}
-        <Route
-          path="/instructorPortal"
-          element={
-            <RoleBasedRoute allowedRoles={['instructor']}>
-              <InstructorLayout>
-                <InstructorPortal />
-              </InstructorLayout>
-            </RoleBasedRoute>
-          }
-        />
-        <Route
-          path="/instructorProfile"
-          element={
-            <RoleBasedRoute allowedRoles={['instructor']}>
-              <InstructorLayout>
-                <InstructorProfile />
-              </InstructorLayout>
-            </RoleBasedRoute>
-          }
-        />
-        <Route
-          path="/lessonReview"
-          element={
-            <RoleBasedRoute allowedRoles={['instructor']}>
-              <InstructorLayout>
-                <LessonReview />
-              </InstructorLayout>
-            </RoleBasedRoute>
-          }
-        />
-        <Route
-          path="/manageStudents"
-          element={
-            <RoleBasedRoute allowedRoles={['instructor']}>
-              <InstructorLayout>
-                <ManageStudents />
-              </InstructorLayout>
             </RoleBasedRoute>
           }
         />

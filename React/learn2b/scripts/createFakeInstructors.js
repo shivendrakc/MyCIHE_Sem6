@@ -14,7 +14,7 @@ const fakeInstructors = [
       password: "Password123!",
       role: "instructor",
       isApproved: true,
-      avatar: "https://randomuser.me/api/portraits/women/1.jpg"
+      avatar: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     },
     profile: {
       bio: "Experienced driving instructor with a passion for teaching. Specialized in defensive driving techniques and helping nervous drivers gain confidence.",
@@ -37,7 +37,7 @@ const fakeInstructors = [
           timeSlots: ["09:00", "10:00", "11:00", "14:00", "15:00"]
         }
       ],
-      profileImage: "https://randomuser.me/api/portraits/women/1.jpg"
+      profileImage: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     }
   },
   {
@@ -47,7 +47,7 @@ const fakeInstructors = [
       password: "Password123!",
       role: "instructor",
       isApproved: true,
-      avatar: "https://randomuser.me/api/portraits/men/2.jpg"
+      avatar: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     },
     profile: {
       bio: "Patient and detail-oriented instructor with expertise in both manual and automatic vehicles. Focus on building strong foundation skills.",
@@ -70,7 +70,7 @@ const fakeInstructors = [
           timeSlots: ["10:00", "11:00", "13:00", "14:00", "15:00"]
         }
       ],
-      profileImage: "https://randomuser.me/api/portraits/men/2.jpg"
+      profileImage: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     }
   },
   {
@@ -80,7 +80,7 @@ const fakeInstructors = [
       password: "Password123!",
       role: "instructor",
       isApproved: true,
-      avatar: "https://randomuser.me/api/portraits/women/3.jpg"
+      avatar: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     },
     profile: {
       bio: "Friendly and encouraging instructor specializing in helping new drivers. Strong focus on safety and confidence building.",
@@ -103,7 +103,7 @@ const fakeInstructors = [
           timeSlots: ["08:00", "09:00", "10:00", "13:00", "14:00"]
         }
       ],
-      profileImage: "https://randomuser.me/api/portraits/women/3.jpg"
+      profileImage: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     }
   },
   {
@@ -113,7 +113,7 @@ const fakeInstructors = [
       password: "Password123!",
       role: "instructor",
       isApproved: true,
-      avatar: "https://randomuser.me/api/portraits/men/4.jpg"
+      avatar: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     },
     profile: {
       bio: "Professional instructor with extensive experience in advanced driving techniques. Specialized in highway and night driving.",
@@ -136,7 +136,7 @@ const fakeInstructors = [
           timeSlots: ["11:00", "12:00", "14:00", "15:00", "16:00"]
         }
       ],
-      profileImage: "https://randomuser.me/api/portraits/men/4.jpg"
+      profileImage: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     }
   },
   {
@@ -146,7 +146,7 @@ const fakeInstructors = [
       password: "Password123!",
       role: "instructor",
       isApproved: true,
-      avatar: "https://randomuser.me/api/portraits/women/5.jpg"
+      avatar: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     },
     profile: {
       bio: "Calm and patient instructor with a focus on building confidence in new drivers. Specialized in urban driving and parking techniques.",
@@ -169,7 +169,7 @@ const fakeInstructors = [
           timeSlots: ["09:00", "10:00", "11:00", "13:00", "14:00"]
         }
       ],
-      profileImage: "https://randomuser.me/api/portraits/women/5.jpg"
+      profileImage: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     }
   },
   {
@@ -179,7 +179,7 @@ const fakeInstructors = [
       password: "Password123!",
       role: "instructor",
       isApproved: true,
-      avatar: "https://randomuser.me/api/portraits/men/6.jpg"
+      avatar: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     },
     profile: {
       bio: "Experienced instructor specializing in defensive driving and advanced techniques. Perfect for drivers looking to improve their skills.",
@@ -202,7 +202,7 @@ const fakeInstructors = [
           timeSlots: ["10:00", "11:00", "12:00", "14:00", "15:00"]
         }
       ],
-      profileImage: "https://randomuser.me/api/portraits/men/6.jpg"
+      profileImage: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     }
   },
   {
@@ -212,7 +212,7 @@ const fakeInstructors = [
       password: "Password123!",
       role: "instructor",
       isApproved: true,
-      avatar: "https://randomuser.me/api/portraits/women/7.jpg"
+      avatar: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     },
     profile: {
       bio: "Friendly and patient instructor with a focus on building confidence. Specialized in helping nervous drivers overcome their fears.",
@@ -235,7 +235,7 @@ const fakeInstructors = [
           timeSlots: ["08:00", "09:00", "10:00", "13:00", "14:00"]
         }
       ],
-      profileImage: "https://randomuser.me/api/portraits/women/7.jpg"
+      profileImage: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     }
   },
   {
@@ -245,7 +245,7 @@ const fakeInstructors = [
       password: "Password123!",
       role: "instructor",
       isApproved: true,
-      avatar: "https://randomuser.me/api/portraits/men/8.jpg"
+      avatar: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     },
     profile: {
       bio: "Professional instructor with expertise in both manual and automatic vehicles. Focus on practical skills and real-world scenarios.",
@@ -268,7 +268,7 @@ const fakeInstructors = [
           timeSlots: ["11:00", "12:00", "13:00", "15:00", "16:00"]
         }
       ],
-      profileImage: "https://randomuser.me/api/portraits/men/8.jpg"
+      profileImage: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     }
   },
   {
@@ -278,7 +278,7 @@ const fakeInstructors = [
       password: "Password123!",
       role: "instructor",
       isApproved: true,
-      avatar: "https://randomuser.me/api/portraits/women/9.jpg"
+      avatar: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     },
     profile: {
       bio: "Experienced instructor with a passion for teaching. Specialized in helping international drivers adapt to Australian roads.",
@@ -301,7 +301,7 @@ const fakeInstructors = [
           timeSlots: ["09:00", "10:00", "11:00", "14:00", "15:00"]
         }
       ],
-      profileImage: "https://randomuser.me/api/portraits/women/9.jpg"
+      profileImage: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     }
   },
   {
@@ -311,7 +311,7 @@ const fakeInstructors = [
       password: "Password123!",
       role: "instructor",
       isApproved: true,
-      avatar: "https://randomuser.me/api/portraits/men/10.jpg"
+      avatar: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     },
     profile: {
       bio: "Professional instructor with a focus on safety and confidence building. Specialized in advanced driving techniques.",
@@ -334,7 +334,7 @@ const fakeInstructors = [
           timeSlots: ["10:00", "11:00", "12:00", "13:00", "14:00"]
         }
       ],
-      profileImage: "https://randomuser.me/api/portraits/men/10.jpg"
+      profileImage: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
     }
   }
 ];
@@ -346,7 +346,7 @@ const createFakeInstructors = async () => {
 
     // Clear existing data
     await User.deleteMany({ role: 'instructor' });
-    await InstructorProfile.deleteMany({});
+    await mongoose.connection.collection('instructorprofiles').deleteMany({});
     console.log('Cleared existing instructor data');
 
     for (const instructor of fakeInstructors) {
@@ -359,15 +359,21 @@ const createFakeInstructors = async () => {
         ...instructor.user,
         password: hashedPassword
       });
+      console.log(`Created user: ${instructor.user.name}`);
 
       // Create instructor profile with explicit collection name
-      await mongoose.connection.collection('instructorprofiles').insertOne({
+      const profileData = {
         ...instructor.profile,
         userId: user._id
-      });
-
-      console.log(`Created instructor: ${instructor.user.name}`);
+      };
+      
+      const result = await mongoose.connection.collection('instructorprofiles').insertOne(profileData);
+      console.log(`Created instructor profile for ${instructor.user.name} with ID: ${result.insertedId}`);
     }
+
+    // Verify the data was inserted
+    const count = await mongoose.connection.collection('instructorprofiles').countDocuments();
+    console.log(`Total instructor profiles in database: ${count}`);
 
     console.log('All instructors created successfully');
     process.exit(0);

@@ -56,6 +56,9 @@ const Instructors = () => {
   });
   const [searchFocused, setSearchFocused] = useState(false);
   const [expandedBio, setExpandedBio] = useState({});
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const isInstructor = userInfo?.role === 'instructor';
+  const BACKEND_URL = 'http://localhost:5000';
 
   useEffect(() => {
     fetchInstructors();
@@ -64,12 +67,33 @@ const Instructors = () => {
   const fetchInstructors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/instructors');
-      setInstructors(response.data);
       setError(null);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      const response = await axios.get('http://localhost:5000/api/instructors', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data) {
+        setInstructors(response.data);
+      } else {
+        setInstructors([]);
+      }
     } catch (err) {
-      setError('Failed to fetch instructors. Please try again later.');
       console.error('Error fetching instructors:', err);
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.error || 
+                          err.message || 
+                          'Failed to fetch instructors';
+      setError(errorMessage);
+      setInstructors([]);
     } finally {
       setLoading(false);
     }
@@ -434,8 +458,8 @@ const Instructors = () => {
               <Box sx={{ position: 'relative' }}>
                 <CardMedia
                   component="img"
-                  height="100"
-                  image={instructor.profile.profileImage}
+                  height="200"
+                  image={instructor.profile.profileImage ? `${BACKEND_URL}${instructor.profile.profileImage}` : 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg'}
                   alt={instructor.user.name}
                   sx={{ objectFit: 'cover' }}
                 />
@@ -538,9 +562,10 @@ const Instructors = () => {
                   gap: 0.5,
                   mb: 1
                 }}>
+                  
                   <Chip
                     icon={<DirectionsCar sx={{ fontSize: '0.75rem' }} />}
-                    label={`${instructor.profile.car.model}`}
+                    label={`${instructor.profile.car.make} ${instructor.profile.car.model}`}
                     size="small"
                     sx={{ 
                       bgcolor: 'rgba(40, 193, 198, 0.1)',
@@ -552,7 +577,7 @@ const Instructors = () => {
                   />
                   <Chip
                     icon={<AccessTime sx={{ fontSize: '0.75rem' }} />}
-                    label={`${instructor.profile.experience}y`}
+                    label={`${instructor.profile.experience}y Experience`}
                     size="small"
                     sx={{ 
                       bgcolor: 'rgba(40, 193, 198, 0.1)',
@@ -576,25 +601,27 @@ const Instructors = () => {
                   />
                 </Box>
 
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={() => handleBookNow(instructor)}
-                  sx={{
-                    mt: 'auto',
-                    background: 'linear-gradient(135deg, #28c1c6 0%, #1b9aa0 100%)',
-                    '&:hover': {
-                      background: 'linear-gradient(135deg, #1b9aa0 0%, #0f3643 100%)',
-                    },
-                    borderRadius: '4px',
-                    textTransform: 'none',
-                    fontWeight: 'bold',
-                    fontSize: '0.75rem',
-                    py: 0.5
-                  }}
-                >
-                  Book Now
-                </Button>
+                {!isInstructor && (
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={() => handleBookNow(instructor)}
+                    sx={{
+                      mt: 'auto',
+                      background: 'linear-gradient(135deg, #28c1c6 0%, #1b9aa0 100%)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #1b9aa0 0%, #0f3643 100%)',
+                      },
+                      borderRadius: '4px',
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      fontSize: '0.75rem',
+                      py: 0.5
+                    }}
+                  >
+                    Book Now
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </Grid>
@@ -631,7 +658,7 @@ const Instructors = () => {
               }}>
                 <Box
                   component="img"
-                  src={selectedInstructor.profile.profileImage}
+                  src={selectedInstructor.profile.profileImage ? `${BACKEND_URL}${selectedInstructor.profile.profileImage}` : '/default-profile.png'}
                   alt={selectedInstructor.user.name}
                   sx={{
                     width: 60,

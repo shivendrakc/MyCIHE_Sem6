@@ -10,7 +10,15 @@ const instructorProfileSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  suburb: {
+    type: String,
+    required: true
+  },
   car: {
+    make: {
+      type: String,
+      required: true
+    },
     model: {
       type: String,
       required: true
@@ -18,6 +26,10 @@ const instructorProfileSchema = mongoose.Schema({
     year: {
       type: Number,
       required: true
+    },
+    transmission: {
+      type: String,
+      required: false
     }
   },
   method: {
