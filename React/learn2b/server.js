@@ -1,20 +1,52 @@
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+
 import mongoose from 'mongoose';
-import path from 'path';
 import fs from 'fs';
 import passport from 'passport';
 import userRoutes from './routes/userRoutes.js';
 import instructorApplicationRoutes from './routes/instructorApplicationRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import instructorRoutes from './routes/instructorRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import bookingRoutes from './routes/bookingRoutes.js';
 import { notFound, errorHandler } from './Middleware/errorMiddleware.js';
 import { connectDB } from './config/db.js'; 
 import "./config/passport.js"; // loads strategy
 
+// Get the directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-dotenv.config();
+// Load environment variables from the correct path
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+// Validate required environment variables
+const requiredEnvVars = [
+    'GOOGLE_CLIENT_ID',
+    'GOOGLE_CLIENT_SECRET',
+    'JWT_SECRET',
+    'FRONTEND_URL',
+    'MONGODB_URI'
+];
+
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+    console.error('Missing required environment variables:', missingEnvVars);
+    process.exit(1);
+}
+
+// Log environment configuration (without sensitive data)
+console.log('Environment configuration:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
+console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Configured' : 'Not configured');
+console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Configured' : 'Not configured');
+console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Configured' : 'Not configured');
 
 // Connect to MongoDB
 connectDB();
@@ -32,7 +64,8 @@ app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
 
 app.use(express.json());
@@ -49,6 +82,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/instructor-application', instructorApplicationRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/instructors', instructorRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

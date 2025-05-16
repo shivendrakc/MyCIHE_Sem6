@@ -773,9 +773,18 @@ const AdminDashboard = () => {
         return 'success';
       case 'rejected':
         return 'error';
+      case 'resubmitted':
+        return 'info';
       default:
         return 'default';
     }
+  };
+
+  const getStatusLabel = (status, resubmissionCount) => {
+    if (status === 'resubmitted') {
+      return `Resubmitted (${resubmissionCount || 1})`;
+    }
+    return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
   const adminStats = [
@@ -942,7 +951,7 @@ const AdminDashboard = () => {
                           </TableCell>
                           <TableCell>
                             <Chip
-                              label={application.status}
+                              label={getStatusLabel(application.status, application.resubmissionCount)}
                               color={getStatusColor(application.status)}
                             />
                           </TableCell>
@@ -1034,7 +1043,14 @@ const AdminDashboard = () => {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>Application Details</DialogTitle>
+        <DialogTitle>
+          Application Details
+          {selectedApplication?.status === 'resubmitted' && (
+            <Typography variant="subtitle2" color="info">
+              Resubmitted {selectedApplication.resubmissionCount || 1} time(s)
+            </Typography>
+          )}
+        </DialogTitle>
         <DialogContent>
           {selectedApplication && (
             <Box sx={{ mt: 2 }}>
@@ -1089,7 +1105,7 @@ const AdminDashboard = () => {
                 </Grid>
               </Grid>
 
-              {selectedApplication.status === 'pending' && (
+              {(selectedApplication.status === 'pending' || selectedApplication.status === 'resubmitted') && (
                 <Box sx={{ mt: 4 }}>
                   <TextField
                     fullWidth
@@ -1107,7 +1123,7 @@ const AdminDashboard = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Close</Button>
-          {selectedApplication?.status === 'pending' && (
+          {(selectedApplication?.status === 'pending' || selectedApplication?.status === 'resubmitted') && (
             <>
               <Button
                 color="error"

@@ -34,12 +34,16 @@ const instructorApplicationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'resubmitted'],
     default: 'pending'
   },
   rejectionReason: {
     type: String,
     default: ''
+  },
+  resubmissionCount: {
+    type: Number,
+    default: 0
   },
   submittedAt: {
     type: Date,

@@ -1,185 +1,291 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Grid,
   Paper,
   Typography,
-  TextField,
   Button,
+  TextField,
   InputAdornment,
   Divider,
-  IconButton
+  Alert,
+  CircularProgress,
+  Snackbar
 } from '@mui/material';
-import { useLocation } from 'react-router-dom';
-import CreditCardIcon from '@mui/icons-material/CreditCard';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js';
+import axios from 'axios';
 
-const Payment = () => {
-  const location = useLocation();
-  const booking = location.state?.bookingDetails || {};
-  const [cardName, setCardName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvc, setCvc] = useState('');
-  const [discount, setDiscount] = useState('');
-  const [appliedDiscount, setAppliedDiscount] = useState(null);
-  const [paying, setPaying] = useState(false);
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-  // Example items (replace with real data as needed)
-  const items = [
-    { label: '1 Hour Driving Lesson', price: booking.totalAmount || 70, instructor: booking.instructor?.user?.name || 'Sam' },
-    { label: 'Perosonalized Mock Test', price: 50, instructor: booking.instructor?.user?.name || 'Sam' },
-    { label: 'Discounts & Offers', price: appliedDiscount ? -appliedDiscount : 0 }
-  ];
-  const subtotal = items.reduce((sum, item) => sum + (item.price > 0 ? item.price : 0), 0);
-  const tax = +(subtotal * 0.205).toFixed(2);
-  const total = +(subtotal + tax + (items[2].price || 0)).toFixed(2);
+const PaymentForm = ({ amount, onSuccess }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [error, setError] = useState(null);
+  const [processing, setProcessing] = useState(false);
 
-  const handleApplyDiscount = () => {
-    // Example: apply a $20 discount for a specific code
-    if (discount === 'CHIKAMSO-20-OFF') {
-      setAppliedDiscount(20);
-    } else {
-      setAppliedDiscount(0);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!stripe || !elements) {
+      return;
     }
-  };
 
-  const handlePay = () => {
-    setPaying(true);
-    // Simulate payment process
-    setTimeout(() => {
-      setPaying(false);
-      alert('Payment successful!');
-    }, 1500);
+    setProcessing(true);
+
+    try {
+      const { error: submitError } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/dashboard/bookings`,
+        },
+      });
+
+      if (submitError) {
+        setError(submitError.message);
+      } else {
+        onSuccess();
+      }
+    } catch (err) {
+      setError('An unexpected error occurred.');
+    }
+
+    setProcessing(false);
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#e3f7fd', py: 6 }}>
-      <Grid container justifyContent="center" alignItems="flex-start" spacing={4}>
-        <Grid item xs={12} md={6} lg={5}>
-          <Box sx={{ maxWidth: 480, mx: 'auto' }}>
-            <Typography variant="h4" fontWeight={700} mb={2}>
-              Let's Make Payment
+    <form onSubmit={handleSubmit}>
+      <PaymentElement />
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      )}
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        disabled={!stripe || processing}
+        sx={{
+          mt: 3,
+          background: 'linear-gradient(135deg, #28c1c6 0%, #1b9aa0 100%)',
+          '&:hover': {
+            background: 'linear-gradient(135deg, #1b9aa0 0%, #0f3643 100%)',
+          },
+        }}
+      >
+        {processing ? <CircularProgress size={24} /> : 'Pay Now'}
+      </Button>
+    </form>
+  );
+};
+
+const Payment = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [clientSecret, setClientSecret] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const booking = location.state?.bookingDetails || {};
+
+  useEffect(() => {
+    const createPaymentIntent = async () => {
+      try {
+        console.log('Creating payment intent with amount:', booking.totalAmount);
+        const response = await axios.post(
+          'http://localhost:5000/api/payments/create-payment-intent',
+          {
+            amount: booking.totalAmount || 0,
+            currency: 'aud'
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          }
+        );
+
+        console.log('Payment intent created:', response.data);
+        setClientSecret(response.data.clientSecret);
+      } catch (err) {
+        console.error('Error creating payment intent:', err);
+        setError('Failed to initialize payment. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (booking.totalAmount) {
+      createPaymentIntent();
+    }
+  }, [booking]);
+
+  const handlePaymentSuccess = async () => {
+    try {
+      // Validate required booking details
+      if (!booking.studentId || !booking.instructorId || !booking.date || !booking.time || 
+          !booking.duration || !booking.location || !booking.totalAmount) {
+        console.error('Missing booking details:', booking);
+        setError('Missing required booking details. Please try again.');
+        return;
+      }
+
+      console.log('Sending payment confirmation with booking details:', booking);
+
+      const response = await axios.post(
+        'http://localhost:5000/api/payments/confirm-payment',
+        {
+          paymentIntentId: booking.paymentIntentId,
+          studentId: booking.studentId,
+          instructorId: booking.instructorId,
+          amount: booking.totalAmount,
+          date: booking.date,
+          time: booking.time,
+          duration: booking.duration,
+          location: booking.location,
+          notes: booking.notes || ''
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+
+      console.log('Payment confirmation response:', response.data);
+      
+      if (response.data.success) {
+        setShowSuccessToast(true);
+        setTimeout(() => {
+          navigate('/dashboard/bookings', {
+            state: { 
+              paymentSuccess: true,
+              bookingId: response.data.booking._id
+            }
+          });
+        }, 2000);
+      } else {
+        setError('Payment confirmation failed. Please contact support.');
+      }
+    } catch (err) {
+      console.error('Error in handlePaymentSuccess:', err);
+      setError(err.response?.data?.error || 'Failed to confirm payment. Please contact support.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ 
+      p: { xs: 1, sm: 2, md: 3 },
+      maxWidth: '1200px',
+      mx: 'auto'
+    }}>
+      <Box sx={{ 
+        mb: 4,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 2
+      }}>
+        <Typography variant="h4" sx={{ 
+          fontWeight: 'bold',
+          color: '#0f3643'
+        }}>
+          Payment
+        </Typography>
+      </Box>
+
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, borderRadius: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Payment Details
             </Typography>
-            <Typography variant="body1" color="text.secondary" mb={4}>
-              To start your subscription, input your card details to make payment.<br />
-              You will be redirected to your banks authorization page .
-            </Typography>
-            <Paper elevation={0} sx={{ bgcolor: 'transparent', boxShadow: 'none' }}>
-              <Typography fontWeight={500} mb={1}>
-                Cardholder's Name
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="PAULINA CHIMAROKE"
-                value={cardName}
-                onChange={e => setCardName(e.target.value)}
-                sx={{ mb: 2 }}
-              />
-              <Typography fontWeight={500} mb={1}>
-                Card Number
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="9870 3456 7890 6473"
-                value={cardNumber}
-                onChange={e => setCardNumber(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <CreditCardIcon sx={{ color: '#e63946', fontSize: 28, mr: 1 }} />
-                    </InputAdornment>
-                  )
-                }}
-                sx={{ mb: 2 }}
-              />
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Typography fontWeight={500} mb={1}>
-                    Expiry
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    placeholder="03 / 25"
-                    value={expiry}
-                    onChange={e => setExpiry(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography fontWeight={500} mb={1}>
-                    CVC
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    placeholder="654"
-                    value={cvc}
-                    onChange={e => setCvc(e.target.value)}
-                  />
-                </Grid>
-              </Grid>
-              <Typography fontWeight={500} mt={3} mb={1}>
-                Discount Code
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
-                <TextField
-                  fullWidth
-                  placeholder="CHIKAMSO-20-OFF"
-                  value={discount}
-                  onChange={e => setDiscount(e.target.value)}
+            {clientSecret && (
+              <Elements stripe={stripePromise} options={{ clientSecret }}>
+                <PaymentForm 
+                  amount={booking.totalAmount} 
+                  onSuccess={handlePaymentSuccess}
                 />
-                <Button
-                  variant="outlined"
-                  onClick={handleApplyDiscount}
-                  sx={{ minWidth: 80 }}
-                >
-                  Apply
-                </Button>
-              </Box>
-              <Button
-                variant="contained"
-                fullWidth
-                size="large"
-                sx={{ mt: 2, fontWeight: 700, fontSize: '1.1rem', bgcolor: '#397c8c' }}
-                onClick={handlePay}
-                disabled={paying}
-              >
-                Pay
-              </Button>
-            </Paper>
-          </Box>
+              </Elements>
+            )}
+          </Paper>
         </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <Paper elevation={3} sx={{ p: 4, borderRadius: 3, maxWidth: 350, mx: 'auto', mt: { xs: 4, md: 0 }, background: 'rgba(255,255,255,0.7)', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)' }}>
-            <Typography color="text.secondary" mb={1}>
-              You're paying,
+
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, borderRadius: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Order Summary
             </Typography>
-            <Typography variant="h3" fontWeight={700} mb={3}>
-              ${total}
-            </Typography>
-            {items.map((item, idx) => (
-              <Box key={item.label} display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                <Box>
-                  <Typography fontWeight={600}>{item.label}</Typography>
-                  {item.instructor && (
-                    <Typography variant="caption" color="text.secondary">
-                      Instructor: {item.instructor}
-                    </Typography>
-                  )}
-                </Box>
-                <Typography fontWeight={500}>${item.price.toFixed(2)}</Typography>
-              </Box>
-            ))}
-            <Divider sx={{ my: 2 }} />
-            <Box display="flex" justifyContent="space-between" mb={1}>
-              <Typography color="text.secondary">Tax</Typography>
-              <Typography fontWeight={500}>${tax}</Typography>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body1">
+                Instructor: {booking.instructor?.user?.name}
+              </Typography>
+              <Typography variant="body1">
+                Date: {new Date(booking.date).toLocaleDateString()}
+              </Typography>
+              <Typography variant="body1">
+                Time: {booking.time}
+              </Typography>
+              <Typography variant="body1">
+                Duration: {booking.duration} hour{booking.duration > 1 ? 's' : ''}
+              </Typography>
+              {booking.location && (
+                <Typography variant="body1">
+                  Location: {booking.location}
+                </Typography>
+              )}
+              {booking.notes && (
+                <Typography variant="body1">
+                  Notes: {booking.notes}
+                </Typography>
+              )}
             </Box>
-            <Box display="flex" justifyContent="space-between" mb={1}>
-              <Typography fontWeight={700}>Total</Typography>
-              <Typography fontWeight={700}>${total}</Typography>
+            <Divider sx={{ my: 2 }} />
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <Typography variant="h6">Total</Typography>
+              <Typography variant="h6" color="primary">
+                ${booking.totalAmount}
+              </Typography>
             </Box>
           </Paper>
         </Grid>
       </Grid>
+
+      <Snackbar
+        open={showSuccessToast}
+        autoHideDuration={2000}
+        message="Payment successful! Redirecting to bookings..."
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      />
     </Box>
   );
 };

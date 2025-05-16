@@ -101,8 +101,15 @@ export const submitApplication = async (req, res) => {
       const updatedData = {
         ...applicationData,
         submittedAt: application.submittedAt, // Preserve original submission date
-        status: application.status // Preserve current status
       };
+
+      // If the application was previously rejected, set status to resubmitted
+      if (application.status === 'rejected') {
+        updatedData.status = 'resubmitted';
+        updatedData.resubmissionCount = (application.resubmissionCount || 0) + 1;
+      } else {
+        updatedData.status = application.status; // Preserve current status
+      }
 
       // Update the application
       Object.assign(application, updatedData);
@@ -270,11 +277,19 @@ export const updateApplicationStatus = async (req, res) => {
       return res.status(404).json({ message: 'Application not found' });
     }
 
-    application.status = status;
+    // If the application was previously rejected and is being resubmitted
+    if (application.status === 'rejected' && status === 'pending') {
+      application.status = 'resubmitted';
+      application.resubmissionCount = (application.resubmissionCount || 0) + 1;
+    } else {
+      application.status = status;
+    }
+
     if (status === 'rejected' && rejectionReason) {
       application.rejectionReason = rejectionReason;
     }
     
+    application.reviewedAt = new Date();
     await application.save();
 
     // If approved, update user role

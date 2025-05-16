@@ -276,7 +276,7 @@ const InstructorApplications = () => {
                 </div>
               </section>
 
-              {selectedApplication.status === 'pending' && (
+              {selectedApplication.status === 'pending' || selectedApplication.status === 'resubmitted' ? (
                 <div className="flex gap-4 mt-6">
                   <button
                     onClick={() => handleStatusUpdate(selectedApplication._id, 'approved')}
@@ -296,7 +296,7 @@ const InstructorApplications = () => {
                     Reject
                   </button>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

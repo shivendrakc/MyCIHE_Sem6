@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage/landingPage';
 import Navbar from './pages/LandingPage/Navbar';
 import LoginPage from './pages/Login-Registration/login';
@@ -18,6 +18,7 @@ import BecomeInstructor from './pages/Login-Registration/ApplicationForm';
 import Payment from './pages/Dashboard/Payment';
 import InstructorApplications from './pages/Dashboard/InstructorApplications';
 import InstructorProfile from './pages/Dashboard/InstructorProfile';
+import AuthSuccess from './pages/AuthSuccess';
 import './index.css';
 
 // Protected Route Component
@@ -27,65 +28,6 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" />;
   }
   return children;
-};
-
-// Auth Success Component Entry Point for Google Auth
-const AuthSuccess = () => {
-  
-  const navigate = useNavigate();
-
-  React.useEffect(() => {
-    const handleAuthSuccess = async () => {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get('token');
-        const userInfo = params.get('user');
-
-        if (!token || !userInfo) {
-          throw new Error('Missing authentication data');
-        }
-
-        try {
-          const decodedUserInfo = JSON.parse(decodeURIComponent(userInfo));
-          localStorage.setItem('token', token);
-          localStorage.setItem('userInfo', JSON.stringify(decodedUserInfo));
-
-          // Redirect based on role
-          setTimeout(() => {
-            switch (decodedUserInfo.role) {
-              case 'admin':
-                navigate('/dashboard');
-                break;
-              case 'student':
-                navigate('/dashboard');
-                break;
-              default:
-                navigate('/login?error=invalid_role');
-            }
-          }, 100);
-        } catch (parseError) {
-          console.error('Error parsing user data:', parseError);
-          throw new Error('Invalid user data format');
-        }
-      } catch (error) {
-        console.error('Auth error:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('userInfo');
-        navigate('/login?error=auth_failed');
-      }
-    };
-
-    handleAuthSuccess();
-  }, [navigate]);
-
-  return (
-    <div className="fixed inset-0 bg-[#CDF3FF] flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-        <h2 className="text-2xl font-bold text-[#2e667d] mb-4">Completing Authentication...</h2>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2e667d] mx-auto"></div>
-      </div>
-    </div>
-  );
 };
 
 // Role Based Route Component
