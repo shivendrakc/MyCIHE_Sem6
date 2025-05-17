@@ -16,6 +16,7 @@ cd learn2drive/React
 cd learn2b
 cp .env.example .env
 npm install
+cd learn2 / npm install react-hot-toast
 npm run dev
 
 
