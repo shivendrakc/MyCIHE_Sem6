@@ -77,6 +77,12 @@ app.use('/uploads', express.static(uploadsDir));
 // Initialize Passport
 app.use(passport.initialize());
 
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.originalUrl}`);
+    next();
+});
+
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/instructor-application', instructorApplicationRoutes);
@@ -84,6 +90,18 @@ app.use('/api/auth', authRoutes);
 app.use('/api/instructors', instructorRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/bookings', bookingRoutes);
+
+// Add a test route to verify routing
+app.get('/api/test', (req, res) => {
+    console.log('Test route hit');
+    res.json({ message: 'API is working' });
+});
+
+// Add a catch-all route for debugging
+app.use('*', (req, res, next) => {
+    console.log('Catch-all route hit:', req.originalUrl);
+    next();
+});
 
 app.use(notFound);
 app.use(errorHandler);

@@ -103,8 +103,12 @@ export default function RegisterPage() {
   const handleGoogleSignup = () => {
     setIsLoading(true);
     try {
+      // Get the base URL from the API configuration
+      const baseURL = API.defaults.baseURL;
+      console.log('Redirecting to Google OAuth:', `${baseURL}/auth/google`);
+      
       // Redirect to backend Google OAuth endpoint
-      window.location.href = `${API.defaults.baseURL}/auth/google`;
+      window.location.href = `${baseURL}/auth/google`;
     } catch (err) {
       toast.error('Failed to initiate Google signup');
       setIsLoading(false);
