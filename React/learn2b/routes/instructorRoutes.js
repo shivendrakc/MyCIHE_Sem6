@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../models/userModel.js';
 import InstructorProfile from '../models/InstructorModel.js';
-import { protect, instructor } from '../middleware/authMiddleware.js';
+import { protect, instructor } from '../Middleware/authMiddleware.js';
 import multer from 'multer';
 import path from 'path';
 import {

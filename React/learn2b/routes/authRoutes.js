@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect } from '../Middleware/authMiddleware.js';
 import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 

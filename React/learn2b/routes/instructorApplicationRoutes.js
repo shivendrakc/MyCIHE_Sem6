@@ -1,6 +1,6 @@
 import express from 'express';
 import { submitApplication, getApplicationStatus, getAllApplications, updateApplicationStatus, getUserApplication } from '../controller/instructorApplicationController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { protect, admin } from '../Middleware/authMiddleware.js';
 import multer from 'multer';
 import path from 'path';
 
