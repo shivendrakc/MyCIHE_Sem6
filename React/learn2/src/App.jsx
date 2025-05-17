@@ -141,7 +141,7 @@ const App = () => {
         <Route
           path="/dashboard/book-lessons"
           element={
-            <RoleBasedRoute allowedRoles={['admin', 'student']}>
+            <RoleBasedRoute allowedRoles={['student']}>
               <DashboardLayout>
                 <BookLessons />
               </DashboardLayout>

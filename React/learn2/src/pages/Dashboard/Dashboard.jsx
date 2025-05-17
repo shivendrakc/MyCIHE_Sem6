@@ -3,7 +3,7 @@ import {
   Box, 
   Grid, 
   Typography, 
-  Card, 
+  Card,
   CardContent, 
   Avatar, 
   Button,
@@ -892,149 +892,8 @@ const AdminDashboard = () => {
           </Grid>
         ))}
       </Grid>
-
-      {/* Admin Actions Grid */}
-      <Grid container spacing={3}>
-        {/* Instructor Applications */}
-        <Grid item xs={12}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px'
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#0f3643' }}>
-                Instructor Applications
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
-                Review and manage instructor applications
-              </Typography>
-              
-              {/* Applications Table */}
-              <TableContainer component={Paper} sx={{ mb: 3 }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Applicant</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Submitted On</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {loading ? (
-                      <TableRow>
-                        <TableCell colSpan={5} align="center">
-                          <CircularProgress />
-                        </TableCell>
-                      </TableRow>
-                    ) : error ? (
-                      <TableRow>
-                        <TableCell colSpan={5} align="center">
-                          <Typography color="error">{error}</Typography>
-                        </TableCell>
-                      </TableRow>
-                    ) : applications.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} align="center">
-                          <Typography>No applications found</Typography>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      applications.map((application) => (
-                        <TableRow key={application._id}>
-                          <TableCell>{application.personalDetails.fullName}</TableCell>
-                          <TableCell>{application.personalDetails.email}</TableCell>
-                          <TableCell>
-                            {new Date(application.submittedAt).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={getStatusLabel(application.status, application.resubmissionCount)}
-                              color={getStatusColor(application.status)}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              startIcon={<ViewIcon />}
-                              onClick={() => handleViewApplication(application)}
-                              sx={{
-                                color: '#28c1c6',
-                                '&:hover': { backgroundColor: 'rgba(40, 193, 198, 0.1)' }
-                              }}
-                            >
-                              View
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* User Management */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px'
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#0f3643' }}>
-                User Management
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
-                Manage users and their roles
-              </Typography>
-              <Button
-                variant="contained"
-                startIcon={<GroupIcon />}
-                sx={{
-                  backgroundColor: '#28c1c6',
-                  '&:hover': { backgroundColor: '#1b9aa0' }
-                }}
-                onClick={() => navigate('/admin/users')}
-              >
-                Manage Users
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* System Analytics */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px'
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#0f3643' }}>
-                System Analytics
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
-                View platform statistics and insights
-              </Typography>
-              <Button
-                variant="contained"
-                startIcon={<AnalyticsIcon />}
-                sx={{
-                  backgroundColor: '#28c1c6',
-                  '&:hover': { backgroundColor: '#1b9aa0' }
-                }}
-                onClick={() => navigate('/admin/analytics')}
-              >
-                View Analytics
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+dash
+      
 
       {/* Application Details Dialog */}
       <Dialog

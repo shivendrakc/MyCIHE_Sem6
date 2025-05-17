@@ -88,7 +88,7 @@ const DashboardLayout = ({ children }) => {
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', badge: 0 },
-    { text: 'Find Instructors', icon: <PeopleIcon />, path: '/dashboard/instructors', badge: 2 },
+    { text: 'Find Instructors', icon: <PeopleIcon />, path: '/dashboard/instructors'},
     ...(isAdmin ? [
       { text: 'Instructor Applications', icon: <AssignmentIcon />, path: '/dashboard/instructor-applications', badge: 0 },
     ] : []),
@@ -241,17 +241,7 @@ const DashboardLayout = ({ children }) => {
             {menuItems.find(item => item.path === location.pathname)?.text || 'Dashboard'}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Tooltip title="Notifications">
-              <IconButton
-                onClick={handleNotificationsOpen}
-                size="small"
-                edge="end"
-              >
-                <Badge badgeContent={3} color="error">
-                  <NotificationsIcon sx={{ color: '#64748b' }} />
-                </Badge>
-              </IconButton>
-            </Tooltip>
+           
             <Menu
               anchorEl={notificationsAnchorEl}
               open={Boolean(notificationsAnchorEl)}

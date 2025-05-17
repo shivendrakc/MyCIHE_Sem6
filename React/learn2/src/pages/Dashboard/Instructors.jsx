@@ -58,6 +58,7 @@ const Instructors = () => {
   const [expandedBio, setExpandedBio] = useState({});
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
   const isInstructor = userInfo?.role === 'instructor';
+  const isAdmin = userInfo?.role === 'admin';
   const BACKEND_URL = 'http://localhost:5000';
 
   useEffect(() => {
@@ -601,7 +602,7 @@ const Instructors = () => {
                   />
                 </Box>
 
-                {!isInstructor && (
+                {!isInstructor && !isAdmin && (
                   <Button
                     variant="contained"
                     fullWidth
