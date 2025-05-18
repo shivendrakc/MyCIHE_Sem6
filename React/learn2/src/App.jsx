@@ -4,9 +4,7 @@ import LandingPage from './pages/LandingPage/landingPage';
 import Navbar from './pages/LandingPage/Navbar';
 import LoginPage from './pages/Login-Registration/login';
 import Register from './pages/Login-Registration/register';
-import DatePicker from './pages/studentPortal/datePicker';
-import StudentPortal from './pages/studentPortal/StudentPortal';
-import PaymentForm from './pages/Payment/paymentForm';
+
 import Applicatoinform from './pages/Login-Registration/ApplicationForm';
 import Dashboard from './pages/Dashboard/Dashboard';
 import DashboardLayout from './pages/Dashboard/DashboardLayout';
