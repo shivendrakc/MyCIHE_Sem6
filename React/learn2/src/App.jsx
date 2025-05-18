@@ -20,7 +20,7 @@ import InstructorApplications from './pages/Dashboard/InstructorApplications';
 import InstructorProfile from './pages/Dashboard/InstructorProfile';
 import AuthSuccess from './pages/AuthSuccess';
 import './index.css';
-
+//filName
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
