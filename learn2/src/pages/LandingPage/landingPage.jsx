@@ -4,6 +4,7 @@ import Footer from './Footer';
 import Car from '../../assets/car.png';
 import "../../assets/flipcar.css"
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
+import axios from 'axios';
 
 import {
   UserIcon,
@@ -16,6 +17,7 @@ const Learn2Drive = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const navigate = useNavigate();
 
   
@@ -48,12 +50,22 @@ const Learn2Drive = () => {
     if (validateForm()) {
       setIsLoading(true);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log('Inquiry submitted:', formData);
-        navigate('/thank-you');
+        const response = await axios.post('http://localhost:5000/api/contact/submit', formData);
+        if (response.data.success) {
+          setFormData({ name: '', email: '', message: '' });
+          setShowSuccessModal(true);
+          // Hide modal after 3 seconds
+          setTimeout(() => {
+            setShowSuccessModal(false);
+          }, 3000);
+        } else {
+          setErrors({ submit: response.data.error || 'Failed to send message. Please try again.' });
+        }
       } catch (error) {
         console.error('Submission failed:', error);
-        setErrors({ submit: 'Submission failed. Please try again.' });
+        setErrors({ 
+          submit: error.response?.data?.error || 'Failed to send message. Please try again.' 
+        });
       } finally {
         setIsLoading(false);
       }
@@ -66,6 +78,25 @@ const Learn2Drive = () => {
 
   return (
     <div className="w-full">
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 transform transition-all">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Message Sent Successfully!</h3>
+              <p className="text-sm text-gray-500">
+                Thank you for contacting us. We'll get back to you as soon as possible.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Banner */}
       <section className="w-full mt-20 md:mt-40 mb-16 flex flex-col md:flex-row justify-between items-center bg-white/60 px-4 md:px-30 py-16 shadow-lg">
         <div className="mb-8 md:mb-0 max-w-xl space-y-6">

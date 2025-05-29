@@ -13,6 +13,7 @@ import authRoutes from './routes/authRoutes.js';
 import instructorRoutes from './routes/instructorRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 import { notFound, errorHandler } from './Middleware/errorMiddleware.js';
 import { connectDB } from './config/db.js'; 
 import "./config/passport.js"; // loads strategy
@@ -90,6 +91,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/instructors', instructorRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Add a test route to verify routing
 app.get('/api/test', (req, res) => {

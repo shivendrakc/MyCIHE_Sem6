@@ -149,7 +149,7 @@ const Instructors = () => {
       (filters.priceRange === '50-70' && instructor.profile.hourlyRate > 50 && instructor.profile.hourlyRate <= 70) ||
       (filters.priceRange === '70+' && instructor.profile.hourlyRate > 70);
     const matchesSearch = !filters.search || 
-      instructor.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+      instructor.user.name.toLowerCase().includes(filters.search.toLowerCase()) ||
       instructor.profile.bio.toLowerCase().includes(filters.search.toLowerCase());
     const matchesSuburb = !filters.suburb || 
       instructor.profile.suburb.toLowerCase().includes(filters.suburb.toLowerCase());
@@ -461,7 +461,7 @@ const Instructors = () => {
                   component="img"
                   height="200"
                   image={instructor.profile.profileImage ? `${BACKEND_URL}${instructor.profile.profileImage}` : 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg'}
-                  alt={instructor.name}
+                  alt={instructor.user.name}
                   sx={{ objectFit: 'cover' }}
                 />
                 <Box sx={{
@@ -489,7 +489,7 @@ const Instructors = () => {
                   mb: 0.5,
                   fontSize: '0.9rem'
                 }}>
-                  {instructor.name}
+                  {instructor.user.name}
                 </Typography>
 
                 {/* Suburb */}
@@ -660,7 +660,7 @@ const Instructors = () => {
                 <Box
                   component="img"
                   src={selectedInstructor.profile.profileImage ? `${BACKEND_URL}${selectedInstructor.profile.profileImage}` : '/default-profile.png'}
-                  alt={selectedInstructor.name}
+                  alt={selectedInstructor.user.name}
                   sx={{
                     width: 60,
                     height: 60,
@@ -670,7 +670,7 @@ const Instructors = () => {
                 />
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    {selectedInstructor.name}
+                    {selectedInstructor.user.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {selectedInstructor.profile.method} Instructor
