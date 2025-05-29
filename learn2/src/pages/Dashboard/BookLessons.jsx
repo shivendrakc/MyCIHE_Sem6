@@ -103,11 +103,11 @@ const BookLessons = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                     <Avatar
                       src={instructor.profile.profileImage}
-                      alt={instructor.user.name}
+                      alt={instructor.name}
                       sx={{ width: 60, height: 60 }}
                     />
                     <Box>
-                      <Typography variant="h6">{instructor.user.name}</Typography>
+                      <Typography variant="h6">{instructor.name}</Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <LocationOn sx={{ fontSize: '0.875rem', color: '#64748b' }} />
                         <Typography variant="body2" color="text.secondary">
@@ -191,12 +191,12 @@ const BookLessons = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Avatar
                       src={instructor.profile.profileImage}
-                      alt={instructor.user.name}
+                      alt={instructor.name}
                       sx={{ width: 50, height: 50 }}
                     />
                     <Box>
                       <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                        {instructor.user.name}
+                        {instructor.name}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         {instructor.profile.suburb}

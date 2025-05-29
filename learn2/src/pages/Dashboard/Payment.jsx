@@ -243,7 +243,7 @@ const Payment = () => {
             </Typography>
             <Box sx={{ mb: 2 }}>
               <Typography variant="body1">
-                Instructor: {booking.instructor?.user?.name}
+                Instructor: {booking.instructorId?.name}
               </Typography>
               <Typography variant="body1">
                 Date: {new Date(booking.date).toLocaleDateString()}

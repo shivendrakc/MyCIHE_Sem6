@@ -6,14 +6,8 @@ const getBookings = async (req, res) => {
     const bookings = await Booking.find({
       studentId: req.user._id
     })
-    .populate('instructorId', 'user')
-    .populate({
-      path: 'instructorId',
-      populate: {
-        path: 'user',
-        select: 'name email'
-      }
-    })
+    .populate('instructorId', 'name email')
+    .populate('studentId', 'name email')
     .sort({ date: -1 });
 
     res.json(bookings);

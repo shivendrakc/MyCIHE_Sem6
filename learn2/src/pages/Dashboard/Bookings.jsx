@@ -81,8 +81,10 @@ const Bookings = () => {
 
   const getStatusChip = (status) => {
     switch (status) {
-      case 'upcoming':
-        return <Chip icon={<AccessTime />} label="Upcoming" color="primary" />;
+      case 'pending':
+        return <Chip icon={<AccessTime />} label="Pending" color="warning" />;
+      case 'confirmed':
+        return <Chip icon={<CheckCircle />} label="Confirmed" color="success" />;
       case 'completed':
         return <Chip icon={<CheckCircle />} label="Completed" color="success" />;
       case 'cancelled':
@@ -95,7 +97,7 @@ const Bookings = () => {
   const filteredBookings = bookings.filter(booking => {
     switch (activeTab) {
       case 0:
-        return booking.status === 'upcoming';
+        return booking.status === 'pending' || booking.status === 'confirmed';
       case 1:
         return booking.status === 'completed';
       case 2:
@@ -152,45 +154,45 @@ const Bookings = () => {
           {filteredBookings.map((booking) => (
             <Grid item xs={12} key={booking._id}>
               <Card sx={{ 
-                transition: 'transform 0.2s',
+                transition: 'all 0.2s',
                 '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
-                }
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                },
+                borderRadius: '8px',
+                mb: 2,
+                border: '1px solid',
+                borderColor: 'divider'
               }}>
-                <CardContent>
+                <CardContent sx={{ p: 2 }}>
                   <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="h6" sx={{ color: '#0f3643' }}>
-                        {booking.instructor?.user?.name}
+                    <Grid item xs={12} sm={3}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#0f3643' }}>
+                        {booking.instructorId?.name}
                       </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
                       <Typography variant="body2" color="text.secondary">
                         {new Date(booking.date).toLocaleDateString()} at {booking.time}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Duration: {booking.duration} hour(s)
                       </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
                       <Typography variant="body2" color="text.secondary">
                         Price: ${booking.amount}
                       </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={6} sx={{ textAlign: 'right' }}>
+                    <Grid item xs={12} sm={3} sx={{ textAlign: 'right' }}>
                       {getStatusChip(booking.status)}
-                      {booking.status === 'upcoming' && (
-                        <Box sx={{ mt: 2 }}>
-                          <IconButton
-                            color="primary"
-                            onClick={() => {/* Handle reschedule */}}
-                          >
-                            <Edit />
-                          </IconButton>
-                          <IconButton
-                            color="error"
-                            onClick={() => handleCancelClick(booking)}
-                          >
-                            <Cancel />
-                          </IconButton>
-                        </Box>
+                      {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                        <IconButton
+                          color="error"
+                          onClick={() => handleCancelClick(booking)}
+                          sx={{ ml: 1 }}
+                        >
+                          <Cancel />
+                        </IconButton>
                       )}
                     </Grid>
                   </Grid>
