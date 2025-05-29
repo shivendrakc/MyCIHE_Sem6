@@ -65,20 +65,34 @@ const BookLessons = () => {
   const handleBooking = async () => {
     try {
       setLoading(true);
-      // Here you would make an API call to create the booking
-      // For now, we'll just navigate to a payment page
+      // Get the current user's ID from the token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Please log in to book a lesson');
+      }
+
+      // Decode the token to get user info
+      const tokenParts = token.split('.');
+      const payload = JSON.parse(atob(tokenParts[1]));
+      const studentId = payload._id;
+
+      // Navigate to payment page with complete booking details
       navigate('/dashboard/payment', {
         state: {
           bookingDetails: {
+            studentId: studentId,
+            instructorId: instructor._id,
             instructor: instructor,
             date: selectedDate,
+            time: selectedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             duration: parseInt(duration),
+            location: instructor.profile.suburb,
             totalAmount: instructor.profile.hourlyRate * parseInt(duration)
           }
         }
       });
     } catch (err) {
-      setError('Failed to create booking. Please try again.');
+      setError(err.message || 'Failed to create booking. Please try again.');
       console.error('Error creating booking:', err);
     } finally {
       setLoading(false);

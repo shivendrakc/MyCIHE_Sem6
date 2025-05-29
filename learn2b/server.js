@@ -60,9 +60,20 @@ if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+const allowedOrigins = [
+    'https://cihelearn2drive.vercel.app',
+    'https://learn-git-master-shivendrakcs-projects.vercel.app',
+    'http://localhost:5173'
+  ];
 // Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error(`CORS error: Origin ${origin} not allowed`));
+        }
+      },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
