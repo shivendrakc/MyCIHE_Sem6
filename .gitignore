@@ -1,0 +1,42 @@
+# Node modules (frontend and backend)
+learn2/node_modules/
+learn2b/node_modules/
+node_modules/
+
+# Environment variables
+learn2/.env
+learn2b/.env
+.env
+.env.local
+.env.*.local
+
+# Build output (Vite)
+learn2/dist/
+dist/
+dist-ssr/
+
+# Uploaded user files
+uploads/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor / System junk
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Optional: OS-specific ignores
+Thumbs.db
+ehthumbs.db
