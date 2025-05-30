@@ -1,0 +1,24 @@
+To run the code you need to create the .env files both inside the learn2 and 
+learn2b to test the code itself. 
+
+PLeases copy the .envs accordingly 
+
+
+
+################## FrontEnd 
+VITE_STRIPE_PUBLIC_KEY=pk_test_51RP013PNPLUdJ3URbADrzSnYpkM0fTqeO0mZoBE8Z45ouVhJ6Qy7uLMcvA3uzZsIQelkhOMB1VAajM6RH6PAT8qX00f2ii0QSS
+VITE_API_URL=http://localhost:5000
+
+################# Backend 
+
+MONGODB_URI =mongodb+srv://cihe22394:M72oa0ksf0OxRE0n@cluster0.hfocu.mongodb.net/products?retryWrites=true&w=majority&appName=Cluster0
+NODE_ENV=development
+PORT=5000
+JWT_SECRET=Learn2DriveSecret123!
+GOOGLE_CLIENT_ID=653318949779-qqsdtboc6m01up9k04kd42lp2ss3dkd4.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+FRONTEND_URL=http://localhost:5173
+VITE_API_URL=http://localhost:5000
+STRIPE_SECRET_KEY=sk_test_51RP013PNPLUdJ3URVVtyeqrY6fdE2yA3iXCnyGLfj8cUsO8ct7j2iVoU8yizGnY0EVQjy8JYAxiIepwgOphDCo0n00mfS6IMQO
+RESEND_API_KEY=re_hiSGdan6_4quMpnfcq31gRncMzrM5dQBW
+CONTACT_EMAIL=kcshivakc@gmail.com
