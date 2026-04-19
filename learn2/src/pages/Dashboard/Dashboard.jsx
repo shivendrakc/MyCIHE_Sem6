@@ -1,1010 +1,447 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Grid, 
-  Typography, 
-  Card,
-  CardContent, 
-  Avatar, 
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Divider,
-  LinearProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Alert,
-  Paper,
-  TableContainer,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  Chip,
-  CircularProgress
-} from '@mui/material';
-import { 
-  People as PeopleIcon,
-  School as SchoolIcon,
-  CalendarToday as CalendarIcon,
-  RateReview as ReviewIcon,
-  ArrowForward as ArrowForwardIcon,
-  CheckCircle as CheckCircleIcon,
-  Warning as WarningIcon,
-  TrendingUp as TrendingUpIcon,
-  AdminPanelSettings as AdminIcon,
-  Group as GroupIcon,
-  Assessment as AnalyticsIcon,
-  Assignment as ApplicationsIcon,
-  Visibility as ViewIcon,
-  Close as CloseIcon,
-  Check as CheckIcon
-} from '@mui/icons-material';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
-const Dashboard = () => {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-  const userName = userInfo?.name || 'User';
-  const userRole = userInfo?.role || 'student';
-  const navigate = useNavigate();
-  const isInstructor = userInfo?.role === 'instructor';
+/* ── shared design tokens ───────────────────────── */
+const card = 'bg-[#0f1829] border border-white/8 rounded-2xl p-6';
+// shared label style (available for page use)
+// const label = 'text-gray-400 text-xs uppercase tracking-wider mb-1';
+const tealBtn = 'inline-flex items-center gap-2 bg-gradient-to-r from-[#00d4df] to-[#1b9aa0] text-[#080d1a] font-bold px-5 py-2.5 rounded-xl hover:shadow-[0_0_20px_rgba(0,212,223,0.3)] transition-all duration-200 hover:scale-[1.02] text-sm';
+const ghostBtn = 'inline-flex items-center gap-2 border border-white/15 text-gray-300 hover:text-white hover:border-white/30 font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 hover:bg-white/5 text-sm';
 
-  // Debug log to check role
-  console.log('Current user role:', userRole);
+const ArrowRight = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+  </svg>
+);
 
-  // Role-based rendering
-  if (userRole === 'admin') {
-    return <AdminDashboard />;
-  } else if (userRole === 'instructor') {
-    return <InstructorDashboard />;
-  } else {
-    return <StudentDashboard />;
-  }
-};
+/* ── stat card ──────────────────────────────────── */
+const StatCard = ({ icon, value, label: lbl }) => (
+  <div className={`${card} flex items-center gap-5 hover:border-[#00d4df]/25 transition-all duration-300 group`}>
+    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#00d4df]/10 border border-[#00d4df]/20 group-hover:border-[#00d4df]/50 transition-all">
+      <span className="text-[#00d4df]">{icon}</span>
+    </div>
+    <div>
+      <div className="text-2xl font-extrabold text-white">{value}</div>
+      <div className="text-gray-400 text-sm">{lbl}</div>
+    </div>
+  </div>
+);
 
-// Rename the existing return statement to StudentDashboard
+/* ── section header ─────────────────────────────── */
+const SectionTitle = ({ children, sub }) => (
+  <div className="mb-6">
+    <h2 className="text-xl font-bold text-white">{children}</h2>
+    {sub && <p className="text-gray-400 text-sm mt-0.5">{sub}</p>}
+  </div>
+);
+
+/* ───────────────────────────────────────────────── */
+const CalIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
+const PeopleIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
+const StarIcon = () => <svg className="w-5 h-5 text-[#00d4df]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>;
+const CashIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+const GroupIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
+const AppsIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>;
+const CheckIcon = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>;
+const XIcon = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>;
+const EyeIcon = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>;
+
+/* ══════════════════════════════════════════════════
+   STUDENT DASHBOARD
+══════════════════════════════════════════════════ */
 const StudentDashboard = () => {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-  const userName = userInfo?.name || 'User';
-  const userRole = userInfo?.role || 'student';
-  const [showInstructorForm, setShowInstructorForm] = useState(false);
-  const [applicationStatus, setApplicationStatus] = useState(null);
-  const [formData, setFormData] = useState({
-    experience: '',
-    qualifications: '',
-    licenseNumber: '',
-    vehicleDetails: '',
-    availability: '',
-    bio: ''
-  });
-
-  const stats = [
-    { 
-      title: 'Lessons Booked', 
-      value: '8', 
-      icon: <CalendarIcon sx={{ fontSize: 40 }} />, 
-      color: '#28c1c6',
-      bgColor: 'rgba(40, 193, 198, 0.1)'
-    },
-    { 
-      title: 'Last Instructor', 
-      value: 'Sarah', 
-      icon: <PeopleIcon sx={{ fontSize: 40 }} />, 
-      color: '#1b9aa0',
-      bgColor: 'rgba(27, 154, 160, 0.1)'
-    },
-  ];
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const navigate = useNavigate();
 
   const upcomingLessons = [
-    { id: 1, day: 'Tomorrow', time: '10:00 AM', instructor: 'Sarah Taylor' },
-    { id: 2, day: 'Friday', time: '2:30 PM', instructor: 'Sarah Taylor' },
+    { id: 1, day: 'Tomorrow',  time: '10:00 AM', instructor: 'Sarah Taylor' },
+    { id: 2, day: 'Friday',    time: '2:30 PM',  instructor: 'Sarah Taylor' },
   ];
 
   const recentFeedback = [
-    { 
-      id: 1, 
-      instructor: 'Sarah Taylor',
-      date: 'May 15, 2023',
-      skills: ['Parallel Parking', 'Highway Driving'],
-      comment: 'Great improvement on parallel parking! Highway merging still needs practice, but overall good progress.'
-    },
-    { 
-      id: 2, 
-      instructor: 'Sarah Taylor',
-      date: 'May 8, 2023',
-      skills: ['Roundabouts', 'Signaling'],
-      comment: "You're handling roundabouts much better. Remember to signal earlier when changing lanes."
-    },
+    { id: 1, instructor: 'Sarah Taylor', date: 'May 15, 2024', skills: ['Parallel Parking', 'Highway'], comment: 'Great improvement on parallel parking! Highway merging still needs practice.' },
+    { id: 2, instructor: 'Sarah Taylor', date: 'May 8, 2024',  skills: ['Roundabouts', 'Signaling'],   comment: "Handling roundabouts much better. Remember to signal earlier when changing lanes." },
   ];
 
-  useEffect(() => {
-    // Check if user has already applied
-    const checkApplicationStatus = async () => {
-      try {
-        const response = await axios.get('/api/instructor-application/status');
-        setApplicationStatus(response.data.status);
-      } catch (error) {
-        console.error('Error checking application status:', error);
-      }
-    };
-
-    if (userRole === 'student') {
-      checkApplicationStatus();
-    }
-  }, [userRole]);
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post('/api/instructor-application', formData);
-      setApplicationStatus('pending');
-      setShowInstructorForm(false);
-    } catch (error) {
-      console.error('Error submitting application:', error);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  // If user is an instructor, render instructor dashboard
-  if (userRole === 'instructor') {
-    return <InstructorDashboard />;
-  }
-
-  // Student dashboard with instructor application option
   return (
-    <Box sx={{ 
-      p: { xs: 2, sm: 3, md: 4 },
-      backgroundColor: '#f8fafc',
-      minHeight: '100vh',
-      maxWidth: '1600px',
-      mx: 'auto'
-    }}>
-      {/* Welcome Section */}
-      <Paper elevation={0} sx={{ 
-        p: 3, 
-        mb: 4, 
-        borderRadius: '16px',
-        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-        border: '1px solid rgba(0, 0, 0, 0.05)'
-      }}>
-        <Typography variant="h4" sx={{ 
-          fontWeight: 'bold', 
-          color: '#0f3643',
-          mb: 1
-        }}>
-          Welcome back, {userName} 👋
-        </Typography>
-        <Typography variant="subtitle1" sx={{ 
-          color: '#64748b',
-          mb: 2
-        }}>
-          Ready for your next driving lesson?
-        </Typography>
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center',
-          gap: 1
-        }}>
-          <TrendingUpIcon sx={{ color: '#10b981' }} />
-          <Typography variant="body2" sx={{ color: '#10b981' }}>
-            Your progress is improving steadily
-          </Typography>
-        </Box>
-      </Paper>
+    <div className="p-6 max-w-7xl mx-auto space-y-8">
+      {/* Welcome */}
+      <div className="bg-gradient-to-br from-[#00d4df]/10 to-[#1b9aa0]/10 border border-[#00d4df]/20 rounded-2xl p-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Welcome back, {userInfo?.name || 'Learner'} 👋</h1>
+            <p className="text-gray-400 mt-1">Ready for your next driving lesson?</p>
+          </div>
+          <button onClick={() => navigate('/dashboard/instructors')} className={tealBtn}>
+            Book a Lesson <ArrowRight />
+          </button>
+        </div>
+        <div className="flex items-center gap-2 mt-4">
+          <div className="w-2 h-2 rounded-full bg-green-400" />
+          <span className="text-green-400 text-sm">Your progress is improving steadily</span>
+        </div>
+      </div>
 
-      {/* Application Status Alert */}
-      {applicationStatus && (
-        <Alert 
-          severity={applicationStatus === 'pending' ? 'info' : 'success'} 
-          sx={{ mb: 3, borderRadius: '12px' }}
-          icon={applicationStatus === 'pending' ? <WarningIcon /> : <CheckCircleIcon />}
-        >
-          {applicationStatus === 'pending' 
-            ? 'Your instructor application is under review' 
-            : 'Your instructor application has been approved!'}
-        </Alert>
-      )}
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <StatCard icon={<CalIcon />} value="8" label="Lessons Booked" />
+        <StatCard icon={<PeopleIcon />} value="Sarah T." label="Last Instructor" />
+      </div>
 
-      {/* Stats Grid */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {stats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card sx={{ 
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-              borderRadius: '16px',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-              }
-            }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box sx={{ 
-                    backgroundColor: stat.bgColor,
-                    borderRadius: '12px',
-                    p: 2,
-                    mr: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    {React.cloneElement(stat.icon, { sx: { color: stat.color } })}
-                  </Box>
-                  <Box>
-                    <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: stat.color }}>
-                      {stat.value}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {stat.title}
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {/* Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Upcoming */}
+        <div className={card}>
+          <SectionTitle sub="Your scheduled driving lessons">Upcoming Lessons</SectionTitle>
+          <div className="space-y-3">
+            {upcomingLessons.map((l) => (
+              <div key={l.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all">
+                <div className="w-10 h-10 bg-[#00d4df]/10 border border-[#00d4df]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <CalIcon />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white text-sm font-medium">{l.day}</span>
+                    <span className="text-gray-400 text-xs">{l.time}</span>
+                  </div>
+                  <span className="text-gray-400 text-xs">Instructor: {l.instructor}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => navigate('/dashboard/bookings')} className={`${tealBtn} mt-5`}>
+            View Schedule <ArrowRight />
+          </button>
+        </div>
 
-      {/* Main Content Grid */}
-      <Grid container spacing={3}>
-       
-
-        {/* Upcoming Lessons Section */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px'
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#0f3643' }}>
-                Upcoming Lessons
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
-                Your scheduled driving lessons
-              </Typography>
-              <List>
-                {upcomingLessons.map((lesson) => (
-                  <React.Fragment key={lesson.id}>
-                    <ListItem 
-                      sx={{ 
-                        py: 2,
-                        '&:hover': {
-                          backgroundColor: 'rgba(40, 193, 198, 0.1)',
-                          borderRadius: '8px'
-                        }
-                      }}
-                    >
-                      <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: '#28c1c6' }}>
-                          <CalendarIcon />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                              {lesson.day}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: '#64748b' }}>
-                              {lesson.time}
-                            </Typography>
-                          </Box>
-                        }
-                        secondary={
-                          <Typography variant="caption" sx={{ color: '#64748b' }}>
-                            Instructor: {lesson.instructor}
-                          </Typography>
-                        }
-                      />
-                    </ListItem>
-                    <Divider />
-                  </React.Fragment>
-                ))}
-              </List>
-              <Button 
-                variant="contained" 
-                endIcon={<ArrowForwardIcon />}
-                sx={{
-                  background: 'linear-gradient(135deg, #28c1c6 0%, #1b9aa0 100%)',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #1b9aa0 0%, #0f3643 100%)',
-                  }
-                }}
-              >
-                View Schedule
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Book a Lesson Section */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px'
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#0f3643' }}>
-                Book a Lesson
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
-                Schedule your next driving lesson
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
-                Quick and easy booking process
-              </Typography>
-              <Button 
-                variant="contained" 
-                endIcon={<ArrowForwardIcon />}
-                sx={{
-                  background: 'linear-gradient(135deg, #28c1c6 0%, #1b9aa0 100%)',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #1b9aa0 0%, #0f3643 100%)',
-                  }
-                }}
-              >
-                Book Now
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-
-       {/* Instructor Feedback Section */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px'
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" component="div" sx={{ mb: 2, fontWeight: 'bold', color: '#0f3643' }}>
-                Instructor Feedback
-              </Typography>
-              <Typography variant="body2" component="div" sx={{ mb: 3, color: '#64748b' }}>
-                Review your progress and feedback
-              </Typography>
-              <List>
-                {recentFeedback.map((feedback) => (
-                  <React.Fragment key={feedback.id}>
-                    <ListItem 
-                      sx={{ 
-                        py: 2,
-                        '&:hover': {
-                          backgroundColor: 'rgba(40, 193, 198, 0.1)',
-                          borderRadius: '8px'
-                        }
-                      }}
-                    >
-                      <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: '#28c1c6' }}>
-                          <ReviewIcon />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-  primary={
-    <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-      {feedback.instructor}
-    </Typography>
-  }
-  secondary={
-    <Typography component="span" variant="body2">
-      <Typography variant="caption" component="div" sx={{ color: '#64748b' }}>
-        {feedback.date}
-      </Typography>
-
-      <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-        {feedback.skills.map((skill, index) => (
-          <Typography 
-            key={index} 
-            variant="caption" 
-            component="span"
-            sx={{ 
-              backgroundColor: 'rgba(40, 193, 198, 0.1)',
-              color: '#28c1c6',
-              px: 1,
-              py: 0.5,
-              borderRadius: '4px'
-            }}
-          >
-            {skill}
-          </Typography>
-        ))}
-      </Box>
-
-      <Typography variant="body2" component="div" sx={{ mt: 1, color: '#64748b' }}>
-        {feedback.comment}
-      </Typography>
-    </Typography>
-  }
-/>
-                    </ListItem>
-                    <Divider />
-                  </React.Fragment>
-                ))}
-              </List>
-              <Button 
-                variant="contained" 
-                endIcon={<ArrowForwardIcon />}
-                sx={{
-                  background: 'linear-gradient(135deg, #28c1c6 0%, #1b9aa0 100%)',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #1b9aa0 0%, #0f3643 100%)',
-                  }
-                }}
-              >
-                View Feedback
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Box>
+        {/* Feedback */}
+        <div className={card}>
+          <SectionTitle sub="Review your progress">Instructor Feedback</SectionTitle>
+          <div className="space-y-4">
+            {recentFeedback.map((f) => (
+              <div key={f.id} className="p-4 rounded-xl bg-white/[0.03] border border-white/6 hover:border-white/10 transition-all">
+                <div className="flex justify-between items-start mb-2">
+                  <span className="text-white text-sm font-semibold">{f.instructor}</span>
+                  <span className="text-gray-500 text-xs">{f.date}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {f.skills.map((s) => (
+                    <span key={s} className="text-xs bg-[#00d4df]/10 text-[#00d4df] border border-[#00d4df]/20 px-2 py-0.5 rounded-full">{s}</span>
+                  ))}
+                </div>
+                <p className="text-gray-400 text-xs leading-relaxed">{f.comment}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
-// Instructor Dashboard Component
+/* ══════════════════════════════════════════════════
+   INSTRUCTOR DASHBOARD
+══════════════════════════════════════════════════ */
 const InstructorDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [earnings, setEarnings] = useState(0);
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    // Fetch instructor-specific data
-    const fetchInstructorData = async () => {
+    const fetch = async () => {
       try {
-        const [bookingsRes, earningsRes, reviewsRes] = await Promise.all([
+        const [bRes, eRes, rRes] = await Promise.all([
           axios.get('/api/instructor/bookings'),
           axios.get('/api/instructor/earnings'),
-          axios.get('/api/instructor/reviews')
+          axios.get('/api/instructor/reviews'),
         ]);
-        setBookings(bookingsRes.data);
-        setEarnings(earningsRes.data);
-        setReviews(reviewsRes.data);
-      } catch (error) {
-        console.error('Error fetching instructor data:', error);
-      }
+        setBookings(bRes.data);
+        setEarnings(eRes.data);
+        setReviews(rRes.data);
+      } catch { /* API not wired yet */ }
     };
-
-    fetchInstructorData();
+    fetch();
   }, []);
 
+  const avgRating = reviews.length
+    ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
+    : '—';
+
   return (
-    <Box sx={{ 
-      p: { xs: 2, sm: 3, md: 4 },
-      backgroundColor: '#f8fafc',
-      minHeight: '100vh',
-      maxWidth: '1600px',
-      mx: 'auto'
-    }}>
-      {/* Instructor Dashboard Content */}
-      <Paper elevation={0} sx={{ 
-        p: 3, 
-        mb: 4, 
-        borderRadius: '16px',
-        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-        border: '1px solid rgba(0, 0, 0, 0.05)'
-      }}>
-        <Typography variant="h4" sx={{ 
-          fontWeight: 'bold', 
-          color: '#0f3643',
-          mb: 1
-        }}>
-          Instructor Dashboard
-        </Typography>
-        <Typography variant="subtitle1" sx={{ 
-          color: '#64748b',
-          mb: 2
-        }}>
-          Manage your driving lessons and students
-        </Typography>
-      </Paper>
+    <div className="p-6 max-w-7xl mx-auto space-y-8">
+      <div className="bg-gradient-to-br from-[#00d4df]/10 to-[#1b9aa0]/10 border border-[#00d4df]/20 rounded-2xl p-6">
+        <h1 className="text-2xl font-bold text-white">Instructor Dashboard</h1>
+        <p className="text-gray-400 mt-1">Manage your driving lessons and students</p>
+      </div>
 
-      {/* Stats Grid */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {/* Profile Management Card */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px',
-            '&:hover': {
-              transform: 'translateY(-4px)',
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            }
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#0f3643' }}>
-                Profile Management
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
-                Update your profile information, teaching details, and vehicle information to attract more students.
-              </Typography>
-              <Button
-                variant="contained"
-                component={Link}
-                to="/dashboard/instructor-profile"
-                sx={{
-                  background: 'linear-gradient(135deg, #28c1c6 0%, #1b9aa0 100%)',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #1b9aa0 0%, #0f3643 100%)',
-                  },
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  fontWeight: 'bold'
-                }}
-              >
-                Manage Profile
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard icon={<CalIcon />}    value={bookings.length} label="Total Bookings" />
+        <StatCard icon={<CashIcon />}   value={`$${earnings}`}  label="Total Earnings" />
+        <StatCard icon={<StarIcon />}   value={avgRating}        label="Avg Rating" />
+        <StatCard icon={<PeopleIcon />} value={reviews.length}  label="Reviews" />
+      </div>
 
-        {/* Existing Stats Cards */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px',
-            '&:hover': {
-              transform: 'translateY(-4px)',
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            }
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>Total Bookings</Typography>
-              <Typography variant="h4" sx={{ color: '#28c1c6' }}>{bookings.length}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px',
-            '&:hover': {
-              transform: 'translateY(-4px)',
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            }
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>Total Earnings</Typography>
-              <Typography variant="h4" sx={{ color: '#1b9aa0' }}>${earnings}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            borderRadius: '16px',
-            '&:hover': {
-              transform: 'translateY(-4px)',
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            }
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>Average Rating</Typography>
-              <Typography variant="h4" sx={{ color: '#0f3643' }}>
-                {reviews.length > 0 
-                  ? (reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1)
-                  : 'N/A'}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={card}>
+          <SectionTitle sub="Update your teaching details">Profile Management</SectionTitle>
+          <p className="text-gray-400 text-sm mb-5">Keep your profile up to date to attract more students.</p>
+          <Link to="/dashboard/instructor-profile" className={tealBtn}>
+            Manage Profile <ArrowRight />
+          </Link>
+        </div>
 
-      {/* Upcoming Bookings */}
-      <Card sx={{ 
-        mb: 4,
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        borderRadius: '16px'
-      }}>
-        <CardContent sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', color: '#0f3643' }}>Upcoming Bookings</Typography>
-          <List>
-            {bookings.map((booking) => (
-              <ListItem 
-                key={booking.id}
-                sx={{ 
-                  py: 2,
-                  '&:hover': {
-                    backgroundColor: 'rgba(40, 193, 198, 0.1)',
-                    borderRadius: '8px'
-                  }
-                }}
-              >
-                <ListItemText
-                  primary={booking.studentName}
-                  secondary={`${booking.date} at ${booking.time}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </CardContent>
-      </Card>
-
-      {/* Recent Reviews */}
-      <Card sx={{ 
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        borderRadius: '16px'
-      }}>
-        <CardContent sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', color: '#0f3643' }}>Recent Reviews</Typography>
-          <List>
-            {reviews.map((review) => (
-              <ListItem 
-                key={review.id}
-                sx={{ 
-                  py: 2,
-                  '&:hover': {
-                    backgroundColor: 'rgba(40, 193, 198, 0.1)',
-                    borderRadius: '8px'
-                  }
-                }}
-              >
-                <ListItemText
-                  primary={review.studentName}
-                  secondary={review.comment}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </CardContent>
-      </Card>
-    </Box>
+        <div className={card}>
+          <SectionTitle sub="Your upcoming student sessions">Upcoming Bookings</SectionTitle>
+          {bookings.length === 0 ? (
+            <p className="text-gray-500 text-sm">No upcoming bookings yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {bookings.map((b) => (
+                <div key={b.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5">
+                  <div className="w-8 h-8 rounded-full bg-[#00d4df]/10 flex items-center justify-center text-[#00d4df] text-xs font-bold">
+                    {(b.studentName || 'S').charAt(0)}
+                  </div>
+                  <div>
+                    <div className="text-white text-sm font-medium">{b.studentName}</div>
+                    <div className="text-gray-500 text-xs">{b.date} at {b.time}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
+/* ══════════════════════════════════════════════════
+   ADMIN DASHBOARD
+══════════════════════════════════════════════════ */
 const AdminDashboard = () => {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-  const userName = userInfo?.name || 'Admin';
-  const [adminStatsData, setAdminStats] = useState({
-    totalUsers: 0,
-    pendingApplications: 0,
-    activeInstructors: 0,
-    totalBookings: 0
-  });
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const [stats, setStats] = useState({ totalUsers: 0, pendingApplications: 0, activeInstructors: 0, totalBookings: 0 });
   const [applications, setApplications] = useState([]);
-  const [selectedApplication, setSelectedApplication] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [selected, setSelected] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const token = localStorage.getItem('token');
+  const headers = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    // Fetch admin statistics
-    const fetchAdminStats = async () => {
+    const load = async () => {
       try {
-        const response = await axios.get('/api/admin/stats');
-        setAdminStats(response.data);
-      } catch (error) {
-        console.error('Error fetching admin stats:', error);
-        setError('Failed to fetch admin statistics');
-      }
+        const [sRes, aRes] = await Promise.all([
+          axios.get('/api/admin/stats', { headers }),
+          axios.get('/api/instructor-application/all', { headers }),
+        ]);
+        setStats(sRes.data);
+        setApplications(Array.isArray(aRes.data) ? aRes.data : []);
+      } catch { /* API not wired */ }
+      finally { setLoading(false); }
     };
-
-    // Fetch instructor applications
-    const fetchApplications = async () => {
-      try {
-        const response = await axios.get('/api/instructor-application/all');
-        const fetchedApps = response.data;
-        setApplications(Array.isArray(fetchedApps) ? fetchedApps : []);
-      } catch (error) {
-        console.error('Error fetching applications:', error);
-        setError('Failed to fetch applications');
-        setApplications([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAdminStats();
-    fetchApplications();
+    load();
   }, []);
 
-  const handleViewApplication = (application) => {
-    setSelectedApplication(application);
-    setOpenDialog(true);
+  const refresh = async () => {
+    const [sRes, aRes] = await Promise.all([
+      axios.get('/api/admin/stats', { headers }),
+      axios.get('/api/instructor-application/all', { headers }),
+    ]);
+    setStats(sRes.data);
+    setApplications(Array.isArray(aRes.data) ? aRes.data : []);
   };
 
-  const handleApprove = async (applicationId) => {
+  const handleApprove = async (id) => {
     try {
-      await axios.put(`/api/instructor-application/${applicationId}/status`, {
-        status: 'approved'
-      });
-      // Refresh applications and stats
-      const [statsResponse, appsResponse] = await Promise.all([
-        axios.get('/api/admin/stats'),
-        axios.get('/api/instructor-application/all')
-      ]);
-      setAdminStats(statsResponse.data);
-      setApplications(appsResponse.data);
-      setOpenDialog(false);
-    } catch (error) {
-      console.error('Error approving application:', error);
-    }
+      await axios.put(`/api/instructor-application/${id}/status`, { status: 'approved' }, { headers });
+      await refresh();
+      setSelected(null);
+    } catch { /* handle */ }
   };
 
-  const handleReject = async (applicationId) => {
+  const handleReject = async (id) => {
     try {
-      await axios.put(`/api/instructor-application/${applicationId}/status`, {
-        status: 'rejected',
-        rejectionReason
-      });
-      // Refresh applications and stats
-      const [statsResponse, appsResponse] = await Promise.all([
-        axios.get('/api/admin/stats'),
-        axios.get('/api/instructor-application/all')
-      ]);
-      setAdminStats(statsResponse.data);
-      setApplications(appsResponse.data);
-      setOpenDialog(false);
+      await axios.put(`/api/instructor-application/${id}/status`, { status: 'rejected', rejectionReason }, { headers });
+      await refresh();
+      setSelected(null);
       setRejectionReason('');
-    } catch (error) {
-      console.error('Error rejecting application:', error);
-    }
+    } catch { /* handle */ }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'warning';
-      case 'approved':
-        return 'success';
-      case 'rejected':
-        return 'error';
-      case 'resubmitted':
-        return 'info';
-      default:
-        return 'default';
-    }
+  const statusBadge = (s) => {
+    const map = {
+      pending:     'bg-yellow-500/15 text-yellow-400 border-yellow-500/30',
+      approved:    'bg-green-500/15 text-green-400 border-green-500/30',
+      rejected:    'bg-red-500/15 text-red-400 border-red-500/30',
+      resubmitted: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+    };
+    return map[s] || 'bg-white/10 text-gray-300 border-white/20';
   };
-
-  const getStatusLabel = (status, resubmissionCount) => {
-    if (status === 'resubmitted') {
-      return `Resubmitted (${resubmissionCount || 1})`;
-    }
-    return status.charAt(0).toUpperCase() + status.slice(1);
-  };
-
-  const adminStats = [
-    { 
-      title: 'Total Users', 
-      value: adminStatsData.totalUsers, 
-      icon: <GroupIcon sx={{ fontSize: 40 }} />, 
-      color: '#28c1c6',
-      bgColor: 'rgba(40, 193, 198, 0.1)'
-    },
-    { 
-      title: 'Pending Applications', 
-      value: adminStatsData.pendingApplications, 
-      icon: <ApplicationsIcon sx={{ fontSize: 40 }} />, 
-      color: '#ebcc34',
-      bgColor: 'rgba(235, 204, 52, 0.1)'
-    },
-    { 
-      title: 'Active Instructors', 
-      value: adminStatsData.activeInstructors, 
-      icon: <PeopleIcon sx={{ fontSize: 40 }} />, 
-      color: '#10b981',
-      bgColor: 'rgba(16, 185, 129, 0.1)'
-    },
-    { 
-      title: 'Total Bookings', 
-      value: adminStatsData.totalBookings, 
-      icon: <CalendarIcon sx={{ fontSize: 40 }} />, 
-      color: '#0f3643',
-      bgColor: 'rgba(15, 54, 67, 0.1)'
-    }
-  ];
 
   return (
-    <Box sx={{ 
-      p: { xs: 2, sm: 3, md: 4 },
-      backgroundColor: '#f8fafc',
-      minHeight: '100vh',
-      maxWidth: '1600px',
-      mx: 'auto'
-    }}>
-      {/* Admin Welcome Section */}
-      <Paper elevation={0} sx={{ 
-        p: 3, 
-        mb: 4, 
-        borderRadius: '16px',
-        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-        border: '1px solid rgba(0, 0, 0, 0.05)'
-      }}>
-        <Typography variant="h4" sx={{ 
-          fontWeight: 'bold', 
-          color: '#0f3643',
-          mb: 1
-        }}>
-          Welcome back, {userName} 👋
-        </Typography>
-        <Typography variant="subtitle1" sx={{ 
-          color: '#64748b',
-          mb: 2
-        }}>
-          Manage your platform efficiently
-        </Typography>
-      </Paper>
+    <div className="p-6 max-w-7xl mx-auto space-y-8">
+      <div className="bg-gradient-to-br from-[#00d4df]/10 to-[#1b9aa0]/10 border border-[#00d4df]/20 rounded-2xl p-6">
+        <h1 className="text-2xl font-bold text-white">Welcome back, {userInfo?.name || 'Admin'} 👋</h1>
+        <p className="text-gray-400 mt-1">Manage your platform efficiently</p>
+      </div>
 
-      {/* Admin Stats Grid */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {adminStats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card sx={{ 
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-              borderRadius: '16px',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-              }
-            }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box sx={{ 
-                    backgroundColor: stat.bgColor,
-                    borderRadius: '12px',
-                    p: 2,
-                    mr: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    {React.cloneElement(stat.icon, { sx: { color: stat.color } })}
-                  </Box>
-                  <Box>
-                    <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: stat.color }}>
-                      {stat.value}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {stat.title}
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-dash
-      
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard icon={<GroupIcon />}  value={stats.totalUsers}           label="Total Users" />
+        <StatCard icon={<AppsIcon />}   value={stats.pendingApplications}  label="Pending Apps" />
+        <StatCard icon={<PeopleIcon />} value={stats.activeInstructors}    label="Instructors" />
+        <StatCard icon={<CalIcon />}    value={stats.totalBookings}         label="Total Bookings" />
+      </div>
 
-      {/* Application Details Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          Application Details
-          {selectedApplication?.status === 'resubmitted' && (
-            <Typography variant="subtitle2" color="info">
-              Resubmitted {selectedApplication.resubmissionCount || 1} time(s)
-            </Typography>
-          )}
-        </DialogTitle>
-        <DialogContent>
-          {selectedApplication && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Personal Details
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Typography>Name: {selectedApplication.personalDetails.fullName}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography>Email: {selectedApplication.personalDetails.email}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography>Phone: {selectedApplication.personalDetails.phone}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography>Address: {selectedApplication.personalDetails.address}</Typography>
-                </Grid>
-              </Grid>
+      {/* Applications table */}
+      <div className={card}>
+        <SectionTitle sub="Review and process instructor applications">Instructor Applications</SectionTitle>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <svg className="animate-spin h-6 w-6 text-[#00d4df]" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          </div>
+        ) : applications.length === 0 ? (
+          <p className="text-gray-500 text-sm py-8 text-center">No applications yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/8">
+                  {['Applicant', 'Email', 'Phone', 'Status', 'Actions'].map((h) => (
+                    <th key={h} className="text-left text-gray-400 text-xs uppercase tracking-wider py-3 px-3 font-medium">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {applications.map((app) => (
+                  <tr key={app._id} className="hover:bg-white/3 transition-colors">
+                    <td className="py-3 px-3 text-white font-medium">{app.personalDetails?.fullName || '—'}</td>
+                    <td className="py-3 px-3 text-gray-400">{app.personalDetails?.email || '—'}</td>
+                    <td className="py-3 px-3 text-gray-400">{app.personalDetails?.phone || '—'}</td>
+                    <td className="py-3 px-3">
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border capitalize ${statusBadge(app.status)}`}>
+                        {app.status === 'resubmitted' ? `Resubmitted (${app.resubmissionCount || 1})` : app.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3">
+                      <button
+                        onClick={() => setSelected(app)}
+                        className="flex items-center gap-1.5 text-[#00d4df] text-xs font-semibold hover:underline"
+                      >
+                        <EyeIcon /> View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
-              <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
-                Vehicle Information
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Typography>Make: {selectedApplication.vehicleInfo.make}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography>Model: {selectedApplication.vehicleInfo.model}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography>Year: {selectedApplication.vehicleInfo.year}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography>License Plate: {selectedApplication.vehicleInfo.licensePlate}</Typography>
-                </Grid>
-              </Grid>
+      {/* Application detail modal */}
+      {selected && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0f1829] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
+              <div>
+                <h3 className="text-lg font-bold text-white">Application Details</h3>
+                {selected.status === 'resubmitted' && (
+                  <p className="text-blue-400 text-xs mt-0.5">Resubmitted {selected.resubmissionCount || 1} time(s)</p>
+                )}
+              </div>
+              <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-white transition-colors">
+                <XIcon />
+              </button>
+            </div>
 
-              <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
-                Experience
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Typography>Years of Experience: {selectedApplication.experience.yearsOfExperience}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography>Previous Employer: {selectedApplication.experience.previousEmployer}</Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography>Teaching Experience: {selectedApplication.experience.teachingExperience}</Typography>
-                </Grid>
-              </Grid>
+            <div className="p-6 space-y-6">
+              {[
+                { title: 'Personal Details', fields: [
+                  ['Full Name', selected.personalDetails?.fullName],
+                  ['Email', selected.personalDetails?.email],
+                  ['Phone', selected.personalDetails?.phone],
+                  ['Address', selected.personalDetails?.address],
+                ]},
+                { title: 'Vehicle Information', fields: [
+                  ['Make', selected.vehicleInfo?.make],
+                  ['Model', selected.vehicleInfo?.model],
+                  ['Year', selected.vehicleInfo?.year],
+                  ['License Plate', selected.vehicleInfo?.licensePlate],
+                ]},
+                { title: 'Experience', fields: [
+                  ['Years of Experience', selected.experience?.yearsOfExperience],
+                  ['Previous Employer', selected.experience?.previousEmployer],
+                  ['Teaching Experience', selected.experience?.teachingExperience],
+                ]},
+              ].map(({ title, fields }) => (
+                <div key={title}>
+                  <h4 className="text-[#00d4df] text-xs font-semibold uppercase tracking-wider mb-3">{title}</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {fields.map(([k, v]) => (
+                      <div key={k} className="bg-white/[0.03] border border-white/6 rounded-xl p-3">
+                        <div className="text-gray-500 text-xs mb-1">{k}</div>
+                        <div className="text-white text-sm">{v || '—'}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
 
-              {(selectedApplication.status === 'pending' || selectedApplication.status === 'resubmitted') && (
-                <Box sx={{ mt: 4 }}>
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={4}
-                    label="Rejection Reason"
+              {(selected.status === 'pending' || selected.status === 'resubmitted') && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Rejection Reason</label>
+                  <textarea
+                    rows={3}
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
-                    sx={{ mb: 2 }}
+                    placeholder="Provide a reason if rejecting…"
+                    className="w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00d4df]/50 focus:ring-1 focus:ring-[#00d4df]/30 transition-all resize-none"
                   />
-                </Box>
+                </div>
               )}
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Close</Button>
-          {(selectedApplication?.status === 'pending' || selectedApplication?.status === 'resubmitted') && (
-            <>
-              <Button
-                color="error"
-                startIcon={<CloseIcon />}
-                onClick={() => handleReject(selectedApplication._id)}
-                disabled={!rejectionReason}
-              >
-                Reject
-              </Button>
-              <Button
-                color="success"
-                startIcon={<CheckIcon />}
-                onClick={() => handleApprove(selectedApplication._id)}
-              >
-                Approve
-              </Button>
-            </>
-          )}
-        </DialogActions>
-      </Dialog>
-    </Box>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/8">
+              <button onClick={() => setSelected(null)} className={ghostBtn}>Close</button>
+              {(selected.status === 'pending' || selected.status === 'resubmitted') && (
+                <>
+                  <button
+                    onClick={() => handleReject(selected._id)}
+                    disabled={!rejectionReason}
+                    className="inline-flex items-center gap-2 bg-red-500/15 border border-red-500/30 text-red-400 hover:bg-red-500/25 font-semibold px-5 py-2.5 rounded-xl transition-all text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <XIcon /> Reject
+                  </button>
+                  <button
+                    onClick={() => handleApprove(selected._id)}
+                    className="inline-flex items-center gap-2 bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
+                  >
+                    <CheckIcon /> Approve
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default Dashboard; 
+/* ══════════════════════════════════════════════════
+   ROOT ROUTER
+══════════════════════════════════════════════════ */
+const Dashboard = () => {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const role = userInfo?.role || 'student';
+  if (role === 'admin') return <AdminDashboard />;
+  if (role === 'instructor') return <InstructorDashboard />;
+  return <StudentDashboard />;
+};
+
+export default Dashboard;

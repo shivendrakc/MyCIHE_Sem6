@@ -72,9 +72,7 @@ const App = () => {
           element={
             <>
               <Navbar />
-              <div style={{ padding: '20px' }}>
-                <LoginPage />
-              </div>
+              <LoginPage />
             </>
           }
         />
@@ -83,9 +81,7 @@ const App = () => {
           element={
             <>
               <Navbar />
-              <div style={{ padding: '20px' }}>
-                <Register />
-              </div>
+              <Register />
             </>
           }
         />

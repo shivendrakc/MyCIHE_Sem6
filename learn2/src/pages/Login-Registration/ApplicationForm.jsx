@@ -1,1247 +1,558 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  CloudUpload as CloudUploadIcon,
-  CheckCircle as CheckCircleIcon,
-  Warning as WarningIcon,
-  ArrowBack as ArrowBackIcon,
-  ArrowForward as ArrowForwardIcon,
-  Close as CloseIcon,
-  Pending as PendingIcon,
-  Cancel as CancelIcon
-} from '@mui/icons-material';
 import API from '../../utils/axios';
 import { toast } from 'react-hot-toast';
 
-const steps = [
-  'Personal Details',
-  'Identity Verification',
-  'Vehicle Info',
-  'Experience & Background',
-  'Consent',
-  'Review & Submit'
-];
+const STEPS = ['Personal Details', 'Identity', 'Vehicle', 'Experience', 'Consent', 'Review'];
 
-// Add helper function for deep copying with File preservation
 const deepCopyWithFiles = (obj) => {
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
-  }
-
-  if (obj instanceof File) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map(item => deepCopyWithFiles(item));
-  }
-
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof File) return obj;
+  if (Array.isArray(obj)) return obj.map(deepCopyWithFiles);
   const copy = {};
   for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      copy[key] = deepCopyWithFiles(obj[key]);
-    }
+    if (Object.prototype.hasOwnProperty.call(obj, key)) copy[key] = deepCopyWithFiles(obj[key]);
   }
   return copy;
 };
 
+/* ── shared styles ─────────────────────────── */
+const inputCls = (err) =>
+  `w-full bg-white/5 border ${err ? 'border-red-500/50' : 'border-white/10'} text-white placeholder-gray-500 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#00d4df]/50 focus:ring-1 focus:ring-[#00d4df]/30 transition-all`;
+const labelCls = 'block text-sm font-medium text-gray-300 mb-1.5';
+const errCls   = 'text-red-400 text-xs mt-1';
+
+const FieldError = ({ msg }) => msg ? <p className={errCls}>{msg}</p> : null;
+
+/* ── upload zone ──────────────────────────── */
+const UploadZone = ({ id, name, label, onChange, fileName, accept = '.jpg,.jpeg,.png,.pdf' }) => (
+  <div>
+    <label className={labelCls}>{label}</label>
+    <label
+      htmlFor={id}
+      className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-white/15 rounded-xl px-6 py-8 cursor-pointer hover:border-[#00d4df]/40 hover:bg-[#00d4df]/5 transition-all group"
+    >
+      <svg className="w-8 h-8 text-gray-500 group-hover:text-[#00d4df] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+      </svg>
+      {fileName ? (
+        <span className="text-[#00d4df] text-sm font-medium">{fileName}</span>
+      ) : (
+        <>
+          <span className="text-gray-400 text-sm">Click to upload or drag & drop</span>
+          <span className="text-gray-600 text-xs">PNG, JPG, PDF — max 5 MB</span>
+        </>
+      )}
+      <input id={id} name={name} type="file" className="sr-only" onChange={onChange} accept={accept} />
+    </label>
+  </div>
+);
+
+/* ── review row ───────────────────────────── */
+const ReviewField = ({ label, value }) => (
+  <div className="bg-white/[0.03] border border-white/6 rounded-xl p-3">
+    <div className="text-gray-500 text-xs mb-1">{label}</div>
+    <div className="text-white text-sm">{value || '—'}</div>
+  </div>
+);
+
+/* ════════════════════════════════════════════ */
 const ApplicationForm = () => {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const userId = userInfo?._id || userInfo?.id;
-  const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState({
-    personalDetails: {
-      fullName: '',
-      email: '',
-      phone: '',
-      address: '',
-      dateOfBirth: ''
-    },
-    identityVerification: {
-      idType: '',
-      idNumber: '',
-      idFront: null,
-      idBack: null
-    },
-    vehicleInfo: {
-      make: '',
-      model: '',
-      year: '',
-      licensePlate: '',
-      insuranceDocument: null
-    },
-    experience: {
-      yearsOfExperience: '',
-      previousEmployer: '',
-      certifications: [],
-      teachingExperience: '',
-      noConviction: false,
-      agreeInfo: false,
-      agreePolicy: false,
-      digitalSign: ''
-    }
-  });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [applicationStatus, setApplicationStatus] = useState(null);
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isFormValid, setIsFormValid] = useState(false);
-  const [showValidation, setShowValidation] = useState(false);
-  const [reviewData, setReviewData] = useState(null);
   const navigate = useNavigate();
 
-  // Check application status and fetch existing data on mount
-  useEffect(() => {
-    const checkApplicationStatus = async () => {
-      try {
-        const response = await API.get(`/instructor-application/status/${userId}`, {
-          withCredentials: true
-        });
-        
-        if (response.data.status === 'not_submitted') {
-          setApplicationStatus(null);
-          // Clear any existing localStorage data for this user
-          localStorage.removeItem('instructorApplicationStatus');
-          localStorage.removeItem('instructorFormData');
-        } else {
-          setApplicationStatus(response.data.status);
-          if (response.data.status === 'rejected') {
-            setRejectionReason(response.data.rejectionReason || '');
-          }
-          
-          // If there's an existing application, fetch its data
-          if (response.data.status === 'pending' || response.data.status === 'rejected') {
-            try {
-              const applicationResponse = await API.get(`/instructor-application/${userId}`, {
-                withCredentials: true
-              });
-              
-              if (applicationResponse.data) {
-                // Pre-populate form with existing data
-                setFormData({
-                  personalDetails: {
-                    fullName: applicationResponse.data.personalDetails.fullName || '',
-                    email: applicationResponse.data.personalDetails.email || '',
-                    phone: applicationResponse.data.personalDetails.phone || '',
-                    address: applicationResponse.data.personalDetails.address || '',
-                    dateOfBirth: applicationResponse.data.personalDetails.dateOfBirth || ''
-                  },
-                  identityVerification: {
-                    idType: applicationResponse.data.identityVerification.idType || '',
-                    idNumber: applicationResponse.data.identityVerification.idNumber || '',
-                    idFront: applicationResponse.data.identityVerification.idFront || null,
-                    idBack: applicationResponse.data.identityVerification.idBack || null
-                  },
-                  vehicleInfo: {
-                    make: applicationResponse.data.vehicleInfo.make || '',
-                    model: applicationResponse.data.vehicleInfo.model || '',
-                    year: applicationResponse.data.vehicleInfo.year || '',
-                    licensePlate: applicationResponse.data.vehicleInfo.licensePlate || '',
-                    insuranceDocument: applicationResponse.data.vehicleInfo.insuranceDocument || null
-                  },
-                  experience: {
-                    yearsOfExperience: applicationResponse.data.experience.yearsOfExperience || '',
-                    previousEmployer: applicationResponse.data.experience.previousEmployer || '',
-                    certifications: applicationResponse.data.experience.certifications || [],
-                    teachingExperience: applicationResponse.data.experience.teachingExperience || '',
-                    noConviction: applicationResponse.data.experience.noConviction || false,
-                    agreeInfo: applicationResponse.data.experience.agreeInfo || false,
-                    agreePolicy: applicationResponse.data.experience.agreePolicy || false,
-                    digitalSign: applicationResponse.data.experience.digitalSign || ''
-                  }
-                });
-              }
-            } catch (error) {
-              console.error('Error fetching existing application data:', error);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error checking application status:', error);
-        // On error, clear localStorage to be safe
-        localStorage.removeItem('instructorApplicationStatus');
-        localStorage.removeItem('instructorFormData');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const [step, setStep]   = useState(0);
+  const [status, setStatus] = useState(null);   // null | 'pending' | 'rejected'
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
+  const [reviewData, setReviewData] = useState(null);
+  const [errors, setErrors] = useState({});
 
-    if (userId) {
-      checkApplicationStatus();
-    } else {
-      setIsLoading(false);
-    }
+  const [formData, setFormData] = useState({
+    personalDetails:      { fullName: '', email: '', phone: '', address: '', dateOfBirth: '' },
+    identityVerification: { idType: '', idNumber: '', idFront: null, idBack: null },
+    vehicleInfo:          { make: '', model: '', year: '', licensePlate: '', insuranceDocument: null },
+    experience:           { yearsOfExperience: '', previousEmployer: '', certifications: [], teachingExperience: '', noConviction: false, agreeInfo: false, agreePolicy: false, digitalSign: '' },
+  });
+
+  /* ── load status ─────────────────────────── */
+  useEffect(() => {
+    if (!userId) { setIsLoading(false); return; }
+    (async () => {
+      try {
+        const { data } = await API.get(`/instructor-application/status/${userId}`, { withCredentials: true });
+        if (data.status === 'not_submitted') { setStatus(null); return; }
+        setStatus(data.status);
+        if (data.status === 'rejected') setRejectionReason(data.rejectionReason || '');
+        if (data.status === 'pending' || data.status === 'rejected') {
+          try {
+            const { data: appData } = await API.get(`/instructor-application/${userId}`, { withCredentials: true });
+            if (appData) {
+              setFormData({
+                personalDetails:      { ...appData.personalDetails },
+                identityVerification: { ...appData.identityVerification, idFront: null, idBack: null },
+                vehicleInfo:          { ...appData.vehicleInfo, insuranceDocument: null },
+                experience:           { ...appData.experience, certifications: [] },
+              });
+            }
+          } catch { /* ignore */ }
+        }
+      } catch { /* ignore */ }
+      finally { setIsLoading(false); }
+    })();
   }, [userId]);
 
+  /* ── change handler ─────────────────────── */
   const handleChange = (e) => {
     const { name, value, type, files, checked } = e.target;
-    
-    console.log('Input changed:', { name, type, files: files ? Array.from(files) : null });
-    
-    setFormData(prev => {
-      // Use our custom deep copy function
-      const newData = deepCopyWithFiles(prev);
-      
-      // Handle file inputs
+    setFormData((prev) => {
+      const next = deepCopyWithFiles(prev);
       if (type === 'file') {
-        if (name === 'certifications') {
-          // Handle multiple files for certifications
-          newData.experience.certifications = Array.from(files);
-          console.log('Certifications updated:', newData.experience.certifications);
-        } else {
-          // Handle single file uploads
-          const file = files[0];
-          if (!file) {
-            console.warn(`No file selected for ${name}`);
-            return newData;
-          }
-
-          // Validate file type and size
-          const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-          const maxSize = 5 * 1024 * 1024; // 5MB
-
-          if (!validTypes.includes(file.type)) {
-            toast.error(`Invalid file type for ${name}. Please upload JPEG, PNG, or PDF files.`);
-            return newData;
-          }
-
-          if (file.size > maxSize) {
-            toast.error(`File size too large for ${name}. Maximum size is 5MB.`);
-            return newData;
-          }
-
-          // Store the file object directly in state
-          switch (name) {
-            case 'idFront':
-              newData.identityVerification.idFront = file;
-              console.log('ID Front updated:', {
-                name: file.name,
-                type: file.type,
-                size: file.size,
-                lastModified: file.lastModified
-              });
-              break;
-            case 'idBack':
-              newData.identityVerification.idBack = file;
-              console.log('ID Back updated:', {
-                name: file.name,
-                type: file.type,
-                size: file.size,
-                lastModified: file.lastModified
-              });
-              break;
-            case 'insuranceDocument':
-              newData.vehicleInfo.insuranceDocument = file;
-              console.log('Insurance document updated:', {
-                name: file.name,
-                type: file.type,
-                size: file.size,
-                lastModified: file.lastModified
-              });
-              break;
-            default:
-              console.warn(`Unknown file input name: ${name}`);
-          }
-        }
-        return newData;
+        if (name === 'certifications') { next.experience.certifications = Array.from(files); return next; }
+        const file = files[0];
+        if (!file) return next;
+        const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+        if (!validTypes.includes(file.type)) { toast.error(`Invalid file type for ${name}`); return next; }
+        if (file.size > 5 * 1024 * 1024) { toast.error(`File too large for ${name} (max 5 MB)`); return next; }
+        if (name === 'idFront')           next.identityVerification.idFront = file;
+        else if (name === 'idBack')       next.identityVerification.idBack  = file;
+        else if (name === 'insuranceDocument') next.vehicleInfo.insuranceDocument = file;
+        return next;
       }
-      
-      // Handle checkbox inputs
-      if (type === 'checkbox') {
-        const nameParts = name.split('.');
-        let current = newData;
-        
-        // Navigate to the correct nested property
-        for (let i = 0; i < nameParts.length - 1; i++) {
-          if (!current[nameParts[i]]) {
-            current[nameParts[i]] = {};
-          }
-          current = current[nameParts[i]];
-        }
-        
-        // Set the checkbox value
-        current[nameParts[nameParts.length - 1]] = checked;
-        console.log(`Checkbox ${name} updated to:`, checked);
-        return newData;
-      }
-      
-      // Handle text inputs (including nested ones)
-      const nameParts = name.split('.');
-      let current = newData;
-      
-      // Navigate to the correct nested property
-      for (let i = 0; i < nameParts.length - 1; i++) {
-        if (!current[nameParts[i]]) {
-          current[nameParts[i]] = {};
-        }
-        current = current[nameParts[i]];
-      }
-      
-      // Set the value
-      current[nameParts[nameParts.length - 1]] = value;
-      console.log(`Field ${name} updated to:`, value);
-      
-      return newData;
+      const parts = name.split('.');
+      let cur = next;
+      for (let i = 0; i < parts.length - 1; i++) cur = cur[parts[i]];
+      cur[parts[parts.length - 1]] = type === 'checkbox' ? checked : value;
+      return next;
     });
   };
 
-  const validateStep = (step) => {
+  /* ── validation ─────────────────────────── */
+  const validateStep = (s) => {
     if (!showValidation) return true;
-    
-    const newErrors = {};
-    let hasErrors = false;
-    
-    if (step === 0) {
-      // Personal Details validation
-      if (!formData.personalDetails.fullName?.trim()) {
-        newErrors.personalDetails = { ...newErrors.personalDetails, fullName: 'Full Name is required' };
-        hasErrors = true;
-      }
-      
-      if (!formData.personalDetails.email?.trim()) {
-        newErrors.personalDetails = { ...newErrors.personalDetails, email: 'Email is required' };
-        hasErrors = true;
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.personalDetails.email)) {
-        newErrors.personalDetails = { ...newErrors.personalDetails, email: 'Please enter a valid email address' };
-        hasErrors = true;
-      }
-      
-      if (!formData.personalDetails.phone?.trim()) {
-        newErrors.personalDetails = { ...newErrors.personalDetails, phone: 'Phone is required' };
-        hasErrors = true;
-      }
-      
-      if (!formData.personalDetails.dateOfBirth) {
-        newErrors.personalDetails = { ...newErrors.personalDetails, dateOfBirth: 'Date of Birth is required' };
-        hasErrors = true;
-      }
+    const e = {};
+    if (s === 0) {
+      if (!formData.personalDetails.fullName?.trim()) e['pd.fullName'] = 'Required';
+      if (!formData.personalDetails.email?.trim()) e['pd.email'] = 'Required';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.personalDetails.email)) e['pd.email'] = 'Invalid email';
+      if (!formData.personalDetails.phone?.trim()) e['pd.phone'] = 'Required';
+      if (!formData.personalDetails.dateOfBirth) e['pd.dob'] = 'Required';
     }
-    
-    if (step === 1) {
-      // Identity Verification validation
-      if (!formData.identityVerification.idType) {
-        newErrors.identityVerification = { ...newErrors.identityVerification, idType: 'ID Type is required' };
-        hasErrors = true;
-      }
-      
-      if (!formData.identityVerification.idNumber?.trim()) {
-        newErrors.identityVerification = { ...newErrors.identityVerification, idNumber: 'ID Number is required' };
-        hasErrors = true;
-      }
+    if (s === 1) {
+      if (!formData.identityVerification.idType) e['iv.type'] = 'Required';
+      if (!formData.identityVerification.idNumber?.trim()) e['iv.number'] = 'Required';
     }
-    
-    if (step === 2) {
-      // Vehicle Info validation
-      if (!formData.vehicleInfo.make?.trim()) {
-        newErrors.vehicleInfo = { ...newErrors.vehicleInfo, make: 'Car Make is required' };
-        hasErrors = true;
-      }
-      
-      if (!formData.vehicleInfo.model?.trim()) {
-        newErrors.vehicleInfo = { ...newErrors.vehicleInfo, model: 'Car Model is required' };
-        hasErrors = true;
-      }
-      
-      if (!formData.vehicleInfo.year) {
-        newErrors.vehicleInfo = { ...newErrors.vehicleInfo, year: 'Year is required' };
-        hasErrors = true;
-      }
-      
-      if (!formData.vehicleInfo.licensePlate?.trim()) {
-        newErrors.vehicleInfo = { ...newErrors.vehicleInfo, licensePlate: 'License Plate is required' };
-        hasErrors = true;
-      }
+    if (s === 2) {
+      if (!formData.vehicleInfo.make?.trim())  e['vi.make']  = 'Required';
+      if (!formData.vehicleInfo.model?.trim()) e['vi.model'] = 'Required';
+      if (!formData.vehicleInfo.year)          e['vi.year']  = 'Required';
+      if (!formData.vehicleInfo.licensePlate?.trim()) e['vi.plate'] = 'Required';
     }
-    
-    if (step === 3) {
-      // Experience validation
-      if (!formData.experience.yearsOfExperience) {
-        newErrors.experience = { ...newErrors.experience, yearsOfExperience: 'Years of Experience is required' };
-        hasErrors = true;
-      }
-      
-      if (!formData.experience.teachingExperience?.trim()) {
-        newErrors.experience = { ...newErrors.experience, teachingExperience: 'Teaching Experience is required' };
-        hasErrors = true;
-      }
+    if (s === 3) {
+      if (!formData.experience.yearsOfExperience) e['ex.years'] = 'Required';
+      if (!formData.experience.teachingExperience?.trim()) e['ex.teaching'] = 'Required';
     }
-    
-    if (step === 4) {
-      // Consent validation
-      if (!formData.experience.noConviction) {
-        newErrors.experience = { ...newErrors.experience, noConviction: 'You must declare your conviction status' };
-        hasErrors = true;
-      }
-      
-      if (!formData.experience.agreeInfo) {
-        newErrors.experience = { ...newErrors.experience, agreeInfo: 'You must certify the information' };
-        hasErrors = true;
-      }
-      
-      if (!formData.experience.agreePolicy) {
-        newErrors.experience = { ...newErrors.experience, agreePolicy: 'You must agree to the Terms & Privacy Policy' };
-        hasErrors = true;
-      }
-      
-      if (!formData.experience.digitalSign?.trim()) {
-        newErrors.experience = { ...newErrors.experience, digitalSign: 'Digital Signature is required' };
-        hasErrors = true;
-      } else if (formData.experience.digitalSign.trim() !== formData.personalDetails.fullName.trim()) {
-        newErrors.experience = { ...newErrors.experience, digitalSign: 'Digital Signature must match your full name' };
-        hasErrors = true;
-      }
+    if (s === 4) {
+      if (!formData.experience.noConviction) e['ex.conv']   = 'Required';
+      if (!formData.experience.agreeInfo)    e['ex.info']   = 'Required';
+      if (!formData.experience.agreePolicy)  e['ex.policy'] = 'Required';
+      if (!formData.experience.digitalSign?.trim()) e['ex.sign'] = 'Required';
+      else if (formData.experience.digitalSign.trim() !== formData.personalDetails.fullName.trim())
+        e['ex.sign'] = 'Must match your full name';
     }
-
-    setErrors(newErrors);
-    
-    if (hasErrors) {
-      const errorMessage = step === 4 
-        ? 'Please complete all required fields and ensure your digital signature matches your full name'
-        : 'Please complete all required fields before proceeding';
-      toast.error(errorMessage);
-      return false;
-    }
-    
+    setErrors(e);
+    if (Object.keys(e).length) { toast.error('Please complete all required fields'); return false; }
     return true;
   };
 
   const nextStep = () => {
-    if (!validateStep(currentStep)) {
-      return;
-    }
-
-    if (currentStep === steps.length - 2) {
-      // On second to last step (Consent), prepare review data
+    setShowValidation(true);
+    if (!validateStep(step)) return;
+    if (step === STEPS.length - 2) {
       setReviewData({
-        personalDetails: formData.personalDetails,
-        identityVerification: {
-          ...formData.identityVerification,
-          idFront: formData.identityVerification.idFront instanceof File 
-            ? formData.identityVerification.idFront.name 
-            : 'Not uploaded',
-          idBack: formData.identityVerification.idBack instanceof File 
-            ? formData.identityVerification.idBack.name 
-            : 'Not uploaded'
-        },
-        vehicleInfo: {
-          ...formData.vehicleInfo,
-          insuranceDocument: formData.vehicleInfo.insuranceDocument instanceof File 
-            ? formData.vehicleInfo.insuranceDocument.name 
-            : 'Not uploaded'
-        },
-        experience: {
-          ...formData.experience,
-          certifications: formData.experience.certifications?.map(cert => 
-            cert instanceof File ? cert.name : 'Invalid file'
-          ) || []
-        }
+        personalDetails:      formData.personalDetails,
+        identityVerification: { ...formData.identityVerification, idFront: formData.identityVerification.idFront?.name || 'Not uploaded', idBack: formData.identityVerification.idBack?.name || 'Not uploaded' },
+        vehicleInfo:          { ...formData.vehicleInfo, insuranceDocument: formData.vehicleInfo.insuranceDocument?.name || 'Not uploaded' },
+        experience:           { ...formData.experience, certifications: formData.experience.certifications.map((c) => c?.name || '—') },
       });
     }
-    
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+    setStep((p) => Math.min(p + 1, STEPS.length - 1));
   };
 
-  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+  const prevStep = () => setStep((p) => Math.max(p - 1, 0));
 
+  /* ── submit ─────────────────────────────── */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Only process submission on the final step
-    if (currentStep !== steps.length - 1) {
-      return;
-    }
-
+    if (step !== STEPS.length - 1) return;
     setShowValidation(true);
-    
-    // Validate all steps before submission
-    for (let i = 0; i < steps.length - 1; i++) {
-      if (!validateStep(i)) {
-        toast.error('Please complete all required fields before submitting');
-        return;
-      }
-    }
-
+    for (let i = 0; i < STEPS.length - 1; i++) { if (!validateStep(i)) return; }
     setIsSubmitting(true);
-
     try {
-      const formDataToSend = new FormData();
-      
-      // Add user ID
-      formDataToSend.append('userId', userId);
-      
-      // Add JSON data with proper stringification
-      const jsonData = {
-        personalDetails: formData.personalDetails,
-        identityVerification: {
-          idType: formData.identityVerification.idType,
-          idNumber: formData.identityVerification.idNumber
-        },
-        vehicleInfo: {
-          make: formData.vehicleInfo.make,
-          model: formData.vehicleInfo.model,
-          year: formData.vehicleInfo.year,
-          licensePlate: formData.vehicleInfo.licensePlate
-        },
-        experience: {
-          yearsOfExperience: formData.experience.yearsOfExperience,
-          previousEmployer: formData.experience.previousEmployer,
-          teachingExperience: formData.experience.teachingExperience,
-          noConviction: formData.experience.noConviction,
-          agreeInfo: formData.experience.agreeInfo,
-          agreePolicy: formData.experience.agreePolicy,
-          digitalSign: formData.experience.digitalSign
-        }
-      };
-
-      // Add JSON data to FormData
-      formDataToSend.append('personalDetails', JSON.stringify(jsonData.personalDetails));
-      formDataToSend.append('identityVerification', JSON.stringify(jsonData.identityVerification));
-      formDataToSend.append('vehicleInfo', JSON.stringify(jsonData.vehicleInfo));
-      formDataToSend.append('experience', JSON.stringify(jsonData.experience));
-
-      // Add files only if they exist
-      if (formData.identityVerification.idFront instanceof File) {
-        formDataToSend.append('idFront', formData.identityVerification.idFront);
-      }
-      if (formData.identityVerification.idBack instanceof File) {
-        formDataToSend.append('idBack', formData.identityVerification.idBack);
-      }
-      if (formData.vehicleInfo.insuranceDocument instanceof File) {
-        formDataToSend.append('insuranceDocument', formData.vehicleInfo.insuranceDocument);
-      }
-      if (formData.experience.certifications?.length > 0) {
-        formData.experience.certifications.forEach((cert) => {
-          if (cert instanceof File) {
-            formDataToSend.append('certifications', cert);
-          }
-        });
-      }
+      const fd = new FormData();
+      fd.append('userId', userId);
+      fd.append('personalDetails',      JSON.stringify(formData.personalDetails));
+      fd.append('identityVerification', JSON.stringify({ idType: formData.identityVerification.idType, idNumber: formData.identityVerification.idNumber }));
+      fd.append('vehicleInfo',          JSON.stringify({ make: formData.vehicleInfo.make, model: formData.vehicleInfo.model, year: formData.vehicleInfo.year, licensePlate: formData.vehicleInfo.licensePlate }));
+      fd.append('experience',           JSON.stringify({ yearsOfExperience: formData.experience.yearsOfExperience, previousEmployer: formData.experience.previousEmployer, teachingExperience: formData.experience.teachingExperience, noConviction: formData.experience.noConviction, agreeInfo: formData.experience.agreeInfo, agreePolicy: formData.experience.agreePolicy, digitalSign: formData.experience.digitalSign }));
+      if (formData.identityVerification.idFront instanceof File)     fd.append('idFront', formData.identityVerification.idFront);
+      if (formData.identityVerification.idBack instanceof File)      fd.append('idBack',  formData.identityVerification.idBack);
+      if (formData.vehicleInfo.insuranceDocument instanceof File)    fd.append('insuranceDocument', formData.vehicleInfo.insuranceDocument);
+      formData.experience.certifications.forEach((c) => { if (c instanceof File) fd.append('certifications', c); });
 
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authentication token not found. Please login again.');
-      }
-
-      const response = await API.post('/instructor-application/submit', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`
-        }
+      await API.post('/instructor-application/submit', fd, {
+        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` },
       });
-
-      setApplicationStatus('pending');  
-      localStorage.removeItem('instructorFormData');
-      toast.success('Application submitted successfully!');
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error ||
-                          error.message || 
-                          'Error submitting application. Please try again.';
-      toast.error(errorMessage);
+      setStatus('pending');
+      toast.success('Application submitted!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Submission failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleEdit = () => {
-    setApplicationStatus(null);
-    setCurrentStep(0);
-    // Initialize form data with proper structure
-
-    
-  };
-
-  // Show loading state
+  /* ── loading ────────────────────────────── */
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#28c1c6] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading application status...</p>
-        </div>
+      <div className="min-h-screen bg-[#080d1a] flex items-center justify-center">
+        <svg className="animate-spin h-8 w-8 text-[#00d4df]" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
       </div>
     );
   }
 
-  // If application is submitted, only show status section
-  if (applicationStatus) {
+  /* ── status screens ─────────────────────── */
+  if (status) {
+    const isPending = status === 'pending';
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white shadow-xl rounded-lg overflow-hidden">
-            <div className="p-8">
-              <div className="text-center">
-                {applicationStatus === 'pending' ? (
-                  <>
-                    <div className="mb-6">
-                      <PendingIcon className="mx-auto h-16 w-16 text-[#28c1c6]" />
-                    </div>
-                    <h3 className="text-2xl font-semibold text-[#28c1c6] mb-4">Application Submitted Successfully</h3>
-                    <div className="bg-[#ebcc34] bg-opacity-10 rounded-lg p-6 mb-6">
-                      <div className="flex items-center justify-center space-x-3">
-                        <PendingIcon className="h-6 w-6 text-white" />
-                        <p className="text-lg font-medium text-white">Status: Pending Review</p>
-                      </div>
-                    </div>
-                    <p className="text-gray-600 mb-6">
-                      Thank you for submitting your application. Our team will review your information and get back to you soon. 
-                      You will be notified once a decision has been made.
-                    </p>
-                    <div className="space-y-4">
-                      <button
-                        onClick={handleEdit}
-                        className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#28c1c6] hover:bg-[#1b9aa0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#28c1c6]"
-                      >
-                        Edit Application
-                      </button>
-                      
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="mb-6">
-                      <CancelIcon className="mx-auto h-16 w-16 text-red-500" />
-                    </div>
-                    <h3 className="text-2xl font-semibold text-red-600 mb-4">Application Rejected</h3>
-                    <div className="bg-red-50 rounded-lg p-6 mb-6">
-                      <div className="flex items-center justify-center space-x-3 mb-4">
-                        <WarningIcon className="h-6 w-6 text-red-500" />
-                        <p className="text-lg font-medium text-red-600">Reason for Rejection</p>
-                      </div>
-                      <p className="text-red-700 text-center">
-                        {rejectionReason}
-                      </p>
-                    </div>
-                    <p className="text-gray-600 mb-6">
-                      Please review the reason for rejection and feel free to reapply after addressing the concerns.
-                    </p>
-                    <div className="space-y-4">
-                      <button
-                        onClick={handleEdit}
-                        className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#28c1c6] hover:bg-[#1b9aa0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#28c1c6]"
-                      >
-                        Edit and Resubmit Application
-                      </button>
-                      <button
-                        onClick={() => navigate('/dashboard')}
-                        className="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#28c1c6]"
-                      >
-                        Return to Dashboard
-                      </button>
-                    </div>
-                  </>
-                )}
+      <div className="min-h-screen bg-[#080d1a] flex items-center justify-center p-6">
+        <div className="bg-[#0f1829] border border-white/10 rounded-2xl p-10 max-w-lg w-full text-center shadow-2xl">
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${isPending ? 'bg-[#00d4df]/10 border border-[#00d4df]/25' : 'bg-red-500/10 border border-red-500/25'}`}>
+            {isPending ? (
+              <svg className="w-8 h-8 text-[#00d4df]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            ) : (
+              <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            )}
+          </div>
+
+          <h2 className={`text-2xl font-bold mb-3 ${isPending ? 'text-[#00d4df]' : 'text-red-400'}`}>
+            {isPending ? 'Application Submitted' : 'Application Rejected'}
+          </h2>
+
+          {isPending ? (
+            <p className="text-gray-400 text-sm leading-relaxed mb-8">
+              Thank you! Our team will review your application and get back to you soon.
+            </p>
+          ) : (
+            <>
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 text-left">
+                <p className="text-red-400 text-xs uppercase tracking-wider mb-1">Reason for Rejection</p>
+                <p className="text-gray-300 text-sm">{rejectionReason || 'No reason provided.'}</p>
               </div>
-            </div>
+              <p className="text-gray-400 text-sm mb-8">Please address the concerns above and resubmit your application.</p>
+            </>
+          )}
+
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => { setStatus(null); setStep(0); }}
+              className="w-full bg-gradient-to-r from-[#00d4df] to-[#1b9aa0] text-[#080d1a] font-bold py-3 rounded-xl hover:shadow-[0_0_20px_rgba(0,212,223,0.3)] transition-all"
+            >
+              {isPending ? 'Edit Application' : 'Edit & Resubmit'}
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="w-full border border-white/15 text-gray-300 hover:text-white hover:border-white/30 font-semibold py-3 rounded-xl transition-all hover:bg-white/5"
+            >
+              Back to Dashboard
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
-  // Add Review Section Component
-  const ReviewSection = () => {
-    if (!reviewData) {
-      return (
-        <div className="bg-gray-50 p-6 rounded-lg space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900">Review Your Application</h3>
-          <p className="text-gray-600">Loading review data...</p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="bg-gray-50 p-6 rounded-lg space-y-6">
-        <h3 className="text-xl font-semibold text-gray-900">Review Your Application</h3>
-        
-        <div className="space-y-4">
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h4 className="font-medium text-gray-900 mb-2">Personal Details</h4>
-            <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div>
-                <dt className="text-sm text-gray-500">Full Name</dt>
-                <dd className="text-sm text-gray-900">{reviewData.personalDetails?.fullName || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">Email</dt>
-                <dd className="text-sm text-gray-900">{reviewData.personalDetails?.email || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">Phone</dt>
-                <dd className="text-sm text-gray-900">{reviewData.personalDetails?.phone || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">Date of Birth</dt>
-                <dd className="text-sm text-gray-900">{reviewData.personalDetails?.dateOfBirth || 'Not provided'}</dd>
-              </div>
-            </dl>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h4 className="font-medium text-gray-900 mb-2">Identity Verification</h4>
-            <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div>
-                <dt className="text-sm text-gray-500">ID Type</dt>
-                <dd className="text-sm text-gray-900">{reviewData.identityVerification?.idType || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">ID Number</dt>
-                <dd className="text-sm text-gray-900">{reviewData.identityVerification?.idNumber || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">ID Front</dt>
-                <dd className="text-sm text-gray-900">{reviewData.identityVerification?.idFront || 'Not uploaded'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">ID Back</dt>
-                <dd className="text-sm text-gray-900">{reviewData.identityVerification?.idBack || 'Not uploaded'}</dd>
-              </div>
-            </dl>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h4 className="font-medium text-gray-900 mb-2">Vehicle Information</h4>
-            <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div>
-                <dt className="text-sm text-gray-500">Make</dt>
-                <dd className="text-sm text-gray-900">{reviewData.vehicleInfo?.make || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">Model</dt>
-                <dd className="text-sm text-gray-900">{reviewData.vehicleInfo?.model || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">Year</dt>
-                <dd className="text-sm text-gray-900">{reviewData.vehicleInfo?.year || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">License Plate</dt>
-                <dd className="text-sm text-gray-900">{reviewData.vehicleInfo?.licensePlate || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">Insurance Document</dt>
-                <dd className="text-sm text-gray-900">{reviewData.vehicleInfo?.insuranceDocument || 'Not uploaded'}</dd>
-              </div>
-            </dl>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h4 className="font-medium text-gray-900 mb-2">Experience & Background</h4>
-            <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div>
-                <dt className="text-sm text-gray-500">Years of Experience</dt>
-                <dd className="text-sm text-gray-900">{reviewData.experience?.yearsOfExperience || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">Previous Employer</dt>
-                <dd className="text-sm text-gray-900">{reviewData.experience?.previousEmployer || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">Teaching Experience</dt>
-                <dd className="text-sm text-gray-900">{reviewData.experience?.teachingExperience || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-500">Certifications</dt>
-                <dd className="text-sm text-gray-900">
-                  {reviewData.experience?.certifications?.length > 0 
-                    ? reviewData.experience.certifications.join(', ')
-                    : 'No certifications uploaded'}
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  /* ── main form ──────────────────────────── */
+  const progress = ((step) / (STEPS.length - 1)) * 100;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow-xl rounded-lg overflow-hidden">
-          {/* Progress Bar */}
-          <div className="bg-gray-50 px-4 py-5 sm:px-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-[#28c1c6]">Instructor Application</h2>
-              <span className="text-sm text-gray-500">Step {currentStep + 1} of {steps.length}</span>
-            </div>
-            
-            <div className="relative">
-              <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -translate-y-1/2"></div>
-              <div className="flex justify-between relative">
-                {steps.map((label, index) => (
-                  <div 
-                    key={index} 
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => setCurrentStep(index)}
-                  >
-                    <div className={`
-                      w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
-                      ${index === currentStep 
-                        ? 'bg-[#28c1c6] text-white' 
-                        : index < currentStep 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-gray-200 text-gray-600'
-                      }
-                    `}>
-                      {index + 1}
-                    </div>
-                    <span className="text-xs mt-2 text-center max-w-[100px]">{label}</span>
+    <div className="min-h-screen bg-[#080d1a] py-10 px-4">
+      <div className="max-w-3xl mx-auto">
+
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white">Instructor Application</h1>
+          <p className="text-gray-400 mt-1 text-sm">Complete all steps to apply as a driving instructor</p>
+        </div>
+
+        {/* Step bar */}
+        <div className="bg-[#0f1829] border border-white/8 rounded-2xl p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[#00d4df] text-sm font-semibold">{STEPS[step]}</span>
+            <span className="text-gray-400 text-sm">Step {step + 1} of {STEPS.length}</span>
+          </div>
+          {/* Progress bar */}
+          <div className="w-full h-1.5 bg-white/8 rounded-full overflow-hidden mb-5">
+            <div
+              className="h-full bg-gradient-to-r from-[#00d4df] to-[#1b9aa0] rounded-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          {/* Step dots */}
+          <div className="flex items-center justify-between">
+            {STEPS.map((s, i) => (
+              <button
+                key={s}
+                onClick={() => setStep(i)}
+                className="flex flex-col items-center gap-1 group"
+                title={s}
+              >
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                  i < step  ? 'bg-[#00d4df] text-[#080d1a]' :
+                  i === step ? 'bg-[#00d4df]/15 border-2 border-[#00d4df] text-[#00d4df]' :
+                               'bg-white/8 text-gray-500'
+                }`}>
+                  {i < step ? (
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : i + 1}
+                </div>
+                <span className="hidden md:block text-xs text-gray-500 group-hover:text-gray-300 transition-colors whitespace-nowrap">{s}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Form card */}
+        <div className="bg-[#0f1829] border border-white/8 rounded-2xl p-8">
+          <form onSubmit={(e) => { e.preventDefault(); if (step === STEPS.length - 1) handleSubmit(e); }} className="space-y-5">
+
+            {/* Step 0 — Personal Details */}
+            {step === 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {[
+                  { label: 'Full Name *',       name: 'personalDetails.fullName',    type: 'text',  errKey: 'pd.fullName', ph: 'John Smith' },
+                  { label: 'Email Address *',   name: 'personalDetails.email',       type: 'email', errKey: 'pd.email',    ph: 'you@example.com' },
+                  { label: 'Phone Number *',    name: 'personalDetails.phone',       type: 'tel',   errKey: 'pd.phone',    ph: '+61 4XX XXX XXX' },
+                  { label: 'Date of Birth *',   name: 'personalDetails.dateOfBirth', type: 'date',  errKey: 'pd.dob',      ph: '' },
+                ].map(({ label, name, type, errKey, ph }) => (
+                  <div key={name}>
+                    <label className={labelCls}>{label}</label>
+                    <input
+                      type={type} name={name} placeholder={ph}
+                      value={name.split('.').reduce((o, k) => o?.[k], formData)}
+                      onChange={handleChange}
+                      className={inputCls(errors[errKey])}
+                    />
+                    <FieldError msg={errors[errKey]} />
                   </div>
                 ))}
+                <div className="sm:col-span-2">
+                  <label className={labelCls}>Address</label>
+                  <textarea name="personalDetails.address" rows={2} placeholder="123 Main St, Sydney NSW 2000"
+                    value={formData.personalDetails.address} onChange={handleChange}
+                    className={`${inputCls(false)} resize-none`}
+                  />
+                </div>
               </div>
-            </div>
-          </div>
+            )}
 
-          {/* Form Content */}
-          <div className="px-4 py-6 sm:p-8">
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              if (currentStep === steps.length - 1) {
-                handleSubmit(e);
-              }
-            }} className="space-y-8">
-              {currentStep === 0 && (
-                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Full Name <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      name="personalDetails.fullName"
-                      value={formData.personalDetails.fullName}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.personalDetails?.fullName ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.personalDetails?.fullName && <p className="mt-1 text-sm text-red-600">{errors.personalDetails.fullName}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Email Address <span className="text-red-500">*</span></label>
-                    <input
-                      type="email"
-                      name="personalDetails.email"
-                      value={formData.personalDetails.email}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.personalDetails?.email ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.personalDetails?.email && <p className="mt-1 text-sm text-red-600">{errors.personalDetails.email}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Phone Number <span className="text-red-500">*</span></label>
-                    <input
-                      type="tel"
-                      name="personalDetails.phone"
-                      value={formData.personalDetails.phone}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.personalDetails?.phone ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.personalDetails?.phone && <p className="mt-1 text-sm text-red-600">{errors.personalDetails.phone}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Date of Birth <span className="text-red-500">*</span></label>
-                    <input
-                      type="date"
-                      name="personalDetails.dateOfBirth"
-                      value={formData.personalDetails.dateOfBirth}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.personalDetails?.dateOfBirth ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.personalDetails?.dateOfBirth && <p className="mt-1 text-sm text-red-600">{errors.personalDetails.dateOfBirth}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Address</label>
-                    <textarea
-                      name="personalDetails.address"
-                      value={formData.personalDetails.address}
-                      onChange={handleChange}
-                      rows={3}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.personalDetails?.address ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                  </div>
+            {/* Step 1 — Identity */}
+            {step === 1 && (
+              <div className="space-y-5">
+                <div>
+                  <label className={labelCls}>ID Type *</label>
+                  <select name="identityVerification.idType" value={formData.identityVerification.idType} onChange={handleChange}
+                    className={`${inputCls(errors['iv.type'])} bg-[#0f1829]`}>
+                    <option value="">Select ID Type</option>
+                    <option value="passport">Passport</option>
+                    <option value="nationalId">National ID</option>
+                    <option value="drivingLicense">Driving License</option>
+                  </select>
+                  <FieldError msg={errors['iv.type']} />
                 </div>
-              )}
+                <div>
+                  <label className={labelCls}>ID Number *</label>
+                  <input type="text" name="identityVerification.idNumber" value={formData.identityVerification.idNumber}
+                    onChange={handleChange} placeholder="Enter ID number" className={inputCls(errors['iv.number'])} />
+                  <FieldError msg={errors['iv.number']} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <UploadZone id="idFront" name="idFront" label="ID Front *" onChange={handleChange} fileName={formData.identityVerification.idFront?.name} />
+                  <UploadZone id="idBack"  name="idBack"  label="ID Back *"  onChange={handleChange} fileName={formData.identityVerification.idBack?.name} />
+                </div>
+              </div>
+            )}
 
-              {currentStep === 1 && (
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">ID Type <span className="text-red-500">*</span></label>
-                    <select
-                      name="identityVerification.idType"
-                      value={formData.identityVerification.idType}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm px-3 py-2"
-                    >
-                      <option value="">Select ID Type</option>
-                      <option value="passport">Passport</option>
-                      <option value="nationalId">National ID</option>
-                      <option value="drivingLicense">Driving License</option>
-                    </select>
-                    {errors.identityVerification?.idType && <p className="mt-1 text-sm text-red-600">{errors.identityVerification.idType}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">ID Number <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      name="identityVerification.idNumber"
-                      value={formData.identityVerification.idNumber}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.identityVerification?.idNumber ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.identityVerification?.idNumber && <p className="mt-1 text-sm text-red-600">{errors.identityVerification.idNumber}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Upload ID Front <span className="text-red-500">*</span></label>
-                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                      <div className="space-y-1 text-center">
-                        <CloudUploadIcon className="mx-auto h-12 w-12 text-gray-400" />
-                        <div className="flex text-sm text-gray-600">
-                          <label
-                            htmlFor="idFront"
-                            className="relative cursor-pointer bg-white rounded-md font-medium text-[#28c1c6] hover:text-[#1b9aa0] focus-within:outline-none"
-                          >
-                            <span>Upload a file</span>
-                            <input
-                              id="idFront"
-                              name="idFront"
-                              type="file"
-                              className="sr-only"
-                              onChange={handleChange}
-                              accept=".jpg,.jpeg,.png,.pdf"
-                            />
-                          </label>
-                          <p className="pl-1">or drag and drop</p>
-                        </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
-                        {formData.identityVerification.idFront && (
-                          <p className="text-sm text-gray-600 mt-2">
-                            Selected: {formData.identityVerification.idFront.name}
-                          </p>
-                        )}
-                      </div>
+            {/* Step 2 — Vehicle */}
+            {step === 2 && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {[
+                    { label: 'Car Make *',      name: 'vehicleInfo.make',         errKey: 'vi.make',  ph: 'Toyota' },
+                    { label: 'Car Model *',     name: 'vehicleInfo.model',        errKey: 'vi.model', ph: 'Corolla' },
+                    { label: 'Year *',          name: 'vehicleInfo.year',         errKey: 'vi.year',  ph: '2020' },
+                    { label: 'License Plate *', name: 'vehicleInfo.licensePlate', errKey: 'vi.plate', ph: 'ABC123' },
+                  ].map(({ label, name, errKey, ph }) => (
+                    <div key={name}>
+                      <label className={labelCls}>{label}</label>
+                      <input type="text" name={name} placeholder={ph}
+                        value={name.split('.').reduce((o, k) => o?.[k], formData)}
+                        onChange={handleChange} className={inputCls(errors[errKey])} />
+                      <FieldError msg={errors[errKey]} />
                     </div>
-                    {errors.identityVerification?.idFront && <p className="mt-1 text-sm text-red-600">{errors.identityVerification.idFront}</p>}
-                  </div>
+                  ))}
+                </div>
+                <UploadZone id="insuranceDocument" name="insuranceDocument" label="Insurance Document (Optional)"
+                  onChange={handleChange} fileName={formData.vehicleInfo.insuranceDocument?.name} />
+              </div>
+            )}
 
+            {/* Step 3 — Experience */}
+            {step === 3 && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Upload ID Back <span className="text-red-500">*</span></label>
-                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                      <div className="space-y-1 text-center">
-                        <CloudUploadIcon className="mx-auto h-12 w-12 text-gray-400" />
-                        <div className="flex text-sm text-gray-600">
-                          <label
-                            htmlFor="idBack"
-                            className="relative cursor-pointer bg-white rounded-md font-medium text-[#28c1c6] hover:text-[#1b9aa0] focus-within:outline-none"
-                          >
-                            <span>Upload a file</span>
-                            <input
-                              id="idBack"
-                              name="idBack"
-                              type="file"
-                              className="sr-only"
-                              onChange={handleChange}
-                              accept=".jpg,.jpeg,.png,.pdf"
-                            />
-                          </label>
-                          <p className="pl-1">or drag and drop</p>
-                        </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
-                        {formData.identityVerification.idBack && (
-                          <p className="text-sm text-gray-600 mt-2">
-                            Selected: {formData.identityVerification.idBack.name}
-                          </p>
-                        )}
-                      </div>
+                    <label className={labelCls}>Years of Experience *</label>
+                    <input type="number" name="experience.yearsOfExperience" min="0"
+                      value={formData.experience.yearsOfExperience} onChange={handleChange}
+                      placeholder="e.g. 5" className={inputCls(errors['ex.years'])} />
+                    <FieldError msg={errors['ex.years']} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Previous Employer</label>
+                    <input type="text" name="experience.previousEmployer"
+                      value={formData.experience.previousEmployer} onChange={handleChange}
+                      placeholder="Company name" className={inputCls(false)} />
+                  </div>
+                </div>
+                <div>
+                  <label className={labelCls}>Teaching Style / Experience *</label>
+                  <textarea name="experience.teachingExperience" rows={4}
+                    value={formData.experience.teachingExperience} onChange={handleChange}
+                    placeholder="Describe your teaching approach and experience…"
+                    className={`${inputCls(errors['ex.teaching'])} resize-none`} />
+                  <FieldError msg={errors['ex.teaching']} />
+                </div>
+                <UploadZone id="certifications" name="certifications" label="Certifications (Optional, multiple)"
+                  onChange={handleChange}
+                  fileName={formData.experience.certifications.length ? `${formData.experience.certifications.length} file(s) selected` : undefined}
+                  accept=".jpg,.jpeg,.png,.pdf" />
+              </div>
+            )}
+
+            {/* Step 4 — Consent */}
+            {step === 4 && (
+              <div className="space-y-5">
+                {[
+                  { name: 'experience.noConviction', errKey: 'ex.conv',   label: 'I declare that I have no disqualifying convictions in the last 5 years.' },
+                  { name: 'experience.agreeInfo',    errKey: 'ex.info',   label: 'I certify that all information provided is accurate and truthful.' },
+                  { name: 'experience.agreePolicy',  errKey: 'ex.policy', label: "I agree to Learn2Drive's Terms of Service and Privacy Policy." },
+                ].map(({ name, errKey, label }) => {
+                  const val = name.split('.').reduce((o, k) => o?.[k], formData);
+                  return (
+                    <div key={name} className={`flex items-start gap-3 p-4 rounded-xl border ${errors[errKey] ? 'border-red-500/30 bg-red-500/5' : 'border-white/8 bg-white/[0.02]'}`}>
+                      <input type="checkbox" name={name} checked={val} onChange={handleChange}
+                        className="mt-0.5 w-4 h-4 accent-[#00d4df] flex-shrink-0" />
+                      <label className="text-gray-300 text-sm leading-relaxed cursor-pointer">{label}</label>
                     </div>
-                    {errors.identityVerification?.idBack && <p className="mt-1 text-sm text-red-600">{errors.identityVerification.idBack}</p>}
-                  </div>
+                  );
+                })}
+                <div>
+                  <label className={labelCls}>Digital Signature (type your full name) *</label>
+                  <input type="text" name="experience.digitalSign"
+                    value={formData.experience.digitalSign} onChange={handleChange}
+                    placeholder={formData.personalDetails.fullName || 'Your full name'}
+                    className={`${inputCls(errors['ex.sign'])} font-serif text-lg`} />
+                  <FieldError msg={errors['ex.sign']} />
+                  <p className="text-gray-500 text-xs mt-1">Must match exactly: "{formData.personalDetails.fullName}"</p>
                 </div>
-              )}
+              </div>
+            )}
 
-              {currentStep === 2 && (
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Car Make <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      name="vehicleInfo.make"
-                      value={formData.vehicleInfo.make}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.vehicleInfo?.make ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.vehicleInfo?.make && <p className="mt-1 text-sm text-red-600">{errors.vehicleInfo.make}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Car Model <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      name="vehicleInfo.model"
-                      value={formData.vehicleInfo.model}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.vehicleInfo?.model ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.vehicleInfo?.model && <p className="mt-1 text-sm text-red-600">{errors.vehicleInfo.model}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Year <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      name="vehicleInfo.year"
-                      value={formData.vehicleInfo.year}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.vehicleInfo?.year ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.vehicleInfo?.year && <p className="mt-1 text-sm text-red-600">{errors.vehicleInfo.year}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">License Plate <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      name="vehicleInfo.licensePlate"
-                      value={formData.vehicleInfo.licensePlate}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.vehicleInfo?.licensePlate ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.vehicleInfo?.licensePlate && <p className="mt-1 text-sm text-red-600">{errors.vehicleInfo.licensePlate}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Upload Insurance (Optional)</label>
-                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                      <div className="space-y-1 text-center">
-                        <CloudUploadIcon className="mx-auto h-12 w-12 text-gray-400" />
-                        <div className="flex text-sm text-gray-600">
-                          <label
-                            htmlFor="insuranceDocument"
-                            className="relative cursor-pointer bg-white rounded-md font-medium text-[#28c1c6] hover:text-[#1b9aa0] focus-within:outline-none"
-                          >
-                            <span>Upload a file</span>
-                            <input
-                              id="insuranceDocument"
-                              name="insuranceDocument"
-                              type="file"
-                              className="sr-only"
-                              onChange={handleChange}
-                              accept=".jpg,.jpeg,.png,.pdf"
-                            />
-                          </label>
-                          <p className="pl-1">or drag and drop</p>
+            {/* Step 5 — Review */}
+            {step === 5 && (
+              <div className="space-y-6">
+                <p className="text-gray-400 text-sm">Please review your application before submitting.</p>
+                {reviewData ? (
+                  <>
+                    {[
+                      { title: 'Personal Details', fields: [
+                        ['Full Name', reviewData.personalDetails?.fullName],
+                        ['Email', reviewData.personalDetails?.email],
+                        ['Phone', reviewData.personalDetails?.phone],
+                        ['Date of Birth', reviewData.personalDetails?.dateOfBirth],
+                        ['Address', reviewData.personalDetails?.address],
+                      ]},
+                      { title: 'Identity Verification', fields: [
+                        ['ID Type', reviewData.identityVerification?.idType],
+                        ['ID Number', reviewData.identityVerification?.idNumber],
+                        ['ID Front', reviewData.identityVerification?.idFront],
+                        ['ID Back', reviewData.identityVerification?.idBack],
+                      ]},
+                      { title: 'Vehicle Information', fields: [
+                        ['Make', reviewData.vehicleInfo?.make],
+                        ['Model', reviewData.vehicleInfo?.model],
+                        ['Year', reviewData.vehicleInfo?.year],
+                        ['License Plate', reviewData.vehicleInfo?.licensePlate],
+                        ['Insurance Doc', reviewData.vehicleInfo?.insuranceDocument],
+                      ]},
+                      { title: 'Experience', fields: [
+                        ['Years Experience', reviewData.experience?.yearsOfExperience],
+                        ['Previous Employer', reviewData.experience?.previousEmployer],
+                        ['Teaching Experience', reviewData.experience?.teachingExperience],
+                      ]},
+                    ].map(({ title, fields }) => (
+                      <div key={title}>
+                        <p className="text-[#00d4df] text-xs font-semibold uppercase tracking-wider mb-3">{title}</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {fields.map(([k, v]) => <ReviewField key={k} label={k} value={v} />)}
                         </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
-                        {formData.vehicleInfo.insuranceDocument && (
-                          <p className="text-sm text-gray-600 mt-2">
-                            Selected: {formData.vehicleInfo.insuranceDocument.name}
-                          </p>
-                        )}
                       </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 3 && (
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Years of Experience <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      name="experience.yearsOfExperience"
-                      value={formData.experience.yearsOfExperience}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.experience?.yearsOfExperience ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.experience?.yearsOfExperience && <p className="mt-1 text-sm text-red-600">{errors.experience.yearsOfExperience}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Previous Employer</label>
-                    <input
-                      type="text"
-                      name="experience.previousEmployer"
-                      value={formData.experience.previousEmployer}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.experience?.previousEmployer ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Upload Certifications</label>
-                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                      <div className="space-y-1 text-center">
-                        <CloudUploadIcon className="mx-auto h-12 w-12 text-gray-400" />
-                        <div className="flex text-sm text-gray-600">
-                          <label
-                            htmlFor="certifications"
-                            className="relative cursor-pointer bg-white rounded-md font-medium text-[#28c1c6] hover:text-[#1b9aa0] focus-within:outline-none"
-                          >
-                            <span>Upload a file</span>
-                            <input
-                              id="certifications"
-                              name="certifications"
-                              type="file"
-                              multiple
-                              className="sr-only"
-                              onChange={handleChange}
-                              accept=".jpg,.jpeg,.png,.pdf"
-                            />
-                          </label>
-                          <p className="pl-1">or drag and drop</p>
-                        </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
-                        {formData.experience.certifications.length > 0 && (
-                          <p className="text-sm text-gray-600 mt-2">
-                            Selected: {formData.experience.certifications.map(c => c.name).join(', ')}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Teaching Style / Experience <span className="text-red-500">*</span></label>
-                    <textarea
-                      name="experience.teachingExperience"
-                      value={formData.experience.teachingExperience}
-                      onChange={handleChange}
-                      rows={3}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.experience?.teachingExperience ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.experience?.teachingExperience && <p className="mt-1 text-sm text-red-600">{errors.experience.teachingExperience}</p>}
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 4 && (
-                <div className="space-y-6">
-                  <div>
-                    <label className="text-sm block mt-2">
-                      <input
-                        type="checkbox"
-                        name="experience.noConviction"
-                        checked={formData.experience.noConviction}
-                        onChange={handleChange}
-                        className="mr-2"
-                      />
-                      I declare that I have no disqualifying convictions in the last 5 years.
-                    </label>
-                  </div>
-
-                  <div>
-                    <label className="text-sm">
-                      <input
-                        type="checkbox"
-                        name="experience.agreeInfo"
-                        checked={formData.experience.agreeInfo}
-                        onChange={handleChange}
-                        className="mr-2"
-                      />
-                      I certify that the information provided is accurate. <span className="text-red-500">*</span>
-                    </label>
-                    {errors.experience?.agreeInfo && <p className="text-sm text-red-600">{errors.experience.agreeInfo}</p>}
-                  </div>
-
-                  <div>
-                    <label className="text-sm block mt-2">
-                      <input
-                        type="checkbox"
-                        name="experience.agreePolicy"
-                        checked={formData.experience.agreePolicy}
-                        onChange={handleChange}
-                        className="mr-2"
-                      />
-                      I agree to Learn2Drive's Terms & Privacy Policy. <span className="text-red-500">*</span>
-                    </label>
-                    {errors.experience?.agreePolicy && <p className="text-sm text-red-600">{errors.experience.agreePolicy}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Digital Signature (Type Full Name) <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      name="experience.digitalSign"
-                      value={formData.experience.digitalSign}
-                      onChange={handleChange}
-                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm px-3 py-2 ${
-                        errors.experience?.digitalSign ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.experience?.digitalSign && <p className="mt-1 text-sm text-red-600">{errors.experience.digitalSign}</p>}
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 5 && (
-                <div className="space-y-6">
-                  <ReviewSection />
-                </div>
-              )}
-
-              <div className="flex justify-between pt-5">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  disabled={currentStep === 0}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-[#28c1c6] bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#28c1c6] disabled:opacity-50"
-                >
-                  <ArrowBackIcon className="mr-2" />
-                  Previous
-                </button>
-
-                {currentStep === steps.length - 1 ? (
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#28c1c6] hover:bg-[#1b9aa0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#28c1c6] disabled:opacity-50"
-                  >
-                    {isSubmitting ? 'Submitting...' : 'Submit Application'}
-                  </button>
+                    ))}
+                  </>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={nextStep}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#28c1c6] hover:bg-[#1b9aa0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#28c1c6]"
-                  >
-                    Next
-                    <ArrowForwardIcon className="ml-2" />
-                  </button>
+                  <p className="text-gray-500 text-sm">No review data available.</p>
                 )}
               </div>
-            </form>
-          </div>
+            )}
+
+            {/* Navigation */}
+            <div className="flex items-center justify-between pt-4 border-t border-white/8">
+              <button type="button" onClick={prevStep} disabled={step === 0}
+                className="flex items-center gap-2 border border-white/15 text-gray-300 hover:text-white hover:border-white/30 font-semibold px-5 py-2.5 rounded-xl transition-all hover:bg-white/5 text-sm disabled:opacity-30 disabled:cursor-not-allowed">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                Previous
+              </button>
+
+              {step < STEPS.length - 1 ? (
+                <button type="button" onClick={nextStep}
+                  className="flex items-center gap-2 bg-gradient-to-r from-[#00d4df] to-[#1b9aa0] text-[#080d1a] font-bold px-6 py-2.5 rounded-xl hover:shadow-[0_0_20px_rgba(0,212,223,0.3)] transition-all hover:scale-[1.02] text-sm">
+                  Next
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                </button>
+              ) : (
+                <button type="submit" disabled={isSubmitting}
+                  className="flex items-center gap-2 bg-gradient-to-r from-[#00d4df] to-[#1b9aa0] text-[#080d1a] font-bold px-6 py-2.5 rounded-xl hover:shadow-[0_0_20px_rgba(0,212,223,0.3)] transition-all hover:scale-[1.02] text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+                  {isSubmitting ? (
+                    <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Submitting…</>
+                  ) : 'Submit Application'}
+                </button>
+              )}
+            </div>
+          </form>
         </div>
       </div>
     </div>
